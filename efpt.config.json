@@ -15,7 +15,23 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[H_d_AvailabilityStatuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_d_CleaningStatuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_d_Countries]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[H_d_RoomType]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Hotel]",
          "ObjectType": 0
       }
    ],

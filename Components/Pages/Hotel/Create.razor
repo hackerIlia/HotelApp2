@@ -1,0 +1,184 @@
+﻿@page "/Hotel/Create"
+@using HotelApp2.Models;
+@inject Models.Hotel_DBContext dbContext
+@using HotelApp2;
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create hotel</PageTitle>
+
+<h3>Hotel</h3>
+<h4>Create</h4>
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-3">
+        <EditForm method="post" Model="@hotel" OnValidSubmit="SubmitForm" FormName="CreateHotel" Enhance>
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <InputText class="form-control" type="text" @bind-Value="@name" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <InputText class="form-control" type="text" @bind-Value="@phone" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <InputText class="form-control" type="text" @bind-Value="@email" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Country</label>
+                <InputSelect class="form-control" @bind-Value="@countryId">
+                    @foreach(var country in countries)
+                    {
+                        <option value="@country.Id">@country.Name</option>
+                    }
+                    </InputSelect>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">City</label>
+                <InputText class="form-control" type="text" @bind-Value="@city" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Address</label>
+                <InputText class="form-control" type="text" @bind-Value="@address" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="Hotel">Back to List</a>
+</div>
+
+
+
+@code {
+    [SupplyParameterFromForm]
+    public HHotel hotel { get; set; } = new HHotel();
+
+    private List<HDCountry> countries;
+
+    private EditForm editForm;
+
+    public string name;
+    public string phone;
+    public string email;
+    public string city;
+    public int countryId;
+    public string address;
+
+    string message = "";
+    string success = "";
+
+    protected override async Task OnInitializedAsync() => countries =  dbContext.HDCountries.ToList();
+
+    private async Task SubmitForm()
+    {
+        success = "";
+        message = "";
+
+        @if (String.IsNullOrEmpty(name))
+        {
+            message = "Name is required";
+            return;
+        }
+        @if (String.IsNullOrEmpty(phone))
+        {
+            message = "Phone is required";
+            return;
+        }
+        @if (String.IsNullOrEmpty(email))
+        {
+            message = "Email is required";
+            return;
+        }
+        @if (String.IsNullOrEmpty(city))
+        {
+            message = "City is required";
+            return;
+        }
+        @if (String.IsNullOrEmpty(address))
+        {
+            message = "Address is required";
+            return;
+        }
+        @if (name.Length > 20)
+        {
+            message = "Name length must be up to 20 symbols";
+            return;
+        }
+        @if (phone.Length > 15)
+        {
+            message = "Phone length must be up to 15 symbols";
+            return;
+        }
+        @if (email.Length > 100)
+        {
+            message = "Email length must be up to 100 symbols";
+            return;
+        }
+        @if (city.Length > 25)
+        {
+            message = "City length must be up to 25 symbols";
+            return;
+        }
+        @if (address.Length > 50)
+        {
+            message = "Name length must be up to 50 symbols";
+            return;
+        }
+        @if (NameExists(name))
+        {
+            message = "This hotel already exists!";
+            return;
+        }
+        @if (PhoneExists(phone))
+        {
+            message = "This phone is already registred!";
+            return;
+        }
+        @if (EmailExists(email))
+        {
+            message = "This email is already registred!";
+            return;
+        }
+
+        hotel.Name = name;
+        hotel.Phone = phone;
+        hotel.Email = email;
+        hotel.CountryId = (byte)countryId;
+        hotel.City = city;
+        hotel.Address = address;
+
+        dbContext.HHotels.Add(hotel);
+        await dbContext.SaveChangesAsync();
+        message = "";
+        success = "Added successful!";
+        hotel = new HHotel();
+    }
+
+    bool NameExists(string name)
+    {
+        return dbContext.HHotels.Any(h => h.Name == name);
+    }
+    bool PhoneExists(string phone)
+    {
+        return dbContext.HHotels.Any(h => h.Phone == phone);
+    }
+    bool EmailExists(string email)
+    {
+        return dbContext.HHotels.Any(h => h.Email == email);
+    }
+}

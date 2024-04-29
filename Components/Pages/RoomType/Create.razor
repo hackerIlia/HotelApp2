@@ -7,10 +7,10 @@
 
 <PageTitle>Create room type</PageTitle>
 
-<h2>Room Type</h2>
-<h3>Create</h3>
+<h3>Room Type</h3>
+<h4>Create</h4>
 
-<h3>@message</h3>
+<h5 class="text-danger">@message</h5>
 
 <div class="row">
     <div class="col-md-3">
@@ -25,10 +25,12 @@
                 <InputNumber class="form-control" @bind-Value="@capacity" />
             </div>
 
+
             <div class="mb-3">
                 <label class="form-label">Price</label>
                 <InputNumber class="form-control" @bind-Value="@price" />
             </div>
+
 
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
@@ -48,25 +50,40 @@
     [SupplyParameterFromForm]
     public HDRoomType room { get; set; } = new HDRoomType();
 
+    private EditForm editForm;
+
     public string name;
     public int capacity;
-    public int price;
+    public decimal price;
 
     string message = "";
     string success = "";
 
     private async Task SubmitForm()
     {
-        // message = "";
+        success = "";
+        message = "";
 
-        // @if(capacity <1 && capacity > 5)
-        // {
-        //     message = "Capacity can be from 1 up to 5 people";
-        // }
-        // @if(price<=0 && price > 10000)
-        // {
-        //     message = "Price can be in range [0.01,10 000]";
-        // }
+        @if(String.IsNullOrEmpty(name))
+        {
+            message = "Name is required";
+            return;
+        }
+        @if(capacity <1 || capacity > 5)
+        {
+            message = "Capacity can be from 1 up to 5 people";
+            return;
+        }
+        @if(price<=0 || price > 10000)
+        {
+            message = "Price can be in range [0.01,10 000]";
+            return;
+        }
+        @if (NameExists(name))
+        {
+            message = "This type of room already exists!";
+            return;
+        }
 
         room.Capacity = (byte)capacity;
         room.Price = (decimal)price;
@@ -74,6 +91,13 @@
 
         dbContext.HDRoomTypes.Add(room);
         await dbContext.SaveChangesAsync();
+        message = "";
         success = "Added successful!";
+        room = new HDRoomType();
+    }
+
+    bool NameExists(string name)
+    {
+        return dbContext.HDRoomTypes.Any(t => t.Name == name);
     }
 }

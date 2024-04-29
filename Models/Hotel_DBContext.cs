@@ -13,10 +13,53 @@ public partial class Hotel_DBContext : DbContext
     {
     }
 
+    public virtual DbSet<HDAvailabilityStatus> HDAvailabilityStatuses { get; set; }
+
+    public virtual DbSet<HDCleaningStatus> HDCleaningStatuses { get; set; }
+
+    public virtual DbSet<HDCountry> HDCountries { get; set; }
+
     public virtual DbSet<HDRoomType> HDRoomTypes { get; set; }
+
+    public virtual DbSet<HHotel> HHotels { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<HDAvailabilityStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_d_Avai__3214EC0786D3303E");
+
+            entity.ToTable("H_d_AvailabilityStatuses");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.StatusName)
+                .HasMaxLength(9)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<HDCleaningStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_d_Clea__3214EC0703801B84");
+
+            entity.ToTable("H_d_CleaningStatuses");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Name)
+                .HasMaxLength(9)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<HDCountry>(entity =>
+        {
+            entity.ToTable("H_d_Countries");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(25)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<HDRoomType>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__H_RoomTy__3214EC07BED2BCC0");
@@ -25,9 +68,44 @@ public partial class Hotel_DBContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.Name)
+                .IsRequired()
                 .HasMaxLength(18)
                 .IsUnicode(false);
             entity.Property(e => e.Price).HasColumnType("numeric(6, 2)");
+        });
+
+        modelBuilder.Entity<HHotel>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_Hotel__3214EC07D8361C31");
+
+            entity.ToTable("H_Hotel");
+
+            entity.HasIndex(e => e.Phone, "UQ__H_Hotel__5C7E359E32AAA165").IsUnique();
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Address)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.City)
+                .IsRequired()
+                .HasMaxLength(25);
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(20);
+            entity.Property(e => e.Phone)
+                .IsRequired()
+                .HasMaxLength(12)
+                .IsUnicode(false)
+                .IsFixedLength();
+
+            entity.HasOne(d => d.Country).WithMany(p => p.HHotels)
+                .HasForeignKey(d => d.CountryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_H_Hotel_H_d_Countries");
         });
 
         OnModelCreatingPartial(modelBuilder);

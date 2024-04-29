@@ -5,19 +5,21 @@
 @inject HotelApp2.Models.Hotel_DBContext DbContext
 @rendermode InteractiveServer
 
-<h2>Room Type</h2>
-<h3>List</h3>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
 
-<a href="RoomType/Create">Create new</a>
+<h3>Room Type</h3>
+<h4>List</h4>
 
-<QuickGrid Class="table" Items="DbContext.HDRoomTypes">
-    <PropertyColumn Property="type => type.Name" Sortable="true"></PropertyColumn>
+<a href="RoomType/Create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+
+<QuickGrid Class="table table-striped" Items="DbContext.HDRoomTypes">
+    <PropertyColumn  Property="type => type.Name" Sortable="true"></PropertyColumn>
     <PropertyColumn Property="type => type.Capacity" Sortable="true"></PropertyColumn>
     <PropertyColumn Property="type => type.Price" Sortable="true"></PropertyColumn>
 
     <TemplateColumn Context="type">
-        <a href="@($"RoomType/Edit/{type.Id}")">Edit</a> |
-        <a href="@($"RoomType/Delete/{type.Id}")">Delete</a>
+        <a href="@($"RoomType/Edit/{type.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+        <a href="@($"RoomType/Delete/{type.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
     </TemplateColumn>
 </QuickGrid>
 

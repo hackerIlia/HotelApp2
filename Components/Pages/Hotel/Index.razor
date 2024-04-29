@@ -1,0 +1,45 @@
+﻿@page "/Hotel"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using HotelApp2
+@using HotelApp2.Models;
+@using Microsoft.EntityFrameworkCore
+@inject HotelApp2.Models.Hotel_DBContext DbContext
+@rendermode InteractiveServer
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<h3>Hotel</h3>
+<h4>List</h4>
+
+<a href="Hotel/Create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+
+@if (hotelsWithCountries != null)
+{
+    <QuickGrid Class="table table-striped" Items="DbContext.HHotels">
+        <PropertyColumn Property="hotel => hotel.Name" Sortable="true"></PropertyColumn>
+        <PropertyColumn Property="hotel => hotel.Phone"></PropertyColumn>
+        <PropertyColumn Property="hotel => hotel.Email" Sortable="true"></PropertyColumn>
+        <PropertyColumn Property="hotel => hotel.Country.Name" Title="Country" Sortable="true"></PropertyColumn>
+        <PropertyColumn Property="hotel => hotel.City" Sortable="true"></PropertyColumn>
+        <PropertyColumn Property="hotel => hotel.Address"></PropertyColumn>
+
+
+        <TemplateColumn Context="hotel">
+            <a href="@($"Hotel/Edit/{hotel.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+            <a href="@($"Hotel/Delete/{hotel.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    List<HHotel> hotelsWithCountries;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hotelsWithCountries = await DbContext.HHotels.Include(h => h.Country).ToListAsync();
+    }
+}

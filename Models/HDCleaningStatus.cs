@@ -5,13 +5,9 @@ using System.Collections.Generic;
 
 namespace HotelApp2.Models;
 
-public partial class HDRoomType
+public partial class HDCleaningStatus
 {
     public byte Id { get; set; }
 
     public string Name { get; set; }
-
-    public byte Capacity { get; set; }
-
-    public decimal Price { get; set; }
 }
