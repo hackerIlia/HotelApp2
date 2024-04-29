@@ -1,24 +1,25 @@
 ﻿@page "/RoomType/Edit"
-@using HotelApp2
+@page "/RoomType/Edit/{id:int}"
 @using HotelApp2.Models;
+@inject Models.Hotel_DBContext dbContext
 @using Microsoft.EntityFrameworkCore
-@inject HotelApp2.Models.Hotel_DBContext DbContext
+@using HotelApp2;
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
 <PageTitle>Edit</PageTitle>
 
 <h2>Room Type</h2>
 <h3>Edit</h3>
-<hr />
-@if(HDRoomType is null)
+
+@if(Id==null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Not found</em></p>
 }
-else
-{
+else{
     <div class="row">
         <div class="col-md-3">
-            <EditForm method="post" Model="HDRoomType" OnValidSubmit="UpdateType" FormName="Edit" Enhance>
+            <EditForm Model="HDRoomType" OnValidSubmit="UpdateType" FormName="Edit" Enhance>
                 <div class="mb-3">
                     <label class="form-label">Name</label>
                     <InputText class="form-control" type="text" @bind-Value="@name" />
@@ -34,7 +35,7 @@ else
                     <InputNumber class="form-control" @bind-Value="@price" />
                 </div>
 
-                <button type="submit" class="btn btn-primary">Create</button>
+                <button type="submit" class="btn btn-primary">Edit</button>
             </EditForm>
         </div>
     </div>
@@ -47,30 +48,53 @@ else
 }
 
 @code {
-    [SupplyParameterFromQuery]
+    [Parameter]
     public int Id { get; set; }
 
     [SupplyParameterFromForm]
-    public HDRoomType? HDRoomType { get; set; }
+    public HDRoomType? HDRoomType { get; set; } = new HDRoomType();
+
+
+    public string name;
+    public int capacity;
+    public decimal price;
+
+    string message = "";
+    string success = "";
+
 
 
     protected override async Task OnInitializedAsync()
     {
-        HDRoomType ??= await DbContext.HDRoomTypes.FirstOrDefaultAsync(t => t.Id == Id);
+        HDRoomType = await dbContext.HDRoomTypes.FirstOrDefaultAsync(t => t.Id == Id);
 
         if (HDRoomType is null)
         {
             NavigationManager.NavigateTo("notfound");
+        } 
+        else
+        {
+            name = HDRoomType.Name;
+            capacity = (int)HDRoomType.Capacity;
+            price = (int)HDRoomType.Price;
         }
     }
 
     public async Task UpdateType()
     {
-        DbContext.Attach(HDRoomTypes!).State = EntityState.Modified;
+        dbContext.Attach(HDRoomType!).State = EntityState.Modified;
 
         try
         {
-            await DbContext.SaveChangesAsync();
+            success = "Editing...";
+
+            HDRoomType.Capacity = (byte)capacity;
+            HDRoomType.Price = (decimal)price;
+            HDRoomType.Name = name;
+
+            await dbContext.SaveChangesAsync();
+
+            success = "Edited successful!";
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -84,11 +108,11 @@ else
             }
         }
 
-        NavigationManager.NavigateTo("/RoomType");
+        // NavigationManager.NavigateTo("/RoomType");
     }
 
     bool TypeExists(int id)
     {
-        return DbContext.HDRoomTypes.Any(e => e.Id == id);
+        return dbContext.HDRoomTypes.Any(e => e.Id == id);
     }
 }

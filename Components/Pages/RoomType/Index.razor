@@ -16,8 +16,8 @@
     <PropertyColumn Property="type => type.Price" Sortable="true"></PropertyColumn>
 
     <TemplateColumn Context="type">
-        <a href="@($"RoomType/Edit?id={type.Id}")">Edit</a> |
-        <a href="@($"RoomType/Delete?id={type.Id}")">Delete</a>
+        <a href="@($"RoomType/Edit/{type.Id}")">Edit</a> |
+        <a href="@($"RoomType/Delete/{type.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 
