@@ -1,0 +1,94 @@
+﻿@page "/RoomType/Edit"
+@using HotelApp2
+@using HotelApp2.Models;
+@using Microsoft.EntityFrameworkCore
+@inject HotelApp2.Models.Hotel_DBContext DbContext
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h2>Room Type</h2>
+<h3>Edit</h3>
+<hr />
+@if(HDRoomType is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-3">
+            <EditForm method="post" Model="HDRoomType" OnValidSubmit="UpdateType" FormName="Edit" Enhance>
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" type="text" @bind-Value="@name" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Capacity</label>
+                    <InputNumber class="form-control" @bind-Value="@capacity" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Price</label>
+                    <InputNumber class="form-control" @bind-Value="@price" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create</button>
+            </EditForm>
+        </div>
+    </div>
+    <div class="mb-3">
+        <h4 class="text-success">@success</h4>
+    </div>
+    <div>
+        <a href="RoomType">Back to List</a>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HDRoomType? HDRoomType { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        HDRoomType ??= await DbContext.HDRoomTypes.FirstOrDefaultAsync(t => t.Id == Id);
+
+        if (HDRoomType is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    public async Task UpdateType()
+    {
+        DbContext.Attach(HDRoomTypes!).State = EntityState.Modified;
+
+        try
+        {
+            await DbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!TypeExists(HDRoomType!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/RoomType");
+    }
+
+    bool TypeExists(int id)
+    {
+        return DbContext.HDRoomTypes.Any(e => e.Id == id);
+    }
+}

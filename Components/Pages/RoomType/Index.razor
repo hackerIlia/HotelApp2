@@ -1,0 +1,26 @@
+﻿@page "/RoomType"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using HotelApp2
+@using HotelApp2.Models;
+@inject HotelApp2.Models.Hotel_DBContext DbContext
+@rendermode InteractiveServer
+
+<h2>Room Type</h2>
+<h3>List</h3>
+
+<a href="RoomType/Create">Create new</a>
+
+<QuickGrid Class="table" Items="DbContext.HDRoomTypes">
+    <PropertyColumn Property="type => type.Name" Sortable="true"></PropertyColumn>
+    <PropertyColumn Property="type => type.Capacity" Sortable="true"></PropertyColumn>
+    <PropertyColumn Property="type => type.Price" Sortable="true"></PropertyColumn>
+
+    <TemplateColumn Context="type">
+        <a href="@($"RoomType/Edit?id={type.Id}")">Edit</a> |
+        <a href="@($"RoomType/Delete?id={type.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+
+}

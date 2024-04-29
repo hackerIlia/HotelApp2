@@ -1,0 +1,79 @@
+﻿@page "/RoomType/Create"
+@using HotelApp2.Models;
+@inject Models.Hotel_DBContext dbContext
+@using HotelApp2;
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create room type</PageTitle>
+
+<h2>Room Type</h2>
+<h3>Create</h3>
+
+<h3>@message</h3>
+
+<div class="row">
+    <div class="col-md-3">
+        <EditForm method="post" Model="@room" OnValidSubmit="SubmitForm" FormName="CreateRoomType" Enhance>
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <InputText class="form-control" type="text" @bind-Value="@name"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Capacity</label>
+                <InputNumber class="form-control" @bind-Value="@capacity" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Price</label>
+                <InputNumber class="form-control" @bind-Value="@price" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="RoomType">Back to List</a>
+</div>
+
+
+
+@code {
+    [SupplyParameterFromForm]
+    public HDRoomType room { get; set; } = new HDRoomType();
+
+    public string name;
+    public int capacity;
+    public int price;
+
+    string message = "";
+    string success = "";
+
+    private async Task SubmitForm()
+    {
+        // message = "";
+
+        // @if(capacity <1 && capacity > 5)
+        // {
+        //     message = "Capacity can be from 1 up to 5 people";
+        // }
+        // @if(price<=0 && price > 10000)
+        // {
+        //     message = "Price can be in range [0.01,10 000]";
+        // }
+
+        room.Capacity = (byte)capacity;
+        room.Price = (decimal)price;
+        room.Name = name;
+
+        dbContext.HDRoomTypes.Add(room);
+        await dbContext.SaveChangesAsync();
+        success = "Added successful!";
+    }
+}
