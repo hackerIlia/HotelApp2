@@ -23,6 +23,8 @@ public partial class Hotel_DBContext : DbContext
 
     public virtual DbSet<HHotel> HHotels { get; set; }
 
+    public virtual DbSet<HRoom> HRooms { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<HDAvailabilityStatus>(entity =>
@@ -98,14 +100,45 @@ public partial class Hotel_DBContext : DbContext
                 .HasMaxLength(20);
             entity.Property(e => e.Phone)
                 .IsRequired()
-                .HasMaxLength(12)
-                .IsUnicode(false)
-                .IsFixedLength();
+                .HasMaxLength(15)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Country).WithMany(p => p.HHotels)
                 .HasForeignKey(d => d.CountryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_H_Hotel_H_d_Countries");
+        });
+
+        modelBuilder.Entity<HRoom>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_Room__3214EC07FABC2CA1");
+
+            entity.ToTable("H_Room");
+
+            entity.Property(e => e.Number)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .IsFixedLength();
+
+            entity.HasOne(d => d.AvailabilityStatus).WithMany(p => p.HRooms)
+                .HasForeignKey(d => d.AvailabilityStatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Room__Availabi__440B1D61");
+
+            entity.HasOne(d => d.CleaningStatus).WithMany(p => p.HRooms)
+                .HasForeignKey(d => d.CleaningStatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Room__Cleaning__44FF419A");
+
+            entity.HasOne(d => d.Hotel).WithMany(p => p.HRooms)
+                .HasForeignKey(d => d.HotelId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Room__IdHotel__46E78A0C");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.HRooms)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Room__IdType__45F365D3");
         });
 
         OnModelCreatingPartial(modelBuilder);

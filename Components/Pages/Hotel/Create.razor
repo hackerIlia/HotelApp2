@@ -2,6 +2,7 @@
 @using HotelApp2.Models;
 @inject Models.Hotel_DBContext dbContext
 @using HotelApp2;
+@using System.Net.Mail
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
@@ -32,7 +33,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Country</label>
-                <InputSelect class="form-control" @bind-Value="@countryId">
+                <InputSelect class="form-control" @bind-Value="@hotel.CountryId" >
                     @foreach(var country in countries)
                     {
                         <option value="@country.Id">@country.Name</option>
@@ -79,10 +80,29 @@
     public int countryId;
     public string address;
 
+    private int countryMemory;
+
     string message = "";
     string success = "";
 
-    protected override async Task OnInitializedAsync() => countries =  dbContext.HDCountries.ToList();
+    protected override async Task OnInitializedAsync() 
+    {
+        hotel = new();
+        countries =  dbContext.HDCountries.ToList();
+
+        if(countryMemory > 0)
+        {
+            hotel.CountryId = (byte) countryMemory;
+        }
+        else if(countries != null)
+        {
+            hotel.CountryId = countries.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
 
     private async Task SubmitForm()
     {
@@ -149,6 +169,11 @@
             message = "This phone is already registred!";
             return;
         }
+        @if(!IsValidMail(email))
+        {
+            message = "This email is not valid!";
+            return;
+        }
         @if (EmailExists(email))
         {
             message = "This email is already registred!";
@@ -158,7 +183,7 @@
         hotel.Name = name;
         hotel.Phone = phone;
         hotel.Email = email;
-        hotel.CountryId = (byte)countryId;
+        // hotel.CountryId = (byte)countryId;
         hotel.City = city;
         hotel.Address = address;
 
@@ -166,7 +191,11 @@
         await dbContext.SaveChangesAsync();
         message = "";
         success = "Added successful!";
-        hotel = new HHotel();
+
+        countryMemory = hotel.CountryId;
+
+        OnInitializedAsync();
+        // hotel = new HHotel();
     }
 
     bool NameExists(string name)
@@ -180,5 +209,21 @@
     bool EmailExists(string email)
     {
         return dbContext.HHotels.Any(h => h.Email == email);
+    }
+
+    private static bool IsValidMail(string email)
+    {
+        var valid = true;
+
+        try
+        {
+            var emailAddress = new MailAddress(email);
+        }
+        catch
+        {
+            valid = false;
+        }
+
+        return valid;
     }
 }

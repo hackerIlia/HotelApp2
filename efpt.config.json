@@ -33,6 +33,10 @@
       {
          "Name": "[dbo].[H_Hotel]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Room]",
+         "ObjectType": 0
       }
    ],
    "UiHint": null,

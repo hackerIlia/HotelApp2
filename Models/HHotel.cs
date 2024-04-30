@@ -22,4 +22,6 @@ public partial class HHotel
     public string Address { get; set; }
 
     public virtual HDCountry Country { get; set; }
+
+    public virtual ICollection<HRoom> HRooms { get; set; } = new List<HRoom>();
 }

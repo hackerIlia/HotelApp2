@@ -10,4 +10,6 @@ public partial class HDAvailabilityStatus
     public byte Id { get; set; }
 
     public string StatusName { get; set; }
+
+    public virtual ICollection<HRoom> HRooms { get; set; } = new List<HRoom>();
 }

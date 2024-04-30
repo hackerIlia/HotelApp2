@@ -6,6 +6,7 @@
 @using HotelApp2;
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
+@using System.Net.Mail
 @rendermode InteractiveServer
 
 <PageTitle>Edit hotel</PageTitle>
@@ -161,6 +162,26 @@
             message = "Name length must be up to 50 symbols";
             return;
         }
+        @if (NameExists(name) && name != hotel.Name)
+        {
+            message = "This hotel already exists!";
+            return;
+        }
+        @if (PhoneExists(phone) && phone != hotel.Phone)
+        {
+            message = "This phone is already registred!";
+            return;
+        }
+        @if (!IsValidMail(email))
+        {
+            message = "This email is not valid!";
+            return;
+        }
+        @if (EmailExists(email) && email != hotel.Email)
+        {
+            message = "This email is already registred!";
+            return;
+        }
 
         dbContext.Attach(hotel!).State = EntityState.Modified;
 
@@ -194,5 +215,34 @@
     bool HotelExists(int id)
     {
         return dbContext.HHotels.Any(h => h.Id == id);
+    }
+
+    bool NameExists(string name)
+    {
+        return dbContext.HHotels.Any(h => h.Name == name);
+    }
+    bool PhoneExists(string phone)
+    {
+        return dbContext.HHotels.Any(h => h.Phone == phone);
+    }
+    bool EmailExists(string email)
+    {
+        return dbContext.HHotels.Any(h => h.Email == email);
+    }
+
+    private static bool IsValidMail(string email)
+    {
+        var valid = true;
+
+        try
+        {
+            var emailAddress = new MailAddress(email);
+        }
+        catch
+        {
+            valid = false;
+        }
+
+        return valid;
     }
 }

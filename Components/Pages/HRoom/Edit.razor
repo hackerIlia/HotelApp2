@@ -1,0 +1,209 @@
+﻿@page "/Room/Edit"
+@page "/Room/Edit/{id:int}"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@using System.Text.RegularExpressions
+@rendermode InteractiveServer
+
+<PageTitle>Edit</PageTitle>
+
+
+<h3>Room</h3>
+<h4>Edit</h4>
+<hr />
+
+@if (HRoom is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h5 class="text-danger">@message</h5>
+
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HRoom" OnValidSubmit="UpdateHRoom" FormName="edit" Enhance>
+                <div class="mb-3">
+                    <label for="number" class="form-label">Number:</label>
+                    <InputText id="number" @bind-Value="@number" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="typeid" class="form-label">Type:</label>
+                    <InputSelect id="typeid" class="form-control" @bind-Value="@HRoom.TypeId">
+                        @foreach (var type in types)
+                        {
+                            <option value="@type.Id">@type.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
+                    <label for="hotelid" class="form-label">Hotel:</label>
+                    <InputSelect class="form-control" @bind-Value="@HRoom.HotelId">
+                        @foreach (var hotel in hotels)
+                        {
+                            <option value="@hotel.Id">@hotel.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
+                    <label for="etaj" class="form-label">Floor:</label>
+                    <InputNumber id="floor" @bind-Value="@floor" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="nrrooms" class="form-label">Number of rooms:</label>
+                    <InputNumber id="nrrooms" @bind-Value="@nrRooms" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">Edit</button>
+                <a href="Room" class="btn btn-info">Back to List</a>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <h4 class="text-success">@success</h4>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HRoom? HRoom { get; set; } = new();
+
+    private List<HHotel> hotels;
+    private List<HDRoomType> types;
+
+    private string number;
+    private int avId;
+    private int clId;
+    private int typeId;
+    private int hotelId;
+    private int floor;
+    private int nrRooms;
+
+    string message = "";
+    string success = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        hotels = DB.HHotels.ToList();
+        types = DB.HDRoomTypes.ToList();
+
+        HRoom = await DB.HRooms.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HRoom is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+        else
+        {
+            number = HRoom.Number;
+            floor = HRoom.Etaj;
+            nrRooms = HRoom.NrRooms;
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHRoom()
+    {
+        success = "";
+        message = "";
+
+        Regex regex = new Regex(@"^\d+$");
+
+        @if (String.IsNullOrEmpty(number))
+        {
+            message = "Number is required";
+            return;
+        }
+        @if (number.Length != 3)
+        {
+            message = "Number length must be equal to 3";
+            return;
+        }
+        @if (!regex.IsMatch(number))
+        {
+            message = "Number field must contain only digits";
+            return;
+        }
+        @if (NumberExists(number) && number!= HRoom.Number)
+        {
+            message = "This number already exists";
+            return;
+        }
+        @if (HRoom.TypeId < 1)
+        {
+            message = "Type of room is required";
+            return;
+        }
+        @if (HRoom.HotelId < 1)
+        {
+            message = "Hotel is required";
+            return;
+        }
+        @if (floor < 1)
+        {
+            message = "The value of the 'Floor' field cannot be less than 1";
+            return;
+        }
+        @if (floor > 16)
+        {
+            message = "Floor can be up to 16";
+            return;
+        }
+        @if (nrRooms < 1)
+        {
+            message = "Number of rooms must be bigger than 0";
+            return;
+        }
+        @if (nrRooms > 4)
+        {
+            message = "Number of rooms can be up to 4";
+            return;
+        }
+
+
+        DB.Attach(HRoom!).State = EntityState.Modified;
+
+
+
+        try
+        {
+            success = "Editing...";
+
+            HRoom.Number = number;
+            HRoom.Etaj = (byte)floor;
+            HRoom.NrRooms = (byte)nrRooms;
+
+            await DB.SaveChangesAsync();
+            message = "";
+            success = "Edited successful!";
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HRoomExists(HRoom!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
+    bool HRoomExists(short id)
+    {
+        return DB.HRooms.Any(e => e.Id == id);
+    }
+
+    bool NumberExists(string number)
+    {
+        return DB.HRooms.Any(r => r.Number == number);
+    }
+}

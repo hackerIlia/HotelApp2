@@ -14,4 +14,6 @@ public partial class HDRoomType
     public byte Capacity { get; set; }
 
     public decimal Price { get; set; }
+
+    public virtual ICollection<HRoom> HRooms { get; set; } = new List<HRoom>();
 }

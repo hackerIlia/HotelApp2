@@ -88,6 +88,11 @@ else{
             message = "Name is required";
             return;
         }
+        @if (NameExists(name) && name != HDRoomType.Name)
+        {
+            message = "This type of room already exists!";
+            return;
+        }
         @if (capacity < 1 || capacity > 5)
         {
             message = "Capacity can be from 1 up to 5 people";
@@ -132,5 +137,10 @@ else{
     bool TypeExists(int id)
     {
         return dbContext.HDRoomTypes.Any(e => e.Id == id);
+    }
+
+    bool NameExists(string name)
+    {
+        return dbContext.HDRoomTypes.Any(t => t.Name == name);
     }
 }

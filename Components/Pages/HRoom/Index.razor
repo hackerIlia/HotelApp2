@@ -1,0 +1,49 @@
+﻿@page "/Room"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="Room/Create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+@if (rooms != null)
+{
+    <QuickGrid Class="table" Items="DB.HRooms">
+        <PropertyColumn Property="hroom => hroom.Number" />
+        <PropertyColumn Property="hroom => hroom.AvailabilityStatus.StatusName" Title="Availability" />
+        <PropertyColumn Property="hroom => hroom.CleaningStatus.Name" Title="Cleaning Status" />
+        <PropertyColumn Property="hroom => hroom.Type.Name" Title="Type" />
+        <PropertyColumn Property="hroom => hroom.Hotel.Name" Title="Hotel" />
+        <PropertyColumn Property="hroom => hroom.Etaj" Title="Floor" />
+        <PropertyColumn Property="hroom => hroom.NrRooms" Title="Number of Rooms" />
+
+        <TemplateColumn Context="hroom">
+            <a href="@($"Room/Edit/{hroom.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+            <a href="@($"Room/Delete/{hroom.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code{
+    List<HRoom> rooms;
+
+    protected override async Task OnInitializedAsync(){
+        rooms = await DB.HRooms.Include(r => r.CleaningStatus)
+                                .Include(r => r.AvailabilityStatus)
+                                .Include(r => r.Hotel)
+                                .Include(r => r.Type)
+                                .ToListAsync();
+    }
+}
