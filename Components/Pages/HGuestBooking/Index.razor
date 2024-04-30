@@ -1,0 +1,46 @@
+﻿@page "/hguestbookings"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>Guests - Booking</h1>
+
+<p>
+    <a href="hguestbookings/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+@if (guests != null)
+{
+    <QuickGrid Class="table" Items="DB.HGuestBookings">
+        <PropertyColumn Property="hguestbooking => hguestbooking.FirstName" Title="First Name" />
+        <PropertyColumn Property="hguestbooking => hguestbooking.LastName" Title="Last Name" />
+        <PropertyColumn Property="hguestbooking => hguestbooking.PassportNumber" Title="Passport Number" />
+        <PropertyColumn Property="hguestbooking => hguestbooking.Email" />
+        <PropertyColumn Property="hguestbooking => hguestbooking.Phone" />
+        <PropertyColumn Property="hguestbooking => hguestbooking.Country.Name" Title="Country" />
+        <PropertyColumn Property="hguestbooking => hguestbooking.City" />
+
+        <TemplateColumn Context="hguestbooking">
+            <a href="@($"hguestbookings/edit?id={hguestbooking.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+            <a href="@($"hguestbookings/delete?id={hguestbooking.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code{
+    List<HGuestBooking> guests;
+
+    protected override async Task OnInitializedAsync()
+    {
+        guests = await DB.HGuestBookings.Include(g => g.Country).ToListAsync();
+    }
+}

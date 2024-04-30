@@ -11,5 +11,9 @@ public partial class HDCountry
 
     public string Name { get; set; }
 
+    public virtual ICollection<HGuestBooking> HGuestBookings { get; set; } = new List<HGuestBooking>();
+
+    public virtual ICollection<HGuestLiving> HGuestLivings { get; set; } = new List<HGuestLiving>();
+
     public virtual ICollection<HHotel> HHotels { get; set; } = new List<HHotel>();
 }

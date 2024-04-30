@@ -15,7 +15,15 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[H_Booking]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[H_d_AvailabilityStatuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_d_BookingStatuses]",
          "ObjectType": 0
       },
       {
@@ -27,11 +35,39 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[H_d_LivingStatuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_d_PaymentMethods]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_d_PaymentStatuses]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[H_d_RoomType]",
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[H_GuestBooking]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_GuestLiving]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[H_Hotel]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Living]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Payment]",
          "ObjectType": 0
       },
       {

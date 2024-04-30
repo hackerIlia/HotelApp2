@@ -27,6 +27,10 @@ public partial class HRoom
 
     public virtual HDCleaningStatus CleaningStatus { get; set; }
 
+    public virtual ICollection<HBooking> HBookings { get; set; } = new List<HBooking>();
+
+    public virtual ICollection<HLiving> HLivings { get; set; } = new List<HLiving>();
+
     public virtual HHotel Hotel { get; set; }
 
     public virtual HDRoomType Type { get; set; }
