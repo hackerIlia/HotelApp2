@@ -1,0 +1,235 @@
+﻿@page "/Guestliving/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using System.Net.Mail
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+
+<PageTitle>Create</PageTitle>
+
+<h3>Guest - Booking</h3>
+<h4>Create</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="guest" OnValidSubmit="AddHGuestLiving" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="firstname" class="form-label">First Name:</label>
+                <InputText id="firstname" @bind-Value="@firstName" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="lastname" class="form-label">Last Name:</label>
+                <InputText id="lastname" @bind-Value="@lastName" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="passportnumber" class="form-label">PassportNumber:</label>
+                <InputText id="passportnumber" @bind-Value="@passportNumber" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <InputText id="email" @bind-Value="@email" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone:</label>
+                <InputText id="phone" @bind-Value="@phone" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="countryid" class="form-label">Country</label>
+                <InputSelect class="form-control" @bind-Value="guest.CountryId">
+                    @foreach (var country in countries)
+                    {
+                        <option value="@country.Id">@country.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="city" class="form-label">City:</label>
+                <InputText id="city" @bind-Value="@city" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="/Guestliving">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HGuestLiving guest { get; set; } = new();
+
+    private List<HDCountry> countries;
+
+    private string firstName;
+    private string lastName;
+    private string passportNumber;
+    private string email;
+    private string phone;
+    private string city;
+
+    private byte countryMem;
+
+    private string message = "";
+    private string success = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        guest = new();
+
+        countries = DB.HDCountries.ToList();
+
+        if (countryMem > 0)
+        {
+            guest.CountryId = (byte)countryMem;
+        }
+        else if (countries != null)
+        {
+            guest.CountryId = countries.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHGuestLiving()
+    {
+        message = "";
+        success = "";
+
+        @if (String.IsNullOrEmpty(firstName))
+        {
+            message = "First Name is required";
+            return;
+        }
+        @if (firstName.Length < 1 || firstName.Length > 30)
+        {
+            message = "First name length must be between 1 and 30";
+            return;
+        }
+        @if (String.IsNullOrEmpty(lastName))
+        {
+            message = "Last Name is required";
+            return;
+        }
+        @if (lastName.Length < 1 || lastName.Length > 30)
+        {
+            message = "Last name length must be between 1 and 30";
+            return;
+        }
+        @if (String.IsNullOrEmpty(passportNumber))
+        {
+            message = "Passport Number is required";
+            return;
+        }
+        @if (passportNumber.Length < 1 || passportNumber.Length > 9)
+        {
+            message = "Passport Number length must be between 1 and 9";
+            return;
+        }
+        @if (PassportNumberExists(passportNumber))
+        {
+            message = "This passport number is already registred";
+            return;
+        }
+        @if (String.IsNullOrEmpty(email))
+        {
+            message = "Email is required";
+            return;
+        }
+        @if (email.Length < 1 || email.Length > 100)
+        {
+            message = "Email length must be between 1 and 100";
+            return;
+        }
+        @if (!IsValidMail(email))
+        {
+            message = "This email is not valid";
+            return;
+        }
+        @if (EmailExists(email))
+        {
+            message = "This email is already registred";
+            return;
+        }
+        @if (!String.IsNullOrEmpty(phone) && phone.Length > 15)
+        {
+            message = "Phone length must be between 1 and 15 or empty";
+            return;
+        }
+        @if (!String.IsNullOrEmpty(phone) && PhoneExists(phone))
+        {
+            message = "This phone is already registred";
+            return;
+        }
+        @if (String.IsNullOrEmpty(city))
+        {
+            message = "City is required";
+            return;
+        }
+        @if (city.Length < 1 || city.Length > 25)
+        {
+            message = "City length must be between 1 and 25";
+            return;
+        }
+
+        guest.FirstName = firstName;
+        guest.LastName = lastName;
+        guest.PassportNumber = passportNumber;
+        guest.Email = email;
+        guest.Phone = phone;
+        guest.City = city;
+
+
+        DB.HGuestLivings.Add(guest);
+        await DB.SaveChangesAsync();
+
+        message = "";
+        success = "Added successful!";
+
+        countryMem = guest.CountryId;
+
+        OnInitializedAsync();
+    }
+
+    bool PassportNumberExists(string passportN)
+    {
+        return DB.HGuestBookings.Any(g => g.PassportNumber == passportN);
+    }
+    bool EmailExists(string email)
+    {
+        return DB.HGuestBookings.Any(g => g.Email == email);
+    }
+    bool PhoneExists(string phone)
+    {
+        return DB.HGuestBookings.Any(g => g.Phone == phone);
+    }
+
+    private static bool IsValidMail(string email)
+    {
+        var valid = true;
+
+        try
+        {
+            var emailAddress = new MailAddress(email);
+        }
+        catch
+        {
+            valid = false;
+        }
+
+        return valid;
+    }
+    
+}

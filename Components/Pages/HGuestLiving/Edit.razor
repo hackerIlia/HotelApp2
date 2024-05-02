@@ -1,0 +1,259 @@
+﻿@page "/Guestliving/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@using System.Net.Mail
+@rendermode InteractiveServer
+
+<PageTitle>Edit</PageTitle>
+
+<h3>Guest - Living</h3>
+<h4>Edit</h4>
+<hr />
+
+@if (HGuestLiving is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h5 class="text-danger">@message</h5>
+
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HGuestLiving" OnValidSubmit="UpdateHGuestLiving" FormName="edit" Enhance>
+                <div class="mb-3">
+                    <label for="firstname" class="form-label">First Name:</label>
+                    <InputText id="firstname" @bind-Value="@firstName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastname" class="form-label">Last Name:</label>
+                    <InputText id="lastname" @bind-Value="@lastName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="passportnumber" class="form-label">PassportNumber:</label>
+                    <InputText id="passportnumber" @bind-Value="@passportNumber" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <InputText id="email" @bind-Value="@email" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone:</label>
+                    <InputText id="phone" @bind-Value="@phone" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="countryid" class="form-label">Country</label>
+                    <InputSelect class="form-control" @bind-Value="HGuestLiving.CountryId">
+                        @foreach (var country in countries)
+                        {
+                            <option value="@country.Id">@country.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
+                    <label for="city" class="form-label">City:</label>
+                    <InputText id="city" @bind-Value="@city" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">Edit</button>
+                <a href="Guestliving" class="btn btn-info">Back to List</a>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <h4 class="text-success">@success</h4>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HGuestLiving? HGuestLiving { get; set; }
+
+    private List<HDCountry> countries;
+
+    private string firstName;
+    private string lastName;
+    private string passportNumber;
+    private string email;
+    private string phone;
+    private string city;
+
+    private byte countryMem;
+
+    private string message = "";
+    private string success = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        countries = DB.HDCountries.ToList();
+
+        HGuestLiving = await DB.HGuestLivings.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HGuestLiving is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+        else
+        {
+            firstName = HGuestLiving.FirstName;
+            lastName = HGuestLiving.LastName;
+            passportNumber = HGuestLiving.PassportNumber;
+            email = HGuestLiving.Email;
+            phone = HGuestLiving.Phone == null ? "" : HGuestLiving.Phone;
+            city = HGuestLiving.City;
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHGuestLiving()
+    {
+        success = "";
+        message = "";
+
+        @if (String.IsNullOrEmpty(firstName))
+        {
+            message = "First Name is required";
+            return;
+        }
+        @if (firstName.Length < 1 || firstName.Length > 30)
+        {
+            message = "First name length must be between 1 and 30";
+            return;
+        }
+        @if (String.IsNullOrEmpty(lastName))
+        {
+            message = "Last Name is required";
+            return;
+        }
+        @if (lastName.Length < 1 || lastName.Length > 30)
+        {
+            message = "Last name length must be between 1 and 30";
+            return;
+        }
+        @if (String.IsNullOrEmpty(passportNumber))
+        {
+            message = "Passport Number is required";
+            return;
+        }
+        @if (passportNumber.Length < 1 || passportNumber.Length > 9)
+        {
+            message = "Passport Number length must be between 1 and 9";
+            return;
+        }
+        @if (PassportNumberExists(passportNumber) && passportNumber != HGuestLiving.PassportNumber)
+        {
+            message = "This passport number is already registred";
+            return;
+        }
+        @if (String.IsNullOrEmpty(email))
+        {
+            message = "Email is required";
+            return;
+        }
+        @if (email.Length < 1 || email.Length > 100)
+        {
+            message = "Email length must be between 1 and 100";
+            return;
+        }
+        @if (!IsValidMail(email))
+        {
+            message = "This email is not valid";
+            return;
+        }
+        @if (EmailExists(email) && email != HGuestLiving.Email)
+        {
+            message = "This email is already registred";
+            return;
+        }
+        @if (!String.IsNullOrEmpty(phone) && phone.Length > 15)
+        {
+            message = "Phone length must be between 1 and 15 or empty";
+            return;
+        }
+        @if (!String.IsNullOrEmpty(phone) && PhoneExists(phone) && phone != HGuestLiving.Phone)
+        {
+            message = "This phone is already registred";
+            return;
+        }
+        @if (String.IsNullOrEmpty(city))
+        {
+            message = "City is required";
+            return;
+        }
+        @if (city.Length < 1 || city.Length > 25)
+        {
+            message = "City length must be between 1 and 25";
+            return;
+        }
+
+        DB.Attach(HGuestLiving!).State = EntityState.Modified;
+
+        try
+        {
+            success = "Editing...";
+
+            HGuestLiving.FirstName = firstName;
+            HGuestLiving.LastName = lastName;
+            HGuestLiving.PassportNumber = passportNumber;
+            HGuestLiving.Email = email;
+            HGuestLiving.Phone = phone == null ? "" : phone;
+            HGuestLiving.City = city;
+
+            await DB.SaveChangesAsync();
+
+            message = "";
+            success = "Edited successful!";
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HGuestLivingExists(HGuestLiving!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
+    bool HGuestLivingExists(int id)
+    {
+        return DB.HGuestLivings.Any(e => e.Id == id);
+    }
+
+    bool PassportNumberExists(string passportN)
+    {
+        return DB.HGuestBookings.Any(g => g.PassportNumber == passportN);
+    }
+    bool EmailExists(string email)
+    {
+        return DB.HGuestBookings.Any(g => g.Email == email);
+    }
+    bool PhoneExists(string phone)
+    {
+        return DB.HGuestBookings.Any(g => g.Phone == phone);
+    }
+
+    private static bool IsValidMail(string email)
+    {
+        var valid = true;
+
+        try
+        {
+            var emailAddress = new MailAddress(email);
+        }
+        catch
+        {
+            valid = false;
+        }
+
+        return valid;
+    }
+}

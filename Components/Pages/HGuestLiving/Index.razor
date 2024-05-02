@@ -1,0 +1,45 @@
+﻿@page "/Guestliving"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Index</PageTitle>
+
+<h1>Guests - Living</h1>
+
+<p>
+    <a href="Guestliving/create">Create New</a>
+</p>
+
+@if (guests != null)
+{
+    <QuickGrid Class="table" Items="DB.HGuestLivings">
+        <PropertyColumn Property="hguestliving => hguestliving.FirstName" Title="First Name" />
+        <PropertyColumn Property="hguestliving => hguestliving.LastName" Title="Last Name" />
+        <PropertyColumn Property="hguestliving => hguestliving.PassportNumber" Title="Passport Number" />
+        <PropertyColumn Property="hguestliving => hguestliving.Email" />
+        <PropertyColumn Property="hguestliving => hguestliving.Phone" />
+        <PropertyColumn Property="hguestliving => hguestliving.Country.Name" Title="Country" />
+        <PropertyColumn Property="hguestliving => hguestliving.City" />
+
+        <TemplateColumn Context="hguestliving">
+            <a href="@($"Guestliving/edit?id={hguestliving.Id}")">Edit</a> |
+            <a href="@($"Guestliving/delete?id={hguestliving.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code{
+    List<HGuestLiving> guests;
+
+    protected override async Task OnInitializedAsync()
+    {
+        guests = await DB.HGuestLivings.Include(g => g.Country)
+                                    .ToListAsync();
+    }
+}
