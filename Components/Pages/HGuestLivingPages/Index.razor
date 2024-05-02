@@ -1,0 +1,28 @@
+﻿@page "/hguestlivings"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="hguestlivings/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="DB.HGuestLivings">
+    <PropertyColumn Property="hguestliving => hguestliving.FirstName" />
+    <PropertyColumn Property="hguestliving => hguestliving.LastName" />
+    <PropertyColumn Property="hguestliving => hguestliving.PassportNumber" />
+    <PropertyColumn Property="hguestliving => hguestliving.Email" />
+    <PropertyColumn Property="hguestliving => hguestliving.Phone" />
+    <PropertyColumn Property="hguestliving => hguestliving.CountryId" />
+    <PropertyColumn Property="hguestliving => hguestliving.City" />
+
+    <TemplateColumn Context="hguestliving">
+        <a href="@($"hguestlivings/edit?id={hguestliving.Id}")">Edit</a> |
+        <a href="@($"hguestlivings/details?id={hguestliving.Id}")">Details</a> |
+        <a href="@($"hguestlivings/delete?id={hguestliving.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>

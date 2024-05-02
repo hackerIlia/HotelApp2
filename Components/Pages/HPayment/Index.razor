@@ -1,0 +1,46 @@
+﻿@page "/Payment"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Index</PageTitle>
+
+<h1>Payments</h1>
+
+@* <p>
+    <a href="hpayments/create">Create New</a>
+</p> *@
+
+@if (payments != null)
+{
+    <QuickGrid Class="table" Items="DB.HPayments">
+        <PropertyColumn Property="hpayment => hpayment.Method.Name" Title="Method" />
+        <PropertyColumn Property="hpayment => hpayment.Status.Name" Title="Status" />
+        <PropertyColumn Property="hpayment => hpayment.Date" />
+        <PropertyColumn Property="hpayment => hpayment.Amount" />
+        <PropertyColumn Property="hpayment => hpayment.Booking.Number" Title="Booking Number" />
+
+        @* <TemplateColumn Context="hpayment">
+        <a href="@($"hpayments/edit?id={hpayment.Id}")">Edit</a> |
+        <a href="@($"hpayments/delete?id={hpayment.Id}")">Delete</a>
+    </TemplateColumn> *@
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code{
+    List<HPayment> payments;
+    
+    protected override async Task OnInitializedAsync()
+    {
+
+        payments = await DB.HPayments.Include(p => p.Booking)
+                                .Include(p => p.Method)
+                                .Include(p => p.Status)
+                                .ToListAsync();
+    }
+}

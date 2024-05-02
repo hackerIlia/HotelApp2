@@ -1,0 +1,115 @@
+﻿@page "/Booking/pay"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h3>Create</h3>
+<h4>Payment</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HPayment" OnValidSubmit="AddHPayment" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="methodid" class="form-label">Method:</label>
+                <InputSelect id="methodid" class="form-control" @bind-Value="@HPayment.MethodId">
+                    @foreach (var method in methods)
+                    {
+                        <option value="@method.Id">@method.Name</option>
+                    }
+                </InputSelect>
+            </div>       
+            <div class="mb-3">
+                <label for="date" class="form-label">Date:</label> 
+                <InputDate id="date" @bind-Value="@dateNow" class="form-control" readonly/> 
+            </div>        
+            <div class="mb-3">
+                <label for="amount" class="form-label">Amount:</label> 
+                <InputNumber readonly id="amount" @bind-Value="@amount" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="bookingid" class="form-label">Booking Number:</label> 
+                <InputNumber readonly id="bookingid" @bind-Value="@bookingNumber" class="form-control" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Pay</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="/Booking">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+
+    [SupplyParameterFromForm]
+    public HBooking? HBooking { get; set; }
+
+    public HPayment HPayment { get; set; } = new();
+
+    private List<HDPaymentMethod> methods;
+
+    private string message = "";
+    private string success = "";
+
+    private decimal amount;
+    private DateTime dateNow;
+    private int bookingNumber;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HPayment = new();
+        methods = DB.HDPaymentMethods.ToList();
+
+        if(methods != null)
+        {
+            HPayment.MethodId = methods.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+
+        HBooking = await DB.HBookings.FirstOrDefaultAsync(m => m.Id == Id);
+        dateNow = DateTime.Now.Date;
+        amount = HBooking.Amount;
+        bookingNumber = HBooking.Number;
+    }
+
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHPayment()
+    {
+        message = "";
+        success = "";
+
+
+        HPayment.StatusId = (byte)2;
+        HPayment.Date = DateTime.Now;
+        HPayment.Amount = amount;
+        HPayment.BookingId = Id;
+
+        HBooking.StatusId = (byte)2;
+
+
+        DB.HPayments.Add(HPayment);
+        await DB.SaveChangesAsync();
+
+        message = "";
+        success = "Paid successful!";
+        // NavigationManager.NavigateTo("/hpayments");
+    }
+}

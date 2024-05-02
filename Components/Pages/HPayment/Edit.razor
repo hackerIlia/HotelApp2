@@ -1,0 +1,107 @@
+﻿@* @page "/HPayments/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>HPayment</h4>
+<hr />
+@if (HPayment is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HPayment" OnValidSubmit="UpdateHPayment" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="HPayment.Id" value="@HPayment.Id" />
+                <div class="mb-3">
+                    <label for="methodid" class="form-label">MethodId:</label>
+                    <InputText id="methodid" @bind-Value="HPayment.MethodId" class="form-control" />
+                    <ValidationMessage For="() => HPayment.MethodId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="statusid" class="form-label">StatusId:</label>
+                    <InputText id="statusid" @bind-Value="HPayment.StatusId" class="form-control" />
+                    <ValidationMessage For="() => HPayment.StatusId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Date:</label>
+                    <InputDate id="date" @bind-Value="HPayment.Date" class="form-control" />
+                    <ValidationMessage For="() => HPayment.Date" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Amount:</label>
+                    <InputNumber id="amount" @bind-Value="HPayment.Amount" class="form-control" />
+                    <ValidationMessage For="() => HPayment.Amount" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="bookingid" class="form-label">BookingId:</label>
+                    <InputNumber id="bookingid" @bind-Value="HPayment.BookingId" class="form-control" />
+                    <ValidationMessage For="() => HPayment.BookingId" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/hpayments">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HPayment? HPayment { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HPayment ??= await DB.HPayments.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HPayment is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHPayment()
+    {
+        DB.Attach(HPayment!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HPaymentExists(HPayment!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/hpayments");
+    }
+
+    bool HPaymentExists(int id)
+    {
+        return DB.HPayments.Any(e => e.Id == id);
+    }
+}
+ *@

@@ -1,0 +1,73 @@
+﻿@page "/hguestlivings/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h4>HGuestLiving</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HGuestLiving" OnValidSubmit="AddHGuestLiving" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="firstname" class="form-label">FirstName:</label> 
+                <InputText id="firstname" @bind-Value="HGuestLiving.FirstName" class="form-control" /> 
+                <ValidationMessage For="() => HGuestLiving.FirstName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="lastname" class="form-label">LastName:</label> 
+                <InputText id="lastname" @bind-Value="HGuestLiving.LastName" class="form-control" /> 
+                <ValidationMessage For="() => HGuestLiving.LastName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="passportnumber" class="form-label">PassportNumber:</label> 
+                <InputText id="passportnumber" @bind-Value="HGuestLiving.PassportNumber" class="form-control" /> 
+                <ValidationMessage For="() => HGuestLiving.PassportNumber" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label> 
+                <InputText id="email" @bind-Value="HGuestLiving.Email" class="form-control" /> 
+                <ValidationMessage For="() => HGuestLiving.Email" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone:</label> 
+                <InputText id="phone" @bind-Value="HGuestLiving.Phone" class="form-control" /> 
+                <ValidationMessage For="() => HGuestLiving.Phone" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="countryid" class="form-label">CountryId:</label> 
+                <InputText id="countryid" @bind-Value="HGuestLiving.CountryId" class="form-control" /> 
+                <ValidationMessage For="() => HGuestLiving.CountryId" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="city" class="form-label">City:</label> 
+                <InputText id="city" @bind-Value="HGuestLiving.City" class="form-control" /> 
+                <ValidationMessage For="() => HGuestLiving.City" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/hguestlivings">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HGuestLiving HGuestLiving { get; set; } = new();
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHGuestLiving()
+    {
+        DB.HGuestLivings.Add(HGuestLiving);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/hguestlivings");
+    }
+}

@@ -1,0 +1,116 @@
+﻿@page "/HGuestLivings/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>HGuestLiving</h4>
+<hr />
+@if (HGuestLiving is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HGuestLiving" OnValidSubmit="UpdateHGuestLiving" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="HGuestLiving.Id" value="@HGuestLiving.Id" />
+                <div class="mb-3">
+                    <label for="firstname" class="form-label">FirstName:</label>
+                    <InputText id="firstname" @bind-Value="HGuestLiving.FirstName" class="form-control" />
+                    <ValidationMessage For="() => HGuestLiving.FirstName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastname" class="form-label">LastName:</label>
+                    <InputText id="lastname" @bind-Value="HGuestLiving.LastName" class="form-control" />
+                    <ValidationMessage For="() => HGuestLiving.LastName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="passportnumber" class="form-label">PassportNumber:</label>
+                    <InputText id="passportnumber" @bind-Value="HGuestLiving.PassportNumber" class="form-control" />
+                    <ValidationMessage For="() => HGuestLiving.PassportNumber" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <InputText id="email" @bind-Value="HGuestLiving.Email" class="form-control" />
+                    <ValidationMessage For="() => HGuestLiving.Email" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone:</label>
+                    <InputText id="phone" @bind-Value="HGuestLiving.Phone" class="form-control" />
+                    <ValidationMessage For="() => HGuestLiving.Phone" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="countryid" class="form-label">CountryId:</label>
+                    <InputText id="countryid" @bind-Value="HGuestLiving.CountryId" class="form-control" />
+                    <ValidationMessage For="() => HGuestLiving.CountryId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="city" class="form-label">City:</label>
+                    <InputText id="city" @bind-Value="HGuestLiving.City" class="form-control" />
+                    <ValidationMessage For="() => HGuestLiving.City" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/hguestlivings">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HGuestLiving? HGuestLiving { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HGuestLiving ??= await DB.HGuestLivings.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HGuestLiving is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHGuestLiving()
+    {
+        DB.Attach(HGuestLiving!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HGuestLivingExists(HGuestLiving!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/hguestlivings");
+    }
+
+    bool HGuestLivingExists(int id)
+    {
+        return DB.HGuestLivings.Any(e => e.Id == id);
+    }
+}

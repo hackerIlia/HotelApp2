@@ -23,10 +23,21 @@
         <PropertyColumn Property="hbooking => hbooking.Amount" />
         <PropertyColumn Property="hbooking => hbooking.Comments" />
         <PropertyColumn Property="hbooking => hbooking.Room.Number" Title="Room Number" />
-        <PropertyColumn Property="hbooking => hbooking.Status.Name" Title="Status" />
+        <PropertyColumn Property="hbooking => hbooking.Status.Name" Title="Status"  />
         <PropertyColumn Property="hbooking => hbooking.Guest.FirstName + ' ' + hbooking.Guest.LastName" Title="Guest" />
 
         <TemplateColumn Context="hbooking">
+            @if (hbooking.Status.Name == "Paid")
+            {
+                <span><i class="bi bi-credit-card" style="color: green;"><b> Pay | </b></i></span> 
+                <a href="@($"Living/create?idb={hbooking.Id}")"><i class="fas fa-plus"> Check-in</i></a>
+        }
+            else
+            {
+                <a class="text-danger" href="@($"Booking/pay?id={hbooking.Id}")"><b class="bi bi-credit-card"> Pay | </b></a>
+                <span><i class="fas fa-plus"> Check-in</i></span>
+        }
+            |
             <a href="@($"Booking/edit?id={hbooking.Id}")"><i class="fas fa-edit"> Edit </i></a> |
             <a href="@($"Booking/delete?id={hbooking.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
         </TemplateColumn>

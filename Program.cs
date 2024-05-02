@@ -11,6 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<HotelApp2.Models.Hotel_DBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString")));
 builder.Services.AddQuickGridEntityFrameworkAdapter();
+builder.Services.AddBlazorBootstrap();
 
 var app = builder.Build();
 
