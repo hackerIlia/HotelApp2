@@ -1,0 +1,52 @@
+﻿@page "/Living"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>Livings</h1>
+
+<p>
+    <a href="Living/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+@if (livings != null)
+{
+    <QuickGrid Class="table" Items="DB.HLivings">
+        <PropertyColumn Property="hliving => hliving.Number" />
+        <PropertyColumn Property="hliving => hliving.CheckInDate" Title="Check-in Date" Format="dd/MM/yyyy" />
+        <PropertyColumn Property="hliving => hliving.CheckOutDate" Title="Check-out Date" Format="dd/MM/yyyy" />
+        <PropertyColumn Property="hliving => hliving.Amount" />
+        <PropertyColumn Property="hliving => hliving.Comments" />
+        <PropertyColumn Property="hliving => hliving.Room.Number" Title="Room Number" />
+        <PropertyColumn Property="hliving => hliving.Status.Name" Title="Status" />
+        @* <PropertyColumn Property="hliving => hliving.Booking.Number" Title="Booking Number" /> *@
+        <PropertyColumn Property="hliving => hliving.Guest.FirstName + ' ' + hliving.Guest.LastName" Title="Guest" />
+
+        <TemplateColumn Context="hliving">
+                <a href="@($"Living/edit?id={hliving.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+                <a href="@($"Living/delete?id={hliving.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code {
+    List<HLiving> livings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        livings = await DB.HLivings.Include(b => b.Room)
+                                        .Include(b => b.Status)
+                                        .Include(b => b.Guest)
+                                        .Include(b => b.Booking)
+                                        .ToListAsync();
+    }
+}

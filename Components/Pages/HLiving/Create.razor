@@ -1,0 +1,248 @@
+﻿@page "/Living/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>Living</h3>
+<h4>Create</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HLiving" OnValidSubmit="AddHLiving" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="checkindate" class="form-label">Check-in Date:</label>
+                <InputDate disabled="@(bookingEnabled)" id="checkindate" @bind-Value="@checkin" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="checkoutdate" class="form-label">CheckOutDate:</label>
+                <InputDate disabled="@(bookingEnabled)" id="checkoutdate" @bind-Value="@checkout" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="comments" class="form-label">Comments:</label>
+                <InputText id="comments" @bind-Value="@comments" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="roomid" class="form-label">Room number:</label>
+                <InputSelect disabled="@(bookingEnabled)" id="roomid" class="form-control" @bind-Value="HLiving.RoomId">
+                    @foreach (var room in rooms)
+                    {
+                        <option value="@room.Id">@room.Number</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="guestid" class="form-label">Guest:</label>
+                <InputSelect disabled="@(bookingEnabled)" id="guestid" class="form-control" @bind-Value="HLiving.GuestId">
+                    @foreach (var guest in guests)
+                    {
+                        <option value="@guest.Id">@guest.FirstName @guest.LastName</option>
+                    }
+                </InputSelect>
+            </div>
+            @* <div class="mb-3">
+                <label for="bookingid" class="form-label">Booking:</label> <InputCheckbox @bind-Value="@bookingEnabled" @bind-Value:after="onChangeBEn">Enabled</InputCheckbox>
+                <InputSelect disabled="@(!bookingEnabled)" id="bookingid" class="form-control" @bind-Value="HLiving.BookingId" @bind-Value:after="onChangeBooking">
+                    @foreach (var booking in bookings)
+                    {
+                        <option value="@booking.Id">@booking.Number</option>
+                    }
+                </InputSelect>
+            </div> *@
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="/Living">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HLiving HLiving { get; set; } = new();
+
+    private List<HRoom> rooms;
+    private List<HDBookingStatus> statuses;
+    private List<HGuestLiving> guests;
+    private List<HBooking> bookings;
+
+    private string message = "";
+    private string success = "";
+
+    private int number = 0;
+    private DateTime checkin;
+    private DateTime checkout;
+    private decimal amount;
+    private string comments;
+
+    private short roomMem;
+    private byte statusMem;
+    private int guestMem;
+    private int? bookingMem;
+
+    private bool bookingEnabled;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HLiving = new();
+
+        rooms = DB.HRooms.ToList();
+        statuses = DB.HDBookingStatuses.ToList();
+        guests = DB.HGuestLivings.ToList();
+        bookings = DB.HBookings.Include(b => b.Guest).ToList();
+
+
+            if (bookingMem > 0)
+            {
+                HLiving.BookingId = bookingMem;
+            }
+            // else if (bookings != null)
+            // {
+            //     HLiving.BookingId = bookings.FirstOrDefault().Id;
+            // }
+            // else
+            // {
+            //     NavigationManager.NavigateTo("notfound");
+            // }
+
+            if (roomMem > 0)
+            {
+                HLiving.RoomId = (short)roomMem;
+            }
+            else if (rooms != null)
+            {
+                HLiving.RoomId = rooms.FirstOrDefault().Id;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+
+            if (statusMem > 0)
+            {
+                HLiving.StatusId = (byte)statusMem;
+            }
+            else if (statuses.Count != 0)
+            {
+                HLiving.StatusId = statuses.FirstOrDefault().Id;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+
+            if (guestMem > 0)
+            {
+                HLiving.GuestId = guestMem;
+            }
+            else if (guests.Count != 0)
+            {
+                HLiving.GuestId = guests.FirstOrDefault().Id;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+        }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHLiving()
+    {
+        message = "";
+        success = "";
+        number = 0;
+
+        @if (checkin < DateTime.Now.AddDays(-1))
+        {
+            message = "Check-in Date can't be earlier than today";
+            return;
+        }
+        @if (checkout < checkin)
+        {
+            message = "Check-out Date can't be earlier than Check-in Date";
+            return;
+        }
+
+
+        DateTime today = DateTime.Today;
+        string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
+
+        do
+        {
+            Random random = new Random();
+            int randomDigits = random.Next(100000, 1000000);
+            number = Convert.ToInt32(numberDate + randomDigits.ToString());
+        } while (numberExists(number));
+
+
+        HLiving.Number = number;
+        HLiving.CheckInDate = checkin;
+        HLiving.CheckOutDate = checkout;
+
+        int hours = (checkout - checkin).Hours + (checkout - checkin).Days * 24;
+        HRoom room = await DB.HRooms.FindAsync(HLiving.RoomId);
+        HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+
+        HLiving.Amount = roomType.Price * hours;
+        HLiving.Comments = comments != null ? comments : "";
+        HLiving.StatusId = (byte)1;
+        HLiving.BookingId = bookingEnabled ? HLiving.BookingId : null;
+
+        DB.HLivings.Add(HLiving);
+        await DB.SaveChangesAsync();
+
+        message = "";
+        success = "Added successful!";
+
+        roomMem = HLiving.RoomId;
+        statusMem = HLiving.StatusId;
+        guestMem = HLiving.GuestId;
+        bookingMem = HLiving.BookingId;
+
+        OnInitializedAsync();
+    }
+
+    bool numberExists(int number)
+    {
+        return DB.HLivings.Any(b => b.Number == number);
+    }
+
+    void onChangeBooking()
+    {
+        if (HLiving.BookingId.HasValue)
+        {
+            var selectedBooking = bookings.FirstOrDefault(b => b.Id == HLiving.BookingId);
+
+            if(selectedBooking != null)
+            {
+                checkin = selectedBooking.CheckInDate;
+                checkout = selectedBooking.CheckOutDate;
+                amount = selectedBooking.Amount;
+                comments = selectedBooking.Comments;
+                HLiving.GuestId = selectedBooking.Guest.Id;
+
+                //StateHasChanged();
+            }
+        }
+    }
+
+    void onChangeBEn()
+    {
+        if (!bookingEnabled)
+        {
+            OnInitializedAsync();
+        }
+    }
+}

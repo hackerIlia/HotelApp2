@@ -30,7 +30,7 @@
             @if (hbooking.Status.Name == "Paid")
             {
                 <span><i class="bi bi-credit-card" style="color: green;"><b> Pay | </b></i></span> 
-                <a href="@($"Living/create?idb={hbooking.Id}")"><i class="fas fa-plus"> Check-in</i></a>
+                <a href="@($"Living/create/{hbooking.Id}")"><i class="fas fa-plus"> Check-in</i></a>
         }
             else
             {
