@@ -1,0 +1,163 @@
+﻿@page "/Booking/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+
+<PageTitle>Edit</PageTitle>
+
+<h3>Booking</h3>
+<h4>Edit</h4>
+<hr />
+
+@if (HBooking is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h5 class="text-danger">@message</h5>
+
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HBooking" OnValidSubmit="UpdateHBooking" FormName="edit" Enhance>
+                <div class="mb-3">
+                    <label for="checkindate" class="form-label">Check-in Date:</label>
+                    <InputDate id="checkindate" @bind-Value="@checkin" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="checkoutdate" class="form-label">Check-out Date:</label>
+                    <InputDate id="checkoutdate" @bind-Value="@checkout" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="comments" class="form-label">Comments:</label>
+                    <InputText id="comments" @bind-Value="@comments" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="roomid" class="form-label">Room number:</label>
+                    <InputSelect id="roomid" class="form-control" @bind-Value="HBooking.RoomId">
+                        @foreach (var room in rooms)
+                        {
+                            <option value="@room.Id">@room.Number</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
+                    <label for="guestid" class="form-label">Guest:</label>
+                    <InputSelect id="guestid" class="form-control" @bind-Value="HBooking.GuestId">
+                        @foreach (var guest in guests)
+                        {
+                            <option value="@guest.Id">@guest.FirstName @guest.LastName</option>
+                        }
+                    </InputSelect>
+                </div>
+                <button type="submit" class="btn btn-primary">Edit</button>
+                <a href="/Booking" class="btn btn-info">Back to List</a>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <h4 class="text-success">@success</h4>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HBooking? HBooking { get; set; }
+
+    private List<HRoom> rooms;
+    private List<HDBookingStatus> statuses;
+    private List<HGuestBooking> guests;
+
+    private string message = "";
+    private string success = "";
+
+    private DateTime checkin;
+    private DateTime checkout;
+    private decimal amount;
+    private string comments;
+
+    private short roomMem;
+    private byte statusMem;
+    private int guestMem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        rooms = DB.HRooms.ToList();
+        statuses = DB.HDBookingStatuses.ToList();
+        guests = DB.HGuestBookings.ToList();
+
+        HBooking ??= await DB.HBookings.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HBooking is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+        else
+        {
+            checkin = HBooking.CheckInDate;
+            checkout = HBooking.CheckOutDate;
+            amount = HBooking.Amount;
+            comments = HBooking.Comments;
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHBooking()
+    {
+        message = "";
+        success = "";
+
+        @if (checkin < DateTime.Now.AddDays(-1))
+        {
+            message = "Check-in Date can't be earlier than today";
+            return;
+        }
+        @if (checkout < checkin)
+        {
+            message = "Check-out Date can't be earlier than Check-in Date";
+            return;
+        }
+
+        DB.Attach(HBooking!).State = EntityState.Modified;
+
+        try
+        {
+            success = "Editing...";
+
+            HBooking.CheckInDate = checkin;
+            HBooking.CheckOutDate = checkout;
+            HBooking.Amount = amount;
+            HBooking.Comments = comments;
+
+
+            await DB.SaveChangesAsync();
+
+            message = "";
+            success = "Edited successful!";
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HBookingExists(HBooking!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
+    bool HBookingExists(int id)
+    {
+        return DB.HBookings.Any(e => e.Id == id);
+    }
+}

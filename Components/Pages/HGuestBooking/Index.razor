@@ -1,4 +1,4 @@
-﻿@page "/hguestbookings"
+﻿@page "/GuestBooking"
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
@@ -11,7 +11,7 @@
 <h1>Guests - Booking</h1>
 
 <p>
-    <a href="hguestbookings/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+    <a href="GuestBooking/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
 </p>
 
 @if (guests != null)
@@ -26,8 +26,8 @@
         <PropertyColumn Property="hguestbooking => hguestbooking.City" />
 
         <TemplateColumn Context="hguestbooking">
-            <a href="@($"hguestbookings/edit?id={hguestbooking.Id}")"><i class="fas fa-edit"> Edit </i></a> |
-            <a href="@($"hguestbookings/delete?id={hguestbooking.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+            <a href="@($"GuestBooking/edit?id={hguestbooking.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+            <a href="@($"GuestBooking/delete?id={hguestbooking.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
         </TemplateColumn>
     </QuickGrid>
 }

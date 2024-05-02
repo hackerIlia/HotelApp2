@@ -1,0 +1,191 @@
+﻿@page "/Booking/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using System.Text
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>Booking</h3>
+<h4>Create</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HBooking" OnValidSubmit="AddHBooking" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="checkindate" class="form-label">Check-in Date:</label>
+                <InputDate id="checkindate" @bind-Value="@checkin" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="checkoutdate" class="form-label">CheckOutDate:</label>
+                <InputDate id="checkoutdate" @bind-Value="@checkout" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="comments" class="form-label">Comments:</label>
+                <InputText id="comments" @bind-Value="@comments" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="roomid" class="form-label">Room number:</label>
+                <InputSelect id="roomid" class="form-control" @bind-Value="HBooking.RoomId">
+                    @foreach (var room in rooms)
+                    {
+                        <option value="@room.Id">@room.Number</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="guestid" class="form-label">Guest:</label>
+                <InputSelect id="guestid" class="form-control" @bind-Value="HBooking.GuestId">
+                    @foreach (var guest in guests)
+                    {
+                        <option value="@guest.Id">@guest.FirstName @guest.LastName</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="/Booking">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    public HBooking HBooking { get; set; } = new();
+
+    private List<HRoom> rooms;
+    private List<HDBookingStatus> statuses;
+    private List<HGuestBooking> guests;
+
+    private string message = "";
+    private string success = "";
+
+    private int number = 0;
+    private DateTime checkin;
+    private DateTime checkout;
+    private decimal amount;
+    private string comments;
+
+    private short roomMem;
+    private byte statusMem;
+    private int guestMem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HBooking = new();
+
+        rooms = DB.HRooms.ToList();
+        statuses = DB.HDBookingStatuses.ToList();
+        guests = DB.HGuestBookings.ToList();
+
+        if (roomMem > 0)
+        {
+            HBooking.RoomId = (short)roomMem;
+        }
+        else if (rooms != null)
+        {
+            HBooking.RoomId = rooms.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        if (statusMem > 0)
+        {
+            HBooking.StatusId = (byte)statusMem;
+        }
+        else if (statuses != null)
+        {
+            HBooking.StatusId = statuses.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        if (guestMem > 0)
+        {
+            HBooking.GuestId = guestMem;
+        }
+        else if (guests != null)
+        {
+            HBooking.GuestId = guests.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHBooking()
+    {
+        message = "";
+        success = "";
+        number = 0;
+
+        @if (checkin < DateTime.Now.AddDays(-1))
+        {
+            message = "Check-in Date can't be earlier than today";
+            return;
+        }
+        @if (checkout < checkin)
+        {
+            message = "Check-out Date can't be earlier than Check-in Date";
+            return;
+        }
+
+
+        DateTime today = DateTime.Today;
+        string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
+
+        do
+        {
+            Random random = new Random();
+            int randomDigits = random.Next(100000, 1000000);
+            number = Convert.ToInt32(numberDate + randomDigits.ToString());
+        } while (numberExists(number));
+
+
+        HBooking.Number = number;
+        HBooking.CheckInDate = checkin;
+        HBooking.CheckOutDate = checkout;
+
+        int hours = (checkout - checkin).Hours  + (checkout - checkin).Days * 24;
+        HRoom room = await DB.HRooms.FindAsync(HBooking.RoomId);
+        HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+
+        HBooking.Amount = roomType.Price * hours;
+        HBooking.Comments = comments != null ? comments : "";
+        HBooking.StatusId = (byte)1;
+
+        DB.HBookings.Add(HBooking);
+        await DB.SaveChangesAsync();
+
+        message = "";
+        success = "Added successful!";
+
+        roomMem = HBooking.RoomId;
+        statusMem = HBooking.StatusId;
+        guestMem = HBooking.GuestId;
+
+        OnInitializedAsync();
+    }
+
+    bool numberExists(int number)
+    {
+        return DB.HBookings.Any(b => b.Number == number);
+    }
+}
