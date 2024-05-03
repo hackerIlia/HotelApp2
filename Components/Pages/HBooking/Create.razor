@@ -18,11 +18,11 @@
         <EditForm method="post" Model="HBooking" OnValidSubmit="AddHBooking" FormName="create" Enhance>
             <div class="mb-3">
                 <label for="checkindate" class="form-label">Check-in Date:</label>
-                <InputDate id="checkindate" @bind-Value="@checkin" class="form-control" />
+                <InputDate min="2024-01-01" max="2070-01-01" id="checkindate" @bind-Value="@checkin" @onblur="onChangeCheckDate" class="form-control" />
             </div>
             <div class="mb-3">
                 <label for="checkoutdate" class="form-label">CheckOutDate:</label>
-                <InputDate id="checkoutdate" @bind-Value="@checkout" class="form-control" />
+                <InputDate min="2024-01-01" max="2070-01-01" id="checkoutdate" @bind-Value="@checkout" @onblur="onChangeCheckDate" class="form-control" />
             </div>
             <div class="mb-3">
                 <label for="comments" class="form-label">Comments:</label>
@@ -71,8 +71,8 @@
     private string success = "";
 
     private int number = 0;
-    private DateTime checkin;
-    private DateTime checkout;
+    private DateTime checkin = DateTime.Now;
+    private DateTime checkout = DateTime.Now.AddDays(1);
     private decimal amount;
     private string comments;
 
@@ -187,5 +187,13 @@
     bool numberExists(int number)
     {
         return DB.HBookings.Any(b => b.Number == number);
+    }
+
+    void onChangeCheckDate()
+    {
+        //List<HBooking> bookingsSTOP = DB.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).ToList();
+        List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).ToList();
+
     }
 }

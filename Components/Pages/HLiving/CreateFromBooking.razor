@@ -18,11 +18,11 @@
         <EditForm method="post" Model="HLiving" OnValidSubmit="AddHLiving" FormName="create" Enhance>
             <div class="mb-3">
                 <label for="checkindate" class="form-label">Check-in Date:</label>
-                <InputDate disabled="@(bookingEnabled)" id="checkindate" @bind-Value="@checkin" class="form-control" />
+                <InputDate disabled id="checkindate" @bind-Value="@checkin" class="form-control" />
             </div>
             <div class="mb-3">
                 <label for="checkoutdate" class="form-label">CheckOutDate:</label>
-                <InputDate disabled="@(bookingEnabled)" id="checkoutdate" @bind-Value="@checkout" class="form-control" />
+                <InputDate disabled id="checkoutdate" @bind-Value="@checkout" class="form-control" />
             </div>
             <div class="mb-3">
                 <label for="comments" class="form-label">Comments:</label>
@@ -30,7 +30,7 @@
             </div>
             <div class="mb-3">
                 <label for="roomid" class="form-label">Room number:</label>
-                <InputSelect disabled="@(bookingEnabled)" id="roomid" class="form-control" @bind-Value="HLiving.RoomId">
+                <InputSelect disabled id="roomid" class="form-control" @bind-Value="HLiving.RoomId">
                     @foreach (var room in rooms)
                     {
                         <option value="@room.Id">@room.Number</option>
@@ -39,7 +39,7 @@
             </div>
             <div class="mb-3">
                 <label for="guestid" class="form-label">Guest:</label>
-                <InputSelect disabled="@(bookingEnabled)" id="guestid" class="form-control" @bind-Value="HLiving.GuestId">
+                <InputSelect disabled id="guestid" class="form-control" @bind-Value="HLiving.GuestId">
                     @foreach (var guest in guests)
                     {
                         <option value="@guest.Id">@guest.FirstName @guest.LastName</option>
@@ -94,6 +94,8 @@
     private int guestMem;
     private int? bookingMem;
 
+    HBooking booking;
+
     private bool bookingEnabled;
 
     protected override async Task OnInitializedAsync()
@@ -107,7 +109,7 @@
 
         if (idb != 0)
         {
-            HBooking booking = await DB.HBookings.FirstOrDefaultAsync(b => b.Id == idb);
+            booking = await DB.HBookings.FirstOrDefaultAsync(b => b.Id == idb);
             HGuestBooking guestBooking = await DB.HGuestBookings.FirstOrDefaultAsync(g => g.Id == booking.GuestId);
             HGuestLiving guestLiving = new();
             if (!DB.HGuestLivings.Any(g => g.PassportNumber == guestBooking.PassportNumber))
@@ -231,7 +233,12 @@
         HLiving.Amount = roomType.Price * hours;
         HLiving.Comments = comments != null ? comments : "";
         HLiving.StatusId = (byte)1;
-        HLiving.BookingId = bookingEnabled ? HLiving.BookingId : null;
+        HLiving.BookingId = idb;
+
+        booking.StatusId = (byte)5;
+
+        room.AvailabilityStatusId = (byte)2;
+
 
         DB.HLivings.Add(HLiving);
         await DB.SaveChangesAsync();

@@ -27,19 +27,37 @@
         <PropertyColumn Property="hbooking => hbooking.Guest.FirstName + ' ' + hbooking.Guest.LastName" Title="Guest" />
 
         <TemplateColumn Context="hbooking">
-            @if (hbooking.Status.Name == "Paid")
+            @if (hbooking.Status.Name == "Paid" && !livings.Any(l => l.BookingId == hbooking.Id))
             {
                 <span><i class="bi bi-credit-card" style="color: green;"><b> Pay | </b></i></span> 
                 <a href="@($"Living/create/{hbooking.Id}")"><i class="fas fa-plus"> Check-in</i></a>
-        }
+                <a href="@($"Booking/cancel?id={hbooking.Id}")"><b class="close">&times Cancel</b></a> //here we need to return money?
+            }
+            else if ((hbooking.Status.Name == "Paid" && livings.Any(l => l.BookingId == hbooking.Id)) || hbooking.StatusId > 2)
+            {
+                <span><i class="bi bi-credit-card" style="color: green;"><b> Pay | </b></i></span>
+                <span><i class="fas fa-plus"> Check-in | </i></span>
+                <span><i class="close">&times Cancel</i></span>
+            }
             else
             {
                 <a class="text-danger" href="@($"Booking/pay?id={hbooking.Id}")"><b class="bi bi-credit-card"> Pay | </b></a>
-                <span><i class="fas fa-plus"> Check-in</i></span>
-        }
+                <span><i class="fas fa-plus"> Check-in | </i></span>
+                <a href="@($"Booking/cancel?id={hbooking.Id}")"><b class="close">&times Cancel</b></a>
+            }
             |
-            <a href="@($"Booking/edit?id={hbooking.Id}")"><i class="fas fa-edit"> Edit </i></a> |
-            <a href="@($"Booking/delete?id={hbooking.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+            @if(hbooking.Status.Name=="Unpaid"){
+                <a href="@($"Booking/edit?id={hbooking.Id}")"><i class="fas fa-edit"> Edit | </i></a>
+                <a href="@($"Booking/delete?id={hbooking.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+            }
+            else
+            {
+                <span><i class="fas fa-edit"> Edit | </i></span>
+                <span><i class="fas fa-trash-alt"> Delete</i></span>
+
+            }
+
+
         </TemplateColumn>
     </QuickGrid>
 }
@@ -51,6 +69,8 @@ else
 @code {
     List<HBooking> bookings;
 
+    List<HLiving> livings;
+
     protected override async Task OnInitializedAsync()
     {
         bookings = await DB.HBookings.Include(b => b.HPayments)
@@ -58,5 +78,7 @@ else
                                         .Include(b => b.Status)
                                         .Include(b => b.Guest)
                                         .ToListAsync();
+
+        livings = await DB.HLivings.Include(l => l.Booking).ToListAsync();
     }
 }

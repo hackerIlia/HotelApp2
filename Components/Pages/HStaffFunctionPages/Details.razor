@@ -1,0 +1,47 @@
+﻿@page "/hstafffunctions/details"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>HStaffFunction</h4>
+    <hr />
+    @if (hstafffunction is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@hstafffunction.Name</dd>
+            <dt class="col-sm-2">SalaryRate</dt>
+            <dd class="col-sm-10">@hstafffunction.SalaryRate</dd>
+        </dl>
+        <div>
+            <a href="@($"/hstafffunctions/edit?id={hstafffunction.Id}")">Edit</a> |
+            <a href="@($"/hstafffunctions")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    HStaffFunction? hstafffunction;
+
+    [SupplyParameterFromQuery]
+    public byte Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        hstafffunction = await DB.HStaffFunctions.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (hstafffunction is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

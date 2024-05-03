@@ -1,0 +1,91 @@
+﻿@page "/HStaffFunctions/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>HStaffFunction</h4>
+<hr />
+@if (HStaffFunction is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HStaffFunction" OnValidSubmit="UpdateHStaffFunction" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="HStaffFunction.Id" value="@HStaffFunction.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="HStaffFunction.Name" class="form-control" />
+                    <ValidationMessage For="() => HStaffFunction.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="salaryrate" class="form-label">SalaryRate:</label>
+                    <InputNumber id="salaryrate" @bind-Value="HStaffFunction.SalaryRate" class="form-control" />
+                    <ValidationMessage For="() => HStaffFunction.SalaryRate" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/hstafffunctions">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public byte Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HStaffFunction? HStaffFunction { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HStaffFunction ??= await DB.HStaffFunctions.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HStaffFunction is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHStaffFunction()
+    {
+        DB.Attach(HStaffFunction!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HStaffFunctionExists(HStaffFunction!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/hstafffunctions");
+    }
+
+    bool HStaffFunctionExists(byte id)
+    {
+        return DB.HStaffFunctions.Any(e => e.Id == id);
+    }
+}

@@ -24,4 +24,6 @@ public partial class HHotel
     public virtual HDCountry Country { get; set; }
 
     public virtual ICollection<HRoom> HRooms { get; set; } = new List<HRoom>();
+
+    public virtual ICollection<HStaff> HStaffs { get; set; } = new List<HStaff>();
 }

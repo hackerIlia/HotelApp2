@@ -200,6 +200,8 @@
         HLiving.StatusId = (byte)1;
         HLiving.BookingId = bookingEnabled ? HLiving.BookingId : null;
 
+        room.AvailabilityStatusId = (byte)2;
+
         DB.HLivings.Add(HLiving);
         await DB.SaveChangesAsync();
 

@@ -28,8 +28,9 @@
         <PropertyColumn Property="hliving => hliving.Guest.FirstName + ' ' + hliving.Guest.LastName" Title="Guest" />
 
         <TemplateColumn Context="hliving">
+                <a href="@($"Living/checkOut?id={hliving.Id}")"><i class="bi bi-clipboard-check"> Check-out</i></a> | 
                 <a href="@($"Living/edit?id={hliving.Id}")"><i class="fas fa-edit"> Edit </i></a> |
-                <a href="@($"Living/delete?id={hliving.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+                <a href="@($"Living/delete?id={hliving.Id}")"><i class="fas fa-trash-alt"> Delete</i></a> 
         </TemplateColumn>
     </QuickGrid>
 }

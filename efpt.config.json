@@ -15,6 +15,10 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[H_AttendanceOperation]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[H_Booking]",
          "ObjectType": 0
       },
@@ -51,6 +55,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[H_d_SalaryStatuses]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[H_GuestBooking]",
          "ObjectType": 0
       },
@@ -72,6 +80,18 @@
       },
       {
          "Name": "[dbo].[H_Room]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Salary]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Staff]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_StaffFunction]",
          "ObjectType": 0
       }
    ],

@@ -5,17 +5,13 @@ using System.Collections.Generic;
 
 namespace HotelApp2.Models;
 
-public partial class HDCountry
+public partial class HStaffFunction
 {
     public byte Id { get; set; }
 
     public string Name { get; set; }
 
-    public virtual ICollection<HGuestBooking> HGuestBookings { get; set; } = new List<HGuestBooking>();
-
-    public virtual ICollection<HGuestLiving> HGuestLivings { get; set; } = new List<HGuestLiving>();
-
-    public virtual ICollection<HHotel> HHotels { get; set; } = new List<HHotel>();
+    public decimal? SalaryRate { get; set; }
 
     public virtual ICollection<HStaff> HStaffs { get; set; } = new List<HStaff>();
 }

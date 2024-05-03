@@ -13,6 +13,8 @@ public partial class Hotel_DBContext : DbContext
     {
     }
 
+    public virtual DbSet<HAttendanceOperation> HAttendanceOperations { get; set; }
+
     public virtual DbSet<HBooking> HBookings { get; set; }
 
     public virtual DbSet<HDAvailabilityStatus> HDAvailabilityStatuses { get; set; }
@@ -31,6 +33,8 @@ public partial class Hotel_DBContext : DbContext
 
     public virtual DbSet<HDRoomType> HDRoomTypes { get; set; }
 
+    public virtual DbSet<HDSalaryStatus> HDSalaryStatuses { get; set; }
+
     public virtual DbSet<HGuestBooking> HGuestBookings { get; set; }
 
     public virtual DbSet<HGuestLiving> HGuestLivings { get; set; }
@@ -43,8 +47,29 @@ public partial class Hotel_DBContext : DbContext
 
     public virtual DbSet<HRoom> HRooms { get; set; }
 
+    public virtual DbSet<HSalary> HSalaries { get; set; }
+
+    public virtual DbSet<HStaff> HStaffs { get; set; }
+
+    public virtual DbSet<HStaffFunction> HStaffFunctions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<HAttendanceOperation>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_Attend__3214EC0756AD179C");
+
+            entity.ToTable("H_AttendanceOperation");
+
+            entity.Property(e => e.EnterDate).HasColumnType("smalldatetime");
+            entity.Property(e => e.ExitDate).HasColumnType("smalldatetime");
+
+            entity.HasOne(d => d.Staff).WithMany(p => p.HAttendanceOperations)
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Attenda__IdSta__59FA5E80");
+        });
+
         modelBuilder.Entity<HBooking>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__H_Bookin__3214EC070B9D7CEA");
@@ -165,6 +190,17 @@ public partial class Hotel_DBContext : DbContext
                 .HasMaxLength(18)
                 .IsUnicode(false);
             entity.Property(e => e.Price).HasColumnType("numeric(6, 2)");
+        });
+
+        modelBuilder.Entity<HDSalaryStatus>(entity =>
+        {
+            entity.ToTable("H_d_SalaryStatuses");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(8)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<HGuestBooking>(entity =>
@@ -346,6 +382,96 @@ public partial class Hotel_DBContext : DbContext
                 .HasForeignKey(d => d.TypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__H_Room__IdType__45F365D3");
+        });
+
+        modelBuilder.Entity<HSalary>(entity =>
+        {
+            entity.ToTable("H_Salary");
+
+            entity.Property(e => e.Amount).HasColumnType("numeric(8, 2)");
+            entity.Property(e => e.DateModified).HasColumnType("smalldatetime");
+
+            entity.HasOne(d => d.Staff).WithMany(p => p.HSalaries)
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_H_Salary_H_Staff");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.HSalaries)
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_H_Salary_H_d_SalaryStatuses");
+        });
+
+        modelBuilder.Entity<HStaff>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_Staff__3214EC07309C16B8");
+
+            entity.ToTable("H_Staff");
+
+            entity.HasIndex(e => e.PassportNumber, "UQ__H_Staff__45809E710E3DCE59").IsUnique();
+
+            entity.HasIndex(e => e.Phone, "UQ__H_Staff__5C7E359E17539529").IsUnique();
+
+            entity.HasIndex(e => e.Idnp, "UQ__H_Staff__B87DC94DE5F86280").IsUnique();
+
+            entity.Property(e => e.Address)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.City)
+                .IsRequired()
+                .HasMaxLength(25);
+            entity.Property(e => e.DateOfBirth).HasColumnType("date");
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.FirstName).HasMaxLength(30);
+            entity.Property(e => e.HireDate).HasColumnType("date");
+            entity.Property(e => e.Idnp)
+                .HasMaxLength(13)
+                .IsUnicode(false)
+                .HasColumnName("IDNP");
+            entity.Property(e => e.LastName).HasMaxLength(30);
+            entity.Property(e => e.NrContract).HasColumnName("Nr.Contract");
+            entity.Property(e => e.PassportNumber)
+                .IsRequired()
+                .HasMaxLength(9)
+                .IsUnicode(false);
+            entity.Property(e => e.Phone)
+                .IsRequired()
+                .HasMaxLength(12)
+                .IsUnicode(false)
+                .IsFixedLength();
+
+            entity.HasOne(d => d.Country).WithMany(p => p.HStaffs)
+                .HasForeignKey(d => d.CountryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_H_Staff_H_d_Countries");
+
+            entity.HasOne(d => d.Function).WithMany(p => p.HStaffs)
+                .HasForeignKey(d => d.FunctionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Staff__IdFunct__3A81B327");
+
+            entity.HasOne(d => d.Hotel).WithMany(p => p.HStaffs)
+                .HasForeignKey(d => d.HotelId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Staff__IdHotel__3D5E1FD2");
+        });
+
+        modelBuilder.Entity<HStaffFunction>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_StaffF__3214EC07138C2955");
+
+            entity.ToTable("H_StaffFunction");
+
+            entity.HasIndex(e => e.Name, "UQ__H_StaffF__7A54611B6CFEEF65").IsUnique();
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Name)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.SalaryRate).HasColumnType("numeric(5, 2)");
         });
 
         OnModelCreatingPartial(modelBuilder);
