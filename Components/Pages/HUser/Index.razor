@@ -1,0 +1,44 @@
+﻿@page "/User"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="User/create">Create New</a>
+</p>
+
+@if (users != null)
+{
+    <QuickGrid Class="table" Items="DB.HUsers">
+        <PropertyColumn Property="huser => huser.Login" />
+        <PropertyColumn Property="huser => huser.Password" />
+        <PropertyColumn Property="huser => huser.FirstName" Title="First Name" />
+        <PropertyColumn Property="huser => huser.LastName" Title="Last Name" />
+        <PropertyColumn Property="huser => huser.Email" />
+        <PropertyColumn Property="huser => huser.Staff.FirstName + ' ' + huser.Staff.LastName" Title="Staff" />
+
+        <TemplateColumn Context="huser">
+            <a href="@($"User/edit?id={huser.Id}")">Edit</a> |
+            <a href="@($"User/delete?id={huser.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+
+@code{
+    List<HUser> users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await DB.HUsers.Include(u => u.Staff).ToListAsync();
+    }
+}

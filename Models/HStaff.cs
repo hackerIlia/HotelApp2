@@ -45,5 +45,7 @@ public partial class HStaff
 
     public virtual ICollection<HSalary> HSalaries { get; set; } = new List<HSalary>();
 
+    public virtual ICollection<HUser> HUsers { get; set; } = new List<HUser>();
+
     public virtual HHotel Hotel { get; set; }
 }

@@ -1,0 +1,82 @@
+﻿@page "/Salary/send"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Send</PageTitle>
+
+<h1>Salary</h1>
+
+<h4 class="text-danger"><b>Are you sure you want to send this?</b></h4>
+<hr />
+
+<div>
+    @if (hsalary is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Amount</dt>
+            <dd class="col-sm-10">@hsalary.Amount</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Staff</dt>
+            <dd class="col-sm-10">@hsalary.Staff.FirstName @hsalary.Staff.LastName</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">@hsalary.Status.Name</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Date Modified</dt>
+            <dd class="col-sm-10">@hsalary.DateModified</dd>
+        </dl>
+        <EditForm method="post" Model="hsalary" OnValidSubmit="SendSalary" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(hsalary is null)">Send</button> |
+            <a href="/Salary">Cancel</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    HSalary? hsalary;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        hsalary = await DB.HSalaries.Include(s => s.Staff)
+                                    .Include(s => s.Status)
+                                    .FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (hsalary is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    public async Task SendSalary()
+    {
+        hsalary!.StatusId = (byte)2;
+        hsalary = await DB.HSalaries.Include(s => s.Staff)
+                                    .Include(s => s.Status)
+                                    .FirstOrDefaultAsync(m => m.Id == Id);
+
+        DB.Attach(hsalary!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch
+        {
+            throw;
+        }
+
+        NavigationManager.NavigateTo("/Salary");
+    }
+}

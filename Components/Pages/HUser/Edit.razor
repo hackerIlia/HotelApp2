@@ -1,0 +1,136 @@
+﻿@page "/User/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>HUser</h4>
+<hr />
+@if (HUser is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HUser" OnValidSubmit="UpdateHUser" FormName="edit" Enhance>
+                <div class="mb-3">
+                    <label for="login" class="form-label">Login:</label>
+                    <InputText readonly="true" id="login" @bind-Value="HUser.Login" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <InputText id="password" @bind-Value="HUser.Password" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="firstname" class="form-label">First Name:</label>
+                    <InputText readonly="true" id="firstname" @bind-Value="HUser.FirstName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastname" class="form-label">Last Name:</label>
+                    <InputText readonly="true" id="lastname" @bind-Value="HUser.LastName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <InputText readonly="true" id="email" @bind-Value="HUser.Email" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="staffid" class="form-label">Staff:</label>
+                    <InputSelect readonly="true" id="staffid" class="form-control" @bind-Value="HUser.StaffId">
+                        @foreach (var st in staff)
+                        {
+                            <option value="@st.Id">@st.FirstName @st.LastName</option>
+                        }
+                    </InputSelect>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <h4 class="text-success">@success</h4>
+    </div>
+}
+
+<div>
+    <a href="/User">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HUser? HUser { get; set; }
+
+    private List<HStaff> staff;
+
+    private string success = "";
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        staff = DB.HStaffs.ToList();
+
+        HUser ??= await DB.HUsers.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HUser is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHUser()
+    {
+        message = "";
+        success = "";        
+
+        DB.Attach(HUser!).State = EntityState.Modified;
+
+        try
+        {
+            success = "Editing...";
+
+            await DB.SaveChangesAsync();
+
+            success = "Edited successful!";
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HUserExists(HUser!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
+    bool HUserExists(byte id)
+    {
+        return DB.HUsers.Any(e => e.Id == id);
+    }
+
+    bool LoginExists(string login)
+    {
+        return DB.HUsers.Any(u => u.Login == login);
+    }
+    bool EmailExists(string email)
+    {
+        return DB.HUsers.Any(u => u.Email == email);
+    }
+    bool StaffExists(short id)
+    {
+        return DB.HUsers.Any(u => u.StaffId == id);
+    }
+}

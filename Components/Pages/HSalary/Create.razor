@@ -1,0 +1,140 @@
+﻿@page "/Salary/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>Salary</h3>
+<h4>Calculate</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HSalary" OnValidSubmit="AddHSalary" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="amount" class="form-label">Amount:</label> 
+                <InputNumber readonly="true" id="amount" @bind-Value="HSalary.Amount" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="staffid" class="form-label">Staff:</label>
+                <InputSelect id="staffid" class="form-control" @bind-Value="HSalary.StaffId" @onblur="OnChangeStaff">
+                    @foreach (var staff in staffs)
+                    {
+                        <option value="@staff.Id">@staff.FirstName @staff.LastName</option>
+                    }
+                </InputSelect>
+            </div> 
+            <div class="mb-3">
+                <label for="fromdate" class="form-label">From:</label>
+                <InputDate min="2000-01-01" max="2070-01-01" id="fromdate" @bind-Value="@fromDate" class="form-control" @onblur="OnChangeDate" />
+            </div>
+            <div class="mb-3">
+                <label for="todate" class="form-label">To:</label>
+                <InputDate min="2000-01-01" max="2070-01-01" id="todate" @bind-Value="@toDate" class="form-control" @onblur="OnChangeDate" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="/Salary">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HSalary HSalary { get; set; } = new();
+
+    private List<HStaff> staffs;
+
+    private DateTime fromDate = DateTime.Now.AddMonths(-1);
+    private DateTime toDate = DateTime.Now;
+
+    private string message = "";
+    private string success = "";
+
+    private DateTime fromDateMem;
+    private DateTime toDateMem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HSalary = new();
+
+        staffs = DB.HStaffs.ToList();
+
+        if (staffs != null)
+        {
+            HSalary.StaffId = (short)staffs.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        if(fromDateMem.Year != 0001)
+        {
+            fromDate = fromDateMem;
+        }
+        else
+        {
+            fromDate = DateTime.Now.AddMonths(-1);
+        }
+
+        if(toDateMem.Year != 0001)
+        {
+            toDate = toDateMem;
+        }
+        else 
+        {
+            toDate = DateTime.Now;
+        }
+
+        OnChangeDate();
+    }
+
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHSalary()
+    {
+        HSalary.StatusId = (byte)1;
+        HSalary.DateModified = DateTime.Now;
+
+        fromDateMem = fromDate;
+        toDateMem = toDate;
+
+        DB.HSalaries.Add(HSalary);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/Salary");
+    }
+
+    private void OnChangeDate()
+    {
+        HStaff staff = DB.HStaffs.FirstOrDefault(s => s.Id == HSalary.StaffId);
+        HStaffFunction staffFunction = DB.HStaffFunctions.FirstOrDefault(f => f.Id == staff.FunctionId);
+
+        List<HAttendanceOperation> operations = DB.HAttendanceOperations.Where(o => o.StaffId == staff.Id && o.ExitDate > fromDate && o.ExitDate < toDate).ToList();
+        byte sumWorkedHours = (byte) operations.Sum(o => o.WorkedHours ?? 0);
+
+        HSalary.Amount = staffFunction.SalaryRate * sumWorkedHours; 
+    }
+
+    private void OnChangeStaff()
+    {
+        HStaff staff = DB.HStaffs.FirstOrDefault(s => s.Id == HSalary.StaffId);
+        HStaffFunction staffFunction = DB.HStaffFunctions.FirstOrDefault(f => f.Id == staff.FunctionId);
+
+        List<HAttendanceOperation> operations = DB.HAttendanceOperations.Where(o => o.StaffId == staff.Id && o.ExitDate > fromDate && o.ExitDate < toDate).ToList();
+        byte sumWorkedHours = (byte)operations.Sum(o => o.WorkedHours ?? 0);
+
+        HSalary.Amount = staffFunction.SalaryRate * sumWorkedHours;
+    }
+}

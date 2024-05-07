@@ -1,0 +1,101 @@
+﻿@page "/Salary/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>HSalary</h4>
+<hr />
+@if (HSalary is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HSalary" OnValidSubmit="UpdateHSalary" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="HSalary.Id" value="@HSalary.Id" />
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Amount:</label>
+                    <InputNumber id="amount" @bind-Value="HSalary.Amount" class="form-control" />
+                    <ValidationMessage For="() => HSalary.Amount" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="staffid" class="form-label">StaffId:</label>
+                    <InputNumber id="staffid" @bind-Value="HSalary.StaffId" class="form-control" />
+                    <ValidationMessage For="() => HSalary.StaffId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="statusid" class="form-label">StatusId:</label>
+                    <InputNumber id="statusid" @bind-Value="HSalary.StatusId" class="form-control" />
+                    <ValidationMessage For="() => HSalary.StatusId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datemodified" class="form-label">DateModified:</label>
+                    <InputDate id="datemodified" @bind-Value="HSalary.DateModified" class="form-control" />
+                    <ValidationMessage For="() => HSalary.DateModified" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/Salary">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HSalary? HSalary { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HSalary ??= await DB.HSalaries.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HSalary is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHSalary()
+    {
+        DB.Attach(HSalary!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HSalaryExists(HSalary!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/Salary");
+    }
+
+    bool HSalaryExists(int id)
+    {
+        return DB.HSalaries.Any(e => e.Id == id);
+    }
+}

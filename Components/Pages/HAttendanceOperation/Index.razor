@@ -23,7 +23,7 @@
         <PropertyColumn Property="hattendanceoperation => hattendanceoperation.WorkedHours" Title="Worked Hours" />
 
         <TemplateColumn Context="hattendanceoperation">
-            @if(hattendanceoperation.WorkedHours != 0)
+            @if (!hattendanceoperation.WorkedHours.HasValue)
             {
                 <a href="@($"Attendance/exit?id={hattendanceoperation.Id}")"><b>&times; Exit | </b></a>
             }

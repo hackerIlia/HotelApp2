@@ -17,6 +17,8 @@ public partial class Hotel_DBContext : DbContext
 
     public virtual DbSet<HBooking> HBookings { get; set; }
 
+    public virtual DbSet<HCleaning> HCleanings { get; set; }
+
     public virtual DbSet<HDAvailabilityStatus> HDAvailabilityStatuses { get; set; }
 
     public virtual DbSet<HDBookingStatus> HDBookingStatuses { get; set; }
@@ -24,6 +26,8 @@ public partial class Hotel_DBContext : DbContext
     public virtual DbSet<HDCleaningStatus> HDCleaningStatuses { get; set; }
 
     public virtual DbSet<HDCountry> HDCountries { get; set; }
+
+    public virtual DbSet<HDFeedbackStatus> HDFeedbackStatuses { get; set; }
 
     public virtual DbSet<HDLivingStatus> HDLivingStatuses { get; set; }
 
@@ -34,6 +38,12 @@ public partial class Hotel_DBContext : DbContext
     public virtual DbSet<HDRoomType> HDRoomTypes { get; set; }
 
     public virtual DbSet<HDSalaryStatus> HDSalaryStatuses { get; set; }
+
+    public virtual DbSet<HDUserRole> HDUserRoles { get; set; }
+
+    public virtual DbSet<HFeedback> HFeedbacks { get; set; }
+
+    public virtual DbSet<HFeedbackAnswer> HFeedbackAnswers { get; set; }
 
     public virtual DbSet<HGuestBooking> HGuestBookings { get; set; }
 
@@ -52,6 +62,10 @@ public partial class Hotel_DBContext : DbContext
     public virtual DbSet<HStaff> HStaffs { get; set; }
 
     public virtual DbSet<HStaffFunction> HStaffFunctions { get; set; }
+
+    public virtual DbSet<HUser> HUsers { get; set; }
+
+    public virtual DbSet<HUsersAction> HUsersActions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -97,6 +111,26 @@ public partial class Hotel_DBContext : DbContext
                 .HasConstraintName("FK_H_Booking_H_d_BookingStatuses");
         });
 
+        modelBuilder.Entity<HCleaning>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("H_Cleaning");
+
+            entity.Property(e => e.Date).HasColumnType("smalldatetime");
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.Room).WithMany()
+                .HasForeignKey(d => d.RoomId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_H_Cleaning_H_Room");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_H_Cleaning_H_UserHotel");
+        });
+
         modelBuilder.Entity<HDAvailabilityStatus>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__H_d_Avai__3214EC0786D3303E");
@@ -140,6 +174,17 @@ public partial class Hotel_DBContext : DbContext
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(25)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<HDFeedbackStatus>(entity =>
+        {
+            entity.ToTable("H_d_FeedbackStatuses");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(10)
                 .IsUnicode(false);
         });
 
@@ -201,6 +246,56 @@ public partial class Hotel_DBContext : DbContext
                 .IsRequired()
                 .HasMaxLength(8)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<HDUserRole>(entity =>
+        {
+            entity.ToTable("H_d_UserRoles");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(9)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<HFeedback>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_Feedba__3214EC07719CC297");
+
+            entity.ToTable("H_Feedback");
+
+            entity.Property(e => e.Date).HasColumnType("smalldatetime");
+            entity.Property(e => e.Text).HasMaxLength(256);
+
+            entity.HasOne(d => d.Status).WithMany(p => p.HFeedbacks)
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_H_Feedback_H_Feedback");
+
+            entity.HasOne(d => d.User).WithMany(p => p.HFeedbacks)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_H_Feedback_H_Users");
+        });
+
+        modelBuilder.Entity<HFeedbackAnswer>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_Feedba__3214EC07220CBDA6");
+
+            entity.ToTable("H_FeedbackAnswer");
+
+            entity.Property(e => e.Date).HasColumnType("smalldatetime");
+            entity.Property(e => e.Text).HasMaxLength(256);
+
+            entity.HasOne(d => d.Feedback).WithMany(p => p.HFeedbackAnswers)
+                .HasForeignKey(d => d.FeedbackId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Feedbac__IdFee__66603565");
+
+            entity.HasOne(d => d.User).WithMany(p => p.HFeedbackAnswers)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_Feedbac__IdUse__6754599E");
         });
 
         modelBuilder.Entity<HGuestBooking>(entity =>
@@ -471,6 +566,70 @@ public partial class Hotel_DBContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.SalaryRate).HasColumnType("numeric(5, 2)");
+        });
+
+        modelBuilder.Entity<HUser>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_UserHo__3214EC0746BFC850");
+
+            entity.ToTable("H_Users");
+
+            entity.HasIndex(e => e.Login, "UQ__H_UserHo__4156FB312BB59C60").IsUnique();
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.FirstName).HasMaxLength(30);
+            entity.Property(e => e.LastName).HasMaxLength(30);
+            entity.Property(e => e.Login)
+                .IsRequired()
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.Password)
+                .IsRequired()
+                .HasMaxLength(20)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Staff).WithMany(p => p.HUsers)
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_H_UserHotel_H_Staff");
+
+            entity.HasMany(d => d.IdRoles).WithMany(p => p.IdUsers)
+                .UsingEntity<Dictionary<string, object>>(
+                    "HCUserRole",
+                    r => r.HasOne<HDUserRole>().WithMany()
+                        .HasForeignKey("IdRole")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_H_c_UserRoles_H_d_UserRoles"),
+                    l => l.HasOne<HUser>().WithMany()
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_H_c_UserRoles_H_Users"),
+                    j =>
+                    {
+                        j.HasKey("IdUser", "IdRole");
+                        j.ToTable("H_c_UserRoles");
+                    });
+        });
+
+        modelBuilder.Entity<HUsersAction>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__H_Action__3214EC07A009E948");
+
+            entity.ToTable("H_UsersAction");
+
+            entity.Property(e => e.Date).HasColumnType("smalldatetime");
+            entity.Property(e => e.Name)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.HUsersActions)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__H_ActionU__IdUse__571DF1D5");
         });
 
         OnModelCreatingPartial(modelBuilder);

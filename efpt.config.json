@@ -23,6 +23,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[H_c_UserRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Cleaning]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[H_d_AvailabilityStatuses]",
          "ObjectType": 0
       },
@@ -36,6 +44,10 @@
       },
       {
          "Name": "[dbo].[H_d_Countries]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_d_FeedbackStatuses]",
          "ObjectType": 0
       },
       {
@@ -56,6 +68,18 @@
       },
       {
          "Name": "[dbo].[H_d_SalaryStatuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_d_UserRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Feedback]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_FeedbackAnswer]",
          "ObjectType": 0
       },
       {
@@ -92,6 +116,14 @@
       },
       {
          "Name": "[dbo].[H_StaffFunction]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_Users]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[H_UsersAction]",
          "ObjectType": 0
       }
    ],

@@ -1,0 +1,150 @@
+﻿@page "/User/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Register</PageTitle>
+
+<h3>User</h3>
+<h4>Register</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HUser" OnValidSubmit="AddHUser" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="login" class="form-label">Login:</label> 
+                <InputText id="login" @bind-Value="HUser.Login" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label> 
+                <InputText id="password" @bind-Value="HUser.Password" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="firstname" class="form-label">First Name:</label> 
+                <InputText id="firstname" @bind-Value="HUser.FirstName" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="lastname" class="form-label">Last Name:</label> 
+                <InputText id="lastname" @bind-Value="HUser.LastName" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label> 
+                <InputText id="email" @bind-Value="HUser.Email" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="staffid" class="form-label">Staff:</label>
+                <InputSelect id="staffid" class="form-control" @bind-Value="HUser.StaffId" @onblur="OnChangeStaff">
+                    @foreach (var st in staff)
+                    {
+                        <option value="@st.Id">@st.FirstName @st.LastName</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="/User">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HUser HUser { get; set; } = new();
+
+    private List<HStaff> staff;
+
+    private string success = "";
+    private string message = "";
+
+    private short staffMem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HUser = new();
+
+        staff = DB.HStaffs.ToList();
+
+        if(staffMem > 0)
+        {
+            HUser.StaffId = staffMem;
+        }
+        else if(staff != null)
+        {
+            HUser.StaffId = staff.FirstOrDefault().Id;            
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        HStaff staffSelected = DB.HStaffs.FirstOrDefault(s => s.Id == HUser.StaffId);
+
+        HUser.FirstName = staffSelected.FirstName;
+        HUser.LastName = staffSelected.LastName;
+        HUser.Email = staffSelected.Email;
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHUser()
+    {
+        success = "";
+        message = "";
+
+        if (LoginExists(HUser.Login))
+        {
+            message = "This login is already registred. Please, introduce another one";
+            return;
+        }
+        if (EmailExists(HUser.Email))
+        {
+            message = "This email is already registred. Please, introduce another one";
+            return;
+        }
+        if (StaffExists(HUser.StaffId))
+        {
+            message = "This staff is already registred";
+            return;
+        }
+
+
+        DB.HUsers.Add(HUser);
+        await DB.SaveChangesAsync();
+
+        staffMem = HUser.StaffId;
+
+        success = "Registred successful!";
+    }
+
+    private void OnChangeStaff()
+    {
+        HStaff staffSelected = DB.HStaffs.FirstOrDefault(s => s.Id == HUser.StaffId);
+
+        HUser.FirstName = staffSelected.FirstName;
+        HUser.LastName = staffSelected.LastName;
+        HUser.Email = staffSelected.Email;
+    }
+
+    bool LoginExists(string login)
+    {
+        return DB.HUsers.Any(u => u.Login == login);
+    }
+    bool EmailExists(string email)
+    {
+        return DB.HUsers.Any(u => u.Email == email);
+    }
+    bool StaffExists(short id)
+    {
+        return DB.HUsers.Any(u => u.StaffId == id);
+    }
+}

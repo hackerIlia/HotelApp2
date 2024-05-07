@@ -1,0 +1,58 @@
+﻿@page "/Salary"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+@inject IJSRuntime JSRuntime
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>Salary</h1>
+
+<p>
+    <a href="Salary/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+@if (salaries != null)
+{
+    <QuickGrid Class="table" Items="DB.HSalaries">
+        <PropertyColumn Property="hsalary => hsalary.Amount" />
+        <PropertyColumn Property="hsalary => hsalary.Staff.FirstName + ' ' + hsalary.Staff.LastName" Title="Staff" />
+        <PropertyColumn Property="hsalary => hsalary.Status.Name" Title="Status" />
+        <PropertyColumn Property="hsalary => hsalary.DateModified" Title="Date Modified" />
+
+        <TemplateColumn Context="hsalary">
+            @if(hsalary.Status.Name == "Sent")
+            {
+                <span><b class="bi bi-send"> Send | </b></span>
+            }
+            else
+            {
+                <a href="@($"Salary/send?id={hsalary.Id}")"><b class="bi bi-send"> Send | </b></a>                
+            }
+            <a href="@($"Salary/delete?id={hsalary.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+        </TemplateColumn>
+
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code{
+    List<HSalary> salaries;
+    Modal confirmationModal = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //await confirmationModal.HideAsync();
+
+        salaries = await DB.HSalaries.Include(s => s.Staff)
+                                        .Include(s => s.Status)
+                                        .ToListAsync();
+    }
+}
