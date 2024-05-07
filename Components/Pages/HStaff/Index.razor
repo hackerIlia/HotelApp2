@@ -1,0 +1,53 @@
+﻿@page "/Staff"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>Staff</h1>
+
+<p>
+    <a href="Staff/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+@if (staff != null)
+{
+    <QuickGrid Class="table" Items="DB.HStaffs">
+        <PropertyColumn Property="hstaff => hstaff.FirstName" Title="First Name" />
+        <PropertyColumn Property="hstaff => hstaff.LastName" Title="Last Name" />
+        <PropertyColumn Property="hstaff => hstaff.DateOfBirth" Title="Date of Birth" Format="dd/MM/yyyy" />
+        <PropertyColumn Property="hstaff => hstaff.Idnp" Title="IDNP" />
+        <PropertyColumn Property="hstaff => hstaff.PassportNumber" Title="Passport Number" />
+        <PropertyColumn Property="hstaff => hstaff.Phone" />
+        <PropertyColumn Property="hstaff => hstaff.Function.Name" Title="Function" />
+        <PropertyColumn Property="hstaff => hstaff.Hotel.Name" title="Hotel" />
+        <PropertyColumn Property="hstaff => hstaff.Country.Name" Title="Country"/>
+        <PropertyColumn Property="hstaff => hstaff.City" />
+
+        <TemplateColumn Context="hstaff">
+            <a href="@($"Staff/edit?id={hstaff.Id}")">Edit</a> |
+            <a href="@($"Staff/details?id={hstaff.Id}")">Details</a> |
+            <a href="@($"Staff/delete?id={hstaff.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code{
+    List<HStaff> staff;
+
+    protected override async Task OnInitializedAsync()
+    {
+        staff = await DB.HStaffs.Include(s => s.Function)
+                                .Include(s => s.Hotel)
+                                .Include(s => s.Country)
+                                .ToListAsync();
+    }
+}

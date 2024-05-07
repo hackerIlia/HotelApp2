@@ -439,9 +439,8 @@ public partial class Hotel_DBContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Phone)
                 .IsRequired()
-                .HasMaxLength(12)
-                .IsUnicode(false)
-                .IsFixedLength();
+                .HasMaxLength(15)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Country).WithMany(p => p.HStaffs)
                 .HasForeignKey(d => d.CountryId)

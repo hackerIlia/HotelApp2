@@ -230,15 +230,15 @@ else
 
     bool PassportNumberExists(string passportN)
     {
-        return DB.HGuestBookings.Any(g => g.PassportNumber == passportN);
+        return DB.HGuestLivings.Any(g => g.PassportNumber == passportN);
     }
     bool EmailExists(string email)
     {
-        return DB.HGuestBookings.Any(g => g.Email == email);
+        return DB.HGuestLivings.Any(g => g.Email == email);
     }
     bool PhoneExists(string phone)
     {
-        return DB.HGuestBookings.Any(g => g.Phone == phone);
+        return DB.HGuestLivings.Any(g => g.Phone == phone);
     }
 
     private static bool IsValidMail(string email)

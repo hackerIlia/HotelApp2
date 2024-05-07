@@ -1,0 +1,392 @@
+﻿@page "/Staff/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using System.Text.RegularExpressions
+@using System.Net.Mail
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>Staff</h3>
+<h4>Create</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HStaff" OnValidSubmit="AddHStaff" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="firstname" class="form-label">First Name:</label> 
+                <InputText id="firstname" @bind-Value="@firstName" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="lastname" class="form-label">Last Name:</label> 
+                <InputText id="lastname" @bind-Value="@lastName" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="dateofbirth" class="form-label">Date of Birth:</label> 
+                <InputDate min="1900-01-01" max="2070-01-01" id="dateofbirth" @bind-Value="@dateOfBirth" class="form-control" />
+            </div>        
+            <div class="mb-3">
+                <label for="idnp" class="form-label">IDNP:</label> 
+                <InputText id="idnp" @bind-Value="@idnp" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="passportnumber" class="form-label">Passport Number:</label> 
+                <InputText id="passportnumber" @bind-Value="@passportNumber" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone:</label> 
+                <InputText id="phone" @bind-Value="@phone" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label> 
+                <InputText id="email" @bind-Value="@email" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="functionid" class="form-label">Function:</label>
+                <InputSelect id="functionid" class="form-control" @bind-Value="HStaff.FunctionId">
+                    @foreach (var function in functions)
+                    {
+                        <option value="@function.Id">@function.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="hiredate" class="form-label">Hire Date:</label> 
+                <InputDate min="1900-01-01" max="2070-01-01" id="hiredate" @bind-Value="@hireDate" class="form-control" />
+            </div>        
+            <div class="mb-3">
+                <label for="hotelid" class="form-label">Hotel:</label>
+                <InputSelect id="hotelid" class="form-control" @bind-Value="HStaff.HotelId">
+                    @foreach (var hotel in hotels)
+                    {
+                        <option value="@hotel.Id">@hotel.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="nrcontract" class="form-label">Nr. Contract:</label> 
+                <InputNumber id="nrcontract" @bind-Value="@nrContract" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="countryid" class="form-label">Country:</label>
+                <InputSelect id="countryid" class="form-control" @bind-Value="HStaff.CountryId">
+                    @foreach (var country in countries)
+                    {
+                        <option value="@country.Id">@country.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="city" class="form-label">City:</label> 
+                <InputText id="city" @bind-Value="@city" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="address" class="form-label">Address:</label> 
+                <InputText id="address" @bind-Value="@address" class="form-control" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="/Staff">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HStaff HStaff { get; set; } = new();
+
+    private List<HDCountry> countries;
+    private List<HHotel> hotels;
+    private List<HStaffFunction> functions;
+
+    private string firstName;
+    private string lastName;
+    private string passportNumber;
+    private string email;
+    private string phone;
+    private string city;
+    private DateTime dateOfBirth = DateTime.Now;
+    private string idnp;
+    private DateTime hireDate = DateTime.Now;
+    private short nrContract;
+    private string address;
+
+    private byte functionMem;
+    private byte hotelMem;
+    private byte countryMem;
+
+    private string message = "";
+    private string success = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        HStaff = new();
+
+        countries = DB.HDCountries.ToList();
+        hotels = DB.HHotels.ToList();
+        functions = DB.HStaffFunctions.ToList();
+
+        if (countryMem > 0)
+        {
+            HStaff.CountryId = (byte)countryMem;
+        }
+        else if (countries != null)
+        {
+            HStaff.CountryId = countries.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        if (functionMem > 0)
+        {
+            HStaff.FunctionId = (byte)functionMem;
+        }
+        else if (functions != null)
+        {
+            HStaff.FunctionId = functions.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        if (hotelMem > 0)
+        {
+            HStaff.HotelId = (byte)hotelMem;
+        }
+        else if (hotels != null)
+        {
+            HStaff.HotelId = hotels.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHStaff()
+    {
+        message = "";
+        success = "";
+
+        Regex regex = new Regex(@"^\d+$");
+        Regex regexPassportNumber = new Regex(@"^([A-z][0-9]+)$");
+
+        @if (String.IsNullOrEmpty(firstName))
+        {
+            message = "First Name is required";
+            return;
+        }
+        @if (firstName.Length < 1 || firstName.Length > 30)
+        {
+            message = "First name length must be between 1 and 30";
+            return;
+        }
+
+        @if (String.IsNullOrEmpty(lastName))
+        {
+            message = "Last Name is required";
+            return;
+        }
+        @if (lastName.Length < 1 || lastName.Length > 30)
+        {
+            message = "Last name length must be between 1 and 30";
+            return;
+        }
+
+        if(dateOfBirth > DateTime.Now)
+        {
+            message = "Date of birth can't be later than now";
+            return;
+        }
+
+        @if (String.IsNullOrEmpty(idnp))
+        {
+            message = "IDNP is required";
+            return;
+        }
+        @if (idnp.Length != 13)
+        {
+            message = "IDNP length must be 13 digits";
+            return;
+        }
+        @if (!regex.IsMatch(idnp))
+        {
+            message = "IDNP must contain only digits";
+            return;
+        }
+        @if (IDNPExists(idnp))
+        {
+            message = "This IDNP is already registred";
+            return;
+        }
+
+        @if (String.IsNullOrEmpty(passportNumber))
+        {
+            message = "Passport Number is required";
+            return;
+        }
+        @if (passportNumber.Length < 1 || passportNumber.Length > 9)
+        {
+            message = "Passport Number length must be between 1 and 9";
+            return;
+        }
+        if (!regexPassportNumber.IsMatch(passportNumber))
+        {
+            message = "Passport Number must contain first letter and then 8 digits";
+            return;
+        }
+        @if (PassportNumberExists(passportNumber))
+        {
+            message = "This passport number is already registred";
+            return;
+        }
+
+        @if (String.IsNullOrEmpty(phone))
+        {
+            message = "Phone is required";
+            return;
+        }
+        @if (phone.Length < 1 || phone.Length > 15)
+        {
+            message = "Phone length must be between 1 and 15";
+            return;
+        }
+        @if (PhoneExists(phone))
+        {
+            message = "This phone is already registred";
+            return;
+        }
+
+        @if (String.IsNullOrEmpty(email))
+        {
+            message = "Email is required";
+            return;
+        }
+        @if (email.Length < 1 || email.Length > 100)
+        {
+            message = "Email length must be between 1 and 100";
+            return;
+        }
+        @if (!IsValidMail(email))
+        {
+            message = "This email is not valid";
+            return;
+        }
+        @if (EmailExists(email))
+        {
+            message = "This email is already registred";
+            return;
+        }
+
+        if (hireDate > DateTime.Now)
+        {
+            message = "Hire Date can't be later than now";
+            return;
+        }
+
+        @if(nrContract <= 0)
+        {
+            message = "Nr. contract can't be smaller than 1";
+            return;
+        }
+        @if(nrContract > 32000)
+        {
+            message = "Nr. Contract can't be bigger than 32000";
+            return;
+        }
+
+        @if (String.IsNullOrEmpty(city))
+        {
+            message = "City is required";
+            return;
+        }
+        @if (city.Length < 1 || city.Length > 25)
+        {
+            message = "City length must be between 1 and 25";
+            return;
+        }
+
+        @if (String.IsNullOrEmpty(address))
+        {
+            message = "Address is required";
+            return;
+        }
+        @if (address.Length < 1 || address.Length > 50)
+        {
+            message = "Address length must be between 1 and 50";
+            return;
+        }
+
+        HStaff.FirstName = firstName;
+        HStaff.LastName = lastName;
+        HStaff.DateOfBirth = dateOfBirth;
+        HStaff.Idnp = idnp;
+        HStaff.PassportNumber = passportNumber;
+        HStaff.Phone = phone;
+        HStaff.Email = email;
+        HStaff.HireDate = hireDate;
+        HStaff.NrContract = nrContract;
+        HStaff.City = city;
+        HStaff.Address = address;
+
+        DB.HStaffs.Add(HStaff);
+        await DB.SaveChangesAsync();
+
+        message = "";
+        success = "Added successful!";
+
+        countryMem = HStaff.CountryId;
+        functionMem = HStaff.FunctionId;
+        hotelMem = HStaff.HotelId;
+
+        OnInitializedAsync();
+    }
+
+    bool PassportNumberExists(string passportN)
+    {
+        return DB.HStaffs.Any(g => g.PassportNumber == passportN);
+    }
+    bool EmailExists(string email)
+    {
+        return DB.HStaffs.Any(g => g.Email == email);
+    }
+    bool PhoneExists(string phone)
+    {
+        return DB.HStaffs.Any(g => g.Phone == phone);
+    }
+    bool IDNPExists(string idnp)
+    {
+        return DB.HStaffs.Any(s => s.Idnp == idnp);
+    }
+
+    private static bool IsValidMail(string email)
+    {
+        var valid = true;
+
+        try
+        {
+            var emailAddress = new MailAddress(email);
+        }
+        catch
+        {
+            valid = false;
+        }
+
+        return valid;
+    }
+}

@@ -1,0 +1,83 @@
+﻿@page "/Staff/details"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>Staff</h4>
+    <hr />
+    @if (hstaff is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">First Name</dt>
+            <dd class="col-sm-10">@hstaff.FirstName</dd>
+            <dt class="col-sm-2">Last Name</dt>
+            <dd class="col-sm-10">@hstaff.LastName</dd>
+            <dt class="col-sm-2">Date of Birth</dt>
+            <dd class="col-sm-10">@formattedDate</dd>
+            <dt class="col-sm-2">IDNP</dt>
+            <dd class="col-sm-10">@hstaff.Idnp</dd>
+            <dt class="col-sm-2">Passport Number</dt>
+            <dd class="col-sm-10">@hstaff.PassportNumber</dd>
+            <dt class="col-sm-2">Phone</dt>
+            <dd class="col-sm-10">@hstaff.Phone</dd>
+            <dt class="col-sm-2">Email</dt>
+            <dd class="col-sm-10">@hstaff.Email</dd>
+            <dt class="col-sm-2">Function</dt>
+            <dd class="col-sm-10">@hstaff.Function.Name</dd>
+            <dt class="col-sm-2">Hire Date</dt>
+            <dd class="col-sm-10">@hireDate</dd>
+            <dt class="col-sm-2">Hotel</dt>
+            <dd class="col-sm-10">@hstaff.Hotel.Name</dd>
+            <dt class="col-sm-2">Nr. Contract</dt>
+            <dd class="col-sm-10">@hstaff.NrContract</dd>
+            <dt class="col-sm-2">Country</dt>
+            <dd class="col-sm-10">@hstaff.Country.Name</dd>
+            <dt class="col-sm-2">City</dt>
+            <dd class="col-sm-10">@hstaff.City</dd>
+            <dt class="col-sm-2">Address</dt>
+            <dd class="col-sm-10">@hstaff.Address</dd>
+        </dl>
+        <div>
+            <a href="@($"/Staff/edit?id={hstaff.Id}")">Edit</a> |
+            <a href="@($"/Staff")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    HStaff? hstaff;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    string formattedDate;
+    string hireDate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hstaff = await DB.HStaffs.Include(s => s.Country)
+                                .Include(s => s.Function)
+                                .Include(s => s.Hotel)
+                                .FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (hstaff is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        DateTime dateOfBirth = (DateTime) hstaff.DateOfBirth; 
+        formattedDate = dateOfBirth.ToString("dd/MM/yyyy");
+
+        DateTime hireDateTime = hstaff.HireDate;
+        hireDate = hireDateTime.ToString("dd/MM/yyyy");
+    }
+}
