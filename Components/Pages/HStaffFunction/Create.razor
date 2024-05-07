@@ -1,0 +1,98 @@
+﻿@page "/StaffFunction/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>Staff Function</h3>
+<h4>Create</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HStaffFunction" OnValidSubmit="AddHStaffFunction" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="@name" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="salaryrate" class="form-label">Salary Rate:</label> 
+                <InputNumber id="salaryrate" @bind-Value="@salaryRate" class="form-control" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+<div>
+    <a href="/StaffFunction">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HStaffFunction HStaffFunction { get; set; } = new();
+
+    private string message = "";
+    private string success = "";
+
+    private string name;
+    private decimal salaryRate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HStaffFunction = new();
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHStaffFunction()
+    {
+        message = "";
+        success = "";
+
+        @if (String.IsNullOrEmpty(name))
+        {
+            message = "Name is required";
+            return;
+        }
+        @if(name.Length > 20)
+        {
+            message = "Name length must be up to 20 symbols";
+            return;
+        }
+        @if (NameExists(name))
+        {
+            message = "This function is already registred";
+            return;
+        }
+        @if(salaryRate<=0 || salaryRate >= 1000)
+        {
+            message = "Salary Rate can be in interval [0.01;999.99]";
+            return;
+        }
+
+        HStaffFunction.Name = name;
+        HStaffFunction.SalaryRate = salaryRate;
+
+        DB.HStaffFunctions.Add(HStaffFunction);
+        await DB.SaveChangesAsync();
+
+        message = "";
+        success = "Added successful!";
+
+        HStaffFunction = new();
+    }
+
+    bool NameExists(string name)
+    {
+        return DB.HStaffFunctions.Any(f => f.Name == name);
+    }
+}

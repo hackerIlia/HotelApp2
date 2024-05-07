@@ -29,6 +29,15 @@
                 <InputText id="comments" @bind-Value="@comments" class="form-control" />
             </div>
             <div class="mb-3">
+                <label for="typeid" class="form-label">Room type:</label>
+                <InputSelect id="typeid" class="form-control" @bind-Value="@typeRoom" @onblur="onChangeCheckDate">
+                    @foreach (var type in types)
+                    {
+                        <option value="@type.Id">@type.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
                 <label for="roomid" class="form-label">Room number:</label>
                 <InputSelect id="roomid" class="form-control" @bind-Value="HBooking.RoomId">
                     @foreach (var room in rooms)
@@ -66,6 +75,7 @@
     private List<HRoom> rooms;
     private List<HDBookingStatus> statuses;
     private List<HGuestBooking> guests;
+    private List<HDRoomType> types;
 
     private string message = "";
     private string success = "";
@@ -76,9 +86,13 @@
     private decimal amount;
     private string comments;
 
+    private byte typeRoom;
+
     private short roomMem;
     private byte statusMem;
     private int guestMem;
+    private byte typeMem;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,12 +101,28 @@
         rooms = DB.HRooms.ToList();
         statuses = DB.HDBookingStatuses.ToList();
         guests = DB.HGuestBookings.ToList();
+        types = DB.HDRoomTypes.ToList();
 
-        if (roomMem > 0)
+        // if (typeMem > 0)
+        // {
+        //     typeRoom = typeMem;
+        // }
+        // else 
+        if (types != null)
         {
-            HBooking.RoomId = (short)roomMem;
+            typeRoom = types.FirstOrDefault().Id;
         }
-        else if (rooms != null)
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        // if (roomMem > 0)
+        // {
+        //     HBooking.RoomId = (short)roomMem;
+        // }
+        // else 
+        if (rooms.Count > 0)
         {
             HBooking.RoomId = rooms.FirstOrDefault().Id;
         }
@@ -126,6 +156,8 @@
         {
             NavigationManager.NavigateTo("notfound");
         }
+
+        onChangeCheckDate();
     }
 
 
@@ -156,7 +188,8 @@
             Random random = new Random();
             int randomDigits = random.Next(100000, 1000000);
             number = Convert.ToInt32(numberDate + randomDigits.ToString());
-        } while (numberExists(number));
+        } 
+        while (numberExists(number));
 
 
         HBooking.Number = number;
@@ -180,6 +213,7 @@
         roomMem = HBooking.RoomId;
         statusMem = HBooking.StatusId;
         guestMem = HBooking.GuestId;
+        typeMem = HBooking.Room.TypeId;
 
         OnInitializedAsync();
     }
@@ -193,7 +227,7 @@
     {
         //List<HBooking> bookingsSTOP = DB.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).ToList();
         List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
-        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).ToList();
+        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
 
     }
 }

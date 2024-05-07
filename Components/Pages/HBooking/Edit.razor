@@ -36,6 +36,15 @@ else
                     <InputText id="comments" @bind-Value="@comments" class="form-control" />
                 </div>
                 <div class="mb-3">
+                    <label for="typeid" class="form-label">Room type:</label>
+                    <InputSelect id="typeid" class="form-control" @bind-Value="@typeRoom" @onblur="onChangeCheckDate">
+                        @foreach (var type in types)
+                        {
+                            <option value="@type.Id">@type.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
                     <label for="roomid" class="form-label">Room number:</label>
                     <InputSelect id="roomid" class="form-control" @bind-Value="HBooking.RoomId">
                         @foreach (var room in rooms)
@@ -74,6 +83,8 @@ else
     private List<HRoom> rooms;
     private List<HDBookingStatus> statuses;
     private List<HGuestBooking> guests;
+    private List<HDRoomType> types;
+
 
     private string message = "";
     private string success = "";
@@ -83,15 +94,19 @@ else
     private decimal amount;
     private string comments;
 
+    private byte typeRoom;
+
     private short roomMem;
     private byte statusMem;
     private int guestMem;
+
 
     protected override async Task OnInitializedAsync()
     {
         rooms = DB.HRooms.ToList();
         statuses = DB.HDBookingStatuses.ToList();
         guests = DB.HGuestBookings.ToList();
+        types = DB.HDRoomTypes.ToList();
 
         HBooking ??= await DB.HBookings.FirstOrDefaultAsync(m => m.Id == Id);
 
@@ -105,6 +120,16 @@ else
             checkout = HBooking.CheckOutDate;
             amount = HBooking.Amount;
             comments = HBooking.Comments;
+
+            typeRoom = DB.HRooms.FirstOrDefault(r => r.Id == HBooking.RoomId).TypeId;
+            
+            List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+            rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
+
+            if (!rooms.Any(r => r.Id == HBooking.RoomId))
+            {
+                rooms.Add(DB.HRooms.FirstOrDefault(r => r.Id == HBooking.RoomId));
+            }
         }
     }
 
@@ -159,5 +184,18 @@ else
     bool HBookingExists(int id)
     {
         return DB.HBookings.Any(e => e.Id == id);
+    }
+
+    void onChangeCheckDate()
+    {
+        //List<HBooking> bookingsSTOP = DB.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).ToList();
+        List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
+
+        if (!rooms.Any(r => r.Id == HBooking.RoomId))
+        {
+            rooms.Add(DB.HRooms.FirstOrDefault(r => r.Id == HBooking.RoomId));
+        }
+        //.Add(DB.HRooms.Where(r => r.Id == HBooking.RoomId))
     }
 }

@@ -1,53 +1,60 @@
-﻿@page "/HStaffFunctions/edit"
+﻿@page "/StaffFunction/edit"
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
 
 <PageTitle>Edit</PageTitle>
 
-<h1>Edit</h1>
+<h3>Staff Function</h3>
+<h4>Edit</h4>
 
-<h4>HStaffFunction</h4>
-<hr />
+
 @if (HStaffFunction is null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
+    <h4 class="text-danger">@message</h4>
+
     <div class="row">
         <div class="col-md-4">
             <EditForm method="post" Model="HStaffFunction" OnValidSubmit="UpdateHStaffFunction" FormName="edit" Enhance>
-                <DataAnnotationsValidator />
-                <ValidationSummary />
                 <input type="hidden" name="HStaffFunction.Id" value="@HStaffFunction.Id" />
                 <div class="mb-3">
                     <label for="name" class="form-label">Name:</label>
-                    <InputText id="name" @bind-Value="HStaffFunction.Name" class="form-control" />
-                    <ValidationMessage For="() => HStaffFunction.Name" class="text-danger" />
+                    <InputText id="name" @bind-Value="@name" class="form-control" />
                 </div>
                 <div class="mb-3">
-                    <label for="salaryrate" class="form-label">SalaryRate:</label>
-                    <InputNumber id="salaryrate" @bind-Value="HStaffFunction.SalaryRate" class="form-control" />
-                    <ValidationMessage For="() => HStaffFunction.SalaryRate" class="text-danger" />
+                    <label for="salaryrate" class="form-label">Salary Rate:</label>
+                    <InputNumber id="salaryrate" @bind-Value="@salaryRate" class="form-control" />
                 </div>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Edit</button>
+                <a href="/StaffFunction" class="btn btn-info">Back to List</a>
             </EditForm>
         </div>
     </div>
+
+    <div class="mb-3">
+        <h4 class="text-success">@success</h4>
+    </div>
 }
 
-<div>
-    <a href="/hstafffunctions">Back to List</a>
-</div>
 
 @code {
     [SupplyParameterFromQuery]
-    public byte Id { get; set; }
+    public int Id { get; set; }
 
     [SupplyParameterFromForm]
     public HStaffFunction? HStaffFunction { get; set; }
+
+    private string message = "";
+    private string success = "";
+
+    private string name;
+    private decimal? salaryRate;
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,17 +64,54 @@ else
         {
             NavigationManager.NavigateTo("notfound");
         }
+        else
+        {
+            name = HStaffFunction.Name;
+            salaryRate = HStaffFunction.SalaryRate;
+        }
     }
 
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see https://aka.ms/RazorPagesCRUD.
     public async Task UpdateHStaffFunction()
     {
+        message = "";
+        success = "";
+
+        @if (String.IsNullOrEmpty(name))
+        {
+            message = "Name is required";
+            return;
+        }
+        @if (name.Length > 20)
+        {
+            message = "Name length must be up to 20 symbols";
+            return;
+        }
+        @if (NameExists(name) && name != HStaffFunction.Name)
+        {
+            message = "This function is already registred";
+            return;
+        }
+        @if (salaryRate <= 0 || salaryRate >= 1000)
+        {
+            message = "Salary Rate can be in interval [0.01;999.99]";
+            return;
+        }
+
         DB.Attach(HStaffFunction!).State = EntityState.Modified;
 
         try
         {
+            success = "Editing...";
+
+            HStaffFunction.Name = name;
+            HStaffFunction.SalaryRate = salaryRate;
+
             await DB.SaveChangesAsync();
+
+            message = "";
+            success = "Edited successful!";
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -80,12 +124,15 @@ else
                 throw;
             }
         }
-
-        NavigationManager.NavigateTo("/hstafffunctions");
     }
 
     bool HStaffFunctionExists(byte id)
     {
         return DB.HStaffFunctions.Any(e => e.Id == id);
+    }
+
+    bool NameExists(string name)
+    {
+        return DB.HStaffFunctions.Any(f => f.Name == name);
     }
 }

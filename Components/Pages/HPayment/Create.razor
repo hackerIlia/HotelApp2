@@ -53,7 +53,6 @@
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
-
     [SupplyParameterFromForm]
     public HBooking? HBooking { get; set; }
 
@@ -70,17 +69,27 @@
 
     protected override async Task OnInitializedAsync()
     {
-        HPayment = new();
+        //HPayment = new HPayment();
         methods = DB.HDPaymentMethods.ToList();
 
-        if(methods != null)
+        // if(methods != null)
+        // {
+        //     HPayment.MethodId = methods.FirstOrDefault().Id;
+        // }
+        // else
+        // {
+        //     NavigationManager.NavigateTo("notfound");
+        // }
+
+        if (methods != null && methods.Any())
         {
-            HPayment.MethodId = methods.FirstOrDefault().Id;
+            HPayment.MethodId = methods.First().Id;
         }
         else
         {
             NavigationManager.NavigateTo("notfound");
         }
+
 
 
         HBooking = await DB.HBookings.FirstOrDefaultAsync(m => m.Id == Id);
