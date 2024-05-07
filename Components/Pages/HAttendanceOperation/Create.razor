@@ -1,0 +1,84 @@
+﻿@page "/Attendance/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>Attendance operation</h3>
+<h4>Create</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HAttendanceOperation" OnValidSubmit="AddHAttendanceOperation" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="enterdate" class="form-label">Enter Date:</label>
+                <input id="enterdate" class="form-control" readonly value="@enterDate.ToString("dd/MM/yyyy HH:mm:ss")" />
+            </div>
+            @* <div class="mb-3">
+                <label for="exitdate" class="form-label">ExitDate:</label> 
+                <InputDate id="exitdate" @bind-Value="@exitDate" class="form-control" /> 
+            </div>  *@       
+            <div class="mb-3">
+                <label for="staffid" class="form-label">Staff:</label>
+                <InputSelect id="staffid" class="form-control" @bind-Value="@HAttendanceOperation.StaffId">
+                    @foreach (var st in staff)
+                    {
+                        <option value="@st.Id">@st.FirstName @st.LastName</option>
+                    }
+                </InputSelect>
+            </div>
+            @* <div class="mb-3">
+                <label for="workedhours" class="form-label">WorkedHours:</label> 
+                <InputNumber id="workedhours" @bind-Value="@workedHours" class="form-control" /> 
+            </div>  *@       
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+
+<div>
+    <a href="/Attendance">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HAttendanceOperation HAttendanceOperation { get; set; } = new();
+
+    private List<HStaff> staff;
+
+    private DateTime enterDate;
+
+    private string success = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        HAttendanceOperation = new();
+
+        staff = DB.HStaffs.ToList();
+
+        enterDate = DateTime.Now;
+        HAttendanceOperation.StaffId = staff.FirstOrDefault().Id;
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHAttendanceOperation()
+    {
+        success = "";
+
+        HAttendanceOperation.EnterDate = enterDate;
+        HAttendanceOperation.ExitDate = enterDate;
+
+        DB.HAttendanceOperations.Add(HAttendanceOperation);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/Attendance");
+    }
+}

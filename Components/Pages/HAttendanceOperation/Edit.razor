@@ -1,0 +1,102 @@
+﻿@* @page "/Attendance/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>HAttendanceOperation</h4>
+<hr />
+@if (HAttendanceOperation is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HAttendanceOperation" OnValidSubmit="UpdateHAttendanceOperation" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="HAttendanceOperation.Id" value="@HAttendanceOperation.Id" />
+                <div class="mb-3">
+                    <label for="enterdate" class="form-label">EnterDate:</label>
+                    <InputDate id="enterdate" @bind-Value="HAttendanceOperation.EnterDate" class="form-control" />
+                    <ValidationMessage For="() => HAttendanceOperation.EnterDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="exitdate" class="form-label">ExitDate:</label>
+                    <InputDate id="exitdate" @bind-Value="HAttendanceOperation.ExitDate" class="form-control" />
+                    <ValidationMessage For="() => HAttendanceOperation.ExitDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="staffid" class="form-label">StaffId:</label>
+                    <InputNumber id="staffid" @bind-Value="HAttendanceOperation.StaffId" class="form-control" />
+                    <ValidationMessage For="() => HAttendanceOperation.StaffId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="workedhours" class="form-label">WorkedHours:</label>
+                    <InputText id="workedhours" @bind-Value="HAttendanceOperation.WorkedHours" class="form-control" />
+                    <ValidationMessage For="() => HAttendanceOperation.WorkedHours" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/Attendance">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HAttendanceOperation? HAttendanceOperation { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HAttendanceOperation ??= await DB.HAttendanceOperations.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HAttendanceOperation is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHAttendanceOperation()
+    {
+        DB.Attach(HAttendanceOperation!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HAttendanceOperationExists(HAttendanceOperation!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/Attendance");
+    }
+
+    bool HAttendanceOperationExists(int id)
+    {
+        return DB.HAttendanceOperations.Any(e => e.Id == id);
+    }
+}
+ *@

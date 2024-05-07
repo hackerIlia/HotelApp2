@@ -29,9 +29,9 @@
         <PropertyColumn Property="hstaff => hstaff.City" />
 
         <TemplateColumn Context="hstaff">
-            <a href="@($"Staff/edit?id={hstaff.Id}")">Edit</a> |
-            <a href="@($"Staff/details?id={hstaff.Id}")">Details</a> |
-            <a href="@($"Staff/delete?id={hstaff.Id}")">Delete</a>
+            <a href="@($"Staff/edit?id={hstaff.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+            <a href="@($"Staff/details?id={hstaff.Id}")"><i class="fa fa-info-circle"> Details</i></a> |
+            <a href="@($"Staff/delete?id={hstaff.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
         </TemplateColumn>
     </QuickGrid>
 }

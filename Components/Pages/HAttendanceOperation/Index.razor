@@ -1,0 +1,51 @@
+﻿@page "/Attendance"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>Attendance</h1>
+
+<p>
+    <a href="Attendance/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+@if (operations != null)
+{
+    <QuickGrid Class="table" Items="DB.HAttendanceOperations">
+        <PropertyColumn Property="hattendanceoperation => hattendanceoperation.EnterDate" Title="Enter Date" />
+        <PropertyColumn Property="hattendanceoperation => hattendanceoperation.ExitDate" Title="Exit Date" />
+        <PropertyColumn Property="hattendanceoperation => hattendanceoperation.Staff.FirstName + ' ' + hattendanceoperation.Staff.LastName" Title="Staff" />
+        <PropertyColumn Property="hattendanceoperation => hattendanceoperation.WorkedHours" Title="Worked Hours" />
+
+        <TemplateColumn Context="hattendanceoperation">
+            @if(hattendanceoperation.WorkedHours != 0)
+            {
+                <a href="@($"Attendance/exit?id={hattendanceoperation.Id}")"><b>&times; Exit | </b></a>
+            }
+            else
+            {
+                <span><i>&times; Exit | </i></span>
+
+            }
+            <a href="@($"Attendance/delete?id={hattendanceoperation.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>  
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code{
+    List<HAttendanceOperation> operations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        operations = await DB.HAttendanceOperations.Include(o => o.Staff).ToListAsync();
+    }
+}

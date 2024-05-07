@@ -309,6 +309,11 @@
             message = "Nr. Contract can't be bigger than 32000";
             return;
         }
+        @if (NrContractExists(nrContract))
+        {
+            message = "This Nr. Contract is already registred";
+            return;
+        }
 
         @if (String.IsNullOrEmpty(city))
         {
@@ -372,6 +377,10 @@
     bool IDNPExists(string idnp)
     {
         return DB.HStaffs.Any(s => s.Idnp == idnp);
+    }
+    bool NrContractExists(short nrContract)
+    {
+        return DB.HStaffs.Any(s => s.NrContract == nrContract);
     }
 
     private static bool IsValidMail(string email)

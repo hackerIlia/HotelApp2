@@ -1,0 +1,65 @@
+﻿@page "/Attendance/delete"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Attendance</h1>
+
+<h4 class="text-danger"><b>Are you sure you want to delete this?</b></h4>
+<hr />
+
+<div>
+    @if (hattendanceoperation is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Enter Date</dt>
+            <dd class="col-sm-10">@hattendanceoperation.EnterDate</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Exit Date</dt>
+            <dd class="col-sm-10">@hattendanceoperation.ExitDate</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Staff</dt>
+            <dd class="col-sm-10">@hattendanceoperation.Staff.FirstName @hattendanceoperation.Staff.LastName</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Worked Hours</dt>
+            <dd class="col-sm-10">@hattendanceoperation.WorkedHours</dd>
+        </dl>
+        <EditForm method="post" Model="hattendanceoperation" OnValidSubmit="DeleteHAttendanceOperation" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(hattendanceoperation is null)">Delete</button> |
+            <a href="/Attendance">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    HAttendanceOperation? hattendanceoperation;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        hattendanceoperation = await DB.HAttendanceOperations.Include(o => o.Staff).FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (hattendanceoperation is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    public async Task DeleteHAttendanceOperation()
+    {
+        DB.HAttendanceOperations.Remove(hattendanceoperation!);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/Attendance");
+    }
+}
