@@ -10,10 +10,10 @@ public partial class HUser
 {
     public byte Id { get; set; }
     [Required]
-    [StringLength(30)]
+    [StringLength(30, MinimumLength = 5)]
     public string Login { get; set; }
     [Required]
-    [StringLength(20)]
+    [StringLength(20, MinimumLength = 8)]
     public string Password { get; set; }
     [Required]
     [StringLength(30)]

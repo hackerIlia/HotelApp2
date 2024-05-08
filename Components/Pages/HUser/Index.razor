@@ -4,12 +4,14 @@
 @using HotelApp2.Models
 @using Microsoft.EntityFrameworkCore
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
 <PageTitle>Index</PageTitle>
 
-<h1>Index</h1>
+<h1>Users</h1>
 
 <p>
-    <a href="User/create">Create New</a>
+    <a href="User/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
 </p>
 
 @if (users != null)
@@ -23,8 +25,8 @@
         <PropertyColumn Property="huser => huser.Staff.FirstName + ' ' + huser.Staff.LastName" Title="Staff" />
 
         <TemplateColumn Context="huser">
-            <a href="@($"User/edit?id={huser.Id}")">Edit</a> |
-            <a href="@($"User/delete?id={huser.Id}")">Delete</a>
+            <a href="@($"User/edit?id={huser.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+            <a href="@($"User/delete?id={huser.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
         </TemplateColumn>
     </QuickGrid>
 }
