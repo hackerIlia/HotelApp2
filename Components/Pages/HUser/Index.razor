@@ -2,7 +2,9 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
+@using HotelApp2.Components
 @using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
 
@@ -25,10 +27,60 @@
         <PropertyColumn Property="huser => huser.Staff.FirstName + ' ' + huser.Staff.LastName" Title="Staff" />
 
         <TemplateColumn Context="huser">
+            <button @onclick="@(() => ShowRoleSelectionModal(huser.Id))">Manage Roles</button>
             <a href="@($"User/edit?id={huser.Id}")"><i class="fas fa-edit"> Edit </i></a> |
             <a href="@($"User/delete?id={huser.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+
+
+            
+            @* <Modal @ref="modalRef" Style="display:block">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Roles for User</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    @foreach (var role in allRoles)
+                    {
+                        <div>
+                            <input type="checkbox" @bind="@selectedRoles" value="@role.Id" /> @role.Name
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideModal">Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="ApplyRoles">Apply</button>
+                </div>
+            </Modal> *@
+
         </TemplateColumn>
     </QuickGrid>
+
+    @if (show)
+    {
+        <div class="modal" tabindex="-1" role="dialog" style="display:block">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Select Roles for User</h5>
+                        <button type="button" class="btn-close" @onclick=HideModal></button>
+                    </div>
+                    <div class="modal-body">
+                        @foreach (var role in allRoles)
+                        {
+                            <div>
+                                <input type="radio" id="@($"role_{role.Id}")" name="selectedRole" value="@role.Id" checked="@IsRoleSelected(role.Id)" @onchange="@(e => SelectRole(role.Id))">
+                                <label for="@($"role_{role.Id}")">@role.Name</label>
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick=HideModal>Close</button>
+                        <button type="button" class="btn btn-primary" @onclick=ApplyRoles>Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 else
 {
@@ -38,9 +90,67 @@ else
 
 @code{
     List<HUser> users;
+    private List<HDUserRole> allRoles;
+    private HashSet<byte> selectedRoles;
+
+    bool show = false;
+
+    private int selectedUserId;
+    private bool isModalVisible = false;
 
     protected override async Task OnInitializedAsync()
     {
         users = await DB.HUsers.Include(u => u.Staff).ToListAsync();
+        allRoles = await DB.HDUserRoles.ToListAsync();
     }
+
+    private void ShowRoleSelectionModal(int userId)
+    {
+        // selectedUserId = userId;
+        // selectedRoles = DB.HUsers.Where(u => u.Id == userId)
+        //                          .SelectMany(u => u.IdRoles)
+        //                          .Select(r => r.Id)
+        //                          .ToHashSet();
+        // show = true;
+    }
+
+    private async Task ApplyRoles()
+    {
+        var user = await DB.HUsers.Include(u => u.IdRoles).FirstOrDefaultAsync(u => u.Id == selectedUserId);
+        user.IdRoles.Clear();
+        if (selectedRole != null)
+        {
+            var role = await DB.HDUserRoles.FindAsync(selectedRole);
+            user.IdRoles.Add(role);
+        }
+        await DB.SaveChangesAsync();
+        show = false;
+    }
+
+    private void HideModal()
+    {
+        show = false;
+    }
+
+    private byte selectedRole;
+
+    private bool IsRoleSelected(byte roleId)
+    {
+        HUser user = DB.HUsers.Include(u => u.IdRoles).FirstOrDefault(u => u.Id == selectedUserId);
+        return user.IdRoles.Any(r => r.Id == roleId);
+    }
+
+    private async Task SelectRole(byte roleId)
+    {
+        HUser user = DB.HUsers.Include(u => u.IdRoles).FirstOrDefault(u => u.Id == selectedUserId);
+        var role = DB.HDUserRoles.FirstOrDefault(u => u.Id == roleId);
+        user.IdRoles.Clear();
+
+
+        user.IdRoles.Add(role);
+        //selectedRole = roleId;
+        await DB.SaveChangesAsync();
+
+    }
+
 }

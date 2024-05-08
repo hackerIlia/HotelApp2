@@ -66,6 +66,7 @@ public partial class Hotel_DBContext : DbContext
     public virtual DbSet<HUser> HUsers { get; set; }
 
     public virtual DbSet<HUsersAction> HUsersActions { get; set; }
+    //public virtual DbSet<HCUserRole> HCUserRoles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -235,6 +236,15 @@ public partial class Hotel_DBContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Price).HasColumnType("numeric(6, 2)");
         });
+
+        //modelBuilder.Entity<HCUserRole>(entity =>
+        //{
+        //    entity.HasKey(e => new { e.IdUser, e.IdRole }).HasName("PK_H_c_UserRoles");
+
+        //    entity.ToTable("H_c_UserRoles");
+
+        //    entity.HasOne(d => d.Role).WithOne(p => p.)
+        //});
 
         modelBuilder.Entity<HDSalaryStatus>(entity =>
         {
