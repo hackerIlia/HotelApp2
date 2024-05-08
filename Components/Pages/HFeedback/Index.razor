@@ -1,0 +1,46 @@
+﻿@page "/Feedback"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>Feedback</h1>
+
+<p>
+    <a href="Feedback/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+@if (feedbacks != null)
+{
+    <QuickGrid Class="table" Items="DB.HFeedbacks">
+        <PropertyColumn Property="hfeedback => hfeedback.Text" />
+        <PropertyColumn Property="hfeedback => hfeedback.Date" Format="dd/MM/yyyy HH:mm:ss" />
+        <PropertyColumn Property="hfeedback => hfeedback.Status.Name" Title="Status" />
+        <PropertyColumn Property="hfeedback => hfeedback.Rate" />
+        <PropertyColumn Property="hfeedback => hfeedback == null ? string.Empty : (hfeedback.User.FirstName +  ' ' + hfeedback.User.LastName)" Title="User Created" />
+
+        <TemplateColumn Context="hfeedback">
+            <a href="@($"Feedback/edit?id={hfeedback.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+            <a href="@($"Feedback/delete?id={hfeedback.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code {
+    List<HFeedback> feedbacks;
+
+    protected override async Task OnInitializedAsync()
+    {
+        feedbacks = await DB.HFeedbacks.Include(f => f.Status)
+                                        .Include(f => f.User)
+                                        .ToListAsync();
+    }
+}

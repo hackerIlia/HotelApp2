@@ -1,0 +1,142 @@
+﻿@page "/Feedback/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<PageTitle>Edit</PageTitle>
+
+<h3>Feedback</h3>
+<h4>Edit</h4>
+<hr />
+
+@if (HFeedback is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h5 class="text-danger">@message</h5>
+
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HFeedback" OnValidSubmit="UpdateHFeedback" FormName="edit" Enhance>
+                <input type="hidden" name="HFeedback.Id" value="@HFeedback.Id" />
+                <div class="mb-3">
+                    <label for="text" class="form-label">Text:</label>
+                    <InputText id="text" @bind-Value="@text" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="rate" class="form-label">Rate:</label>
+                    <InputNumber id="rate" @bind-Value="@rate" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">Edit</button>
+                <a href="/Feedback" class="btn btn-info">Back to List</a>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <h4 class="text-success">@success</h4>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HFeedback? HFeedback { get; set; }
+
+    private List<HUser> users;
+    private List<HDFeedbackStatus> statuses;
+
+    private string text;
+    private int rate;
+
+    private string message = "";
+    private string success = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = DB.HUsers.ToList();
+        statuses = DB.HDFeedbackStatuses.ToList();
+
+        HFeedback ??= await DB.HFeedbacks.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HFeedback is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+        else
+        {
+            text = HFeedback.Text;
+            rate = HFeedback.Rate;
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHFeedback()
+    {
+        message = "";
+        success = "";
+
+        @if (String.IsNullOrEmpty(text))
+        {
+            message = "Text is required";
+            return;
+        }
+        @if (text.Length < 1 || text.Length > 256)
+        {
+            message = "Text length must be between 1 and 256";
+            return;
+        }
+
+        @if (rate < 1)
+        {
+            message = "Rate can't be smaller than 1";
+            return;
+        }
+        @if (rate > 5)
+        {
+            message = "Rate can't be bigger than 5";
+            return;
+        }
+
+        DB.Attach(HFeedback!).State = EntityState.Modified;
+
+        try
+        {
+            success = "Editing...";
+
+            HFeedback.Text = text;
+            //HFeedback.Date = DateTime.Now;
+            HFeedback.Rate = (byte)rate;
+
+            await DB.SaveChangesAsync();
+
+            message = "";
+            success = "Edited successful!";
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HFeedbackExists(HFeedback!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/Feedback");
+    }
+
+    bool HFeedbackExists(int id)
+    {
+        return DB.HFeedbacks.Any(e => e.Id == id);
+    }
+}

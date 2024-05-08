@@ -1,0 +1,106 @@
+﻿@page "/Feedback/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>Feedback</h3>
+<h4>Create</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HFeedback" OnValidSubmit="AddHFeedback" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="text" class="form-label">Text:</label> 
+                <InputText id="text" @bind-Value="@text" class="form-control" /> 
+            </div>
+            <div class="mb-3">
+                <label for="rate" class="form-label">Rate:</label> 
+                <InputNumber min="1" max="5" id="rate" @bind-Value="@rate" class="form-control" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="userid" class="form-label">User:</label>
+                <InputSelect id="userid" class="form-control" @bind-Value="HFeedback.UserId">
+                    @foreach (var user in users)
+                    {
+                        <option value="@user.Id">@user.FirstName @user.LastName</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/Feedback">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HFeedback HFeedback { get; set; } = new();
+
+    private List<HUser> users;
+    private List<HDFeedbackStatus> statuses;
+
+    private string text;
+    private DateTime date;
+    private int rate;
+
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        HFeedback = new();
+
+        users = DB.HUsers.ToList();
+        statuses = DB.HDFeedbackStatuses.ToList();
+
+        HFeedback.UserId = users.FirstOrDefault().Id;
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHFeedback()
+    {
+        message = "";
+
+        @if (String.IsNullOrEmpty(text))
+        {
+            message = "Text is required";
+            return;
+        }
+        @if (text.Length < 1 || text.Length > 256)
+        {
+            message = "Text length must be between 1 and 256";
+            return;
+        }
+
+        @if (rate < 1)
+        {
+            message = "Rate can't be smaller than 1";
+            return;
+        }
+        @if (rate > 5)
+        {
+            message = "Rate can't be bigger than 5";
+            return;
+        }
+
+        HFeedback.Text = text;
+        HFeedback.Date = DateTime.Now;
+        HFeedback.StatusId = (byte)1;
+        HFeedback.Rate =(byte) rate;
+        
+
+        DB.HFeedbacks.Add(HFeedback);
+        await DB.SaveChangesAsync();
+
+        NavigationManager.NavigateTo("/Feedback");
+    }
+}
