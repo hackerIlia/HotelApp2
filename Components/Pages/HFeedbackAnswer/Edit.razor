@@ -1,0 +1,121 @@
+﻿@page "/FeedbackAnswer/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<PageTitle>Edit</PageTitle>
+
+<h3>Feedback Answer</h3>
+<h4>Edit</h4>
+<hr />
+
+@if (HFeedbackAnswer is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h5 class="text-danger">@message</h5>
+
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HFeedbackAnswer" OnValidSubmit="UpdateHFeedbackAnswer" FormName="edit" Enhance>
+                <input type="hidden" name="HFeedbackAnswer.Id" value="@HFeedbackAnswer.Id" />
+                <div class="mb-3">
+                    <label for="text" class="form-label">Text:</label>
+                    <InputText id="text" @bind-Value="@text" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="userid" class="form-label">User</label>
+                    <InputSelect disabled="true" id="userid" class="form-control" @bind-Value="HFeedbackAnswer.UserId">
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.FirstName @user.LastName</option>
+                        }
+                    </InputSelect>
+                </div>
+                <button type="submit" class="btn btn-primary">Edit</button>
+                <a href="/FeedbackAnswer" class="btn btn-info">Back to List</a>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HFeedbackAnswer? HFeedbackAnswer { get; set; }
+
+    private List<HUser> users;
+
+    private string text;
+
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = DB.HUsers.ToList();
+
+        HFeedbackAnswer ??= await DB.HFeedbackAnswers.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HFeedbackAnswer is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+        else
+        {
+            text = HFeedbackAnswer.Text;
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHFeedbackAnswer()
+    {
+        message = "";
+
+        @if (String.IsNullOrEmpty(text))
+        {
+            message = "Text is required";
+            return;
+        }
+        @if (text.Length < 1 || text.Length > 256)
+        {
+            message = "Text length must be between 1 and 256";
+            return;
+        }
+
+        DB.Attach(HFeedbackAnswer!).State = EntityState.Modified;
+
+        try
+        {
+            HFeedbackAnswer.Text = text;
+
+            await DB.SaveChangesAsync();
+
+            message = "";
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HFeedbackAnswerExists(HFeedbackAnswer!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/FeedbackAnswer");
+    }
+
+    bool HFeedbackAnswerExists(int id)
+    {
+        return DB.HFeedbackAnswers.Any(e => e.Id == id);
+    }
+}

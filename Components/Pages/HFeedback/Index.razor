@@ -24,6 +24,14 @@
         <PropertyColumn Property="hfeedback => hfeedback == null ? string.Empty : (hfeedback.User.FirstName +  ' ' + hfeedback.User.LastName)" Title="User Created" />
 
         <TemplateColumn Context="hfeedback">
+            @if(hfeedback.Status.Name == "Unanswered")
+            {
+                <a href="@($"FeedbackAnswer/create?id={hfeedback.Id}")"><b class="bi bi-reply"> Answer | </b></a>
+            }
+            else
+            {
+                <span><b class="bi bi-reply"> Answer | </b></span>
+            }
             <a href="@($"Feedback/edit?id={hfeedback.Id}")"><i class="fas fa-edit"> Edit </i></a> |
             <a href="@($"Feedback/delete?id={hfeedback.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
         </TemplateColumn>

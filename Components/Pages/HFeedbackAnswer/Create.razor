@@ -1,0 +1,90 @@
+﻿@page "/FeedbackAnswer/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Answer</PageTitle>
+
+<h3>Answer to Feedback</h3>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HFeedbackAnswer" OnValidSubmit="AddHFeedbackAnswer" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="text" class="form-label">Text:</label> 
+                <InputText id="text" @bind-Value="@text" class="form-control" /> 
+            </div>                    
+            <div class="mb-3">
+                <label for="userid" class="form-label">User:</label>
+                <InputSelect id="userid" class="form-control" @bind-Value="HFeedbackAnswer.UserId">
+                    @foreach (var user in users)
+                    {
+                        <option value="@user.Id">@user.FirstName @user.LastName</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/FeedbackAnswer">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HFeedbackAnswer HFeedbackAnswer { get; set; } = new();
+
+    private List<HUser> users;
+
+    private string text;
+
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        HFeedbackAnswer = new();
+
+        users = DB.HUsers.ToList();
+
+        HFeedbackAnswer.FeedbackId = (byte) Id;
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHFeedbackAnswer()
+    {
+        message = "";
+
+        @if (String.IsNullOrEmpty(text))
+        {
+            message = "Text is required";
+            return;
+        }
+        @if (text.Length < 1 || text.Length > 256)
+        {
+            message = "Text length must be between 1 and 256";
+            return;
+        }
+
+        HFeedbackAnswer.Text = text;
+        HFeedbackAnswer.Date = DateTime.Now;
+
+        HFeedback feedback = DB.HFeedbacks.FirstOrDefault(f => f.Id == Id);
+        feedback.StatusId = (byte)2;
+
+        DB.HFeedbackAnswers.Add(HFeedbackAnswer);
+        await DB.SaveChangesAsync();
+
+        message = "";
+
+        NavigationManager.NavigateTo("/Feedback");
+    }
+}
