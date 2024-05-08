@@ -1,0 +1,97 @@
+﻿@* @page "/Cleaning/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>HCleaning</h4>
+<hr />
+@if (HCleaning is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HCleaning" OnValidSubmit="UpdateHCleaning" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="HCleaning.Id" value="@HCleaning.Id" />
+                <div class="mb-3">
+                    <label for="userid" class="form-label">UserId:</label>
+                    <InputText id="userid" @bind-Value="HCleaning.UserId" class="form-control" />
+                    <ValidationMessage For="() => HCleaning.UserId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Date:</label>
+                    <InputDate id="date" @bind-Value="HCleaning.Date" class="form-control" />
+                    <ValidationMessage For="() => HCleaning.Date" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="roomid" class="form-label">RoomId:</label>
+                    <InputNumber id="roomid" @bind-Value="HCleaning.RoomId" class="form-control" />
+                    <ValidationMessage For="() => HCleaning.RoomId" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/Cleaning">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HCleaning? HCleaning { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HCleaning ??= await DB.HCleanings.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HCleaning is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHCleaning()
+    {
+        DB.Attach(HCleaning!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HCleaningExists(HCleaning!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/Cleaning");
+    }
+
+    bool HCleaningExists(int id)
+    {
+        return DB.HCleanings.Any(e => e.Id == id);
+    }
+}
+ *@

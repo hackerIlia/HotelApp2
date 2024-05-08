@@ -111,21 +111,20 @@ public partial class Hotel_DBContext : DbContext
                 .HasConstraintName("FK_H_Booking_H_d_BookingStatuses");
         });
 
-        modelBuilder.Entity<HCleaning>(entity =>
+        modelBuilder.Entity<HCleaning>(entity => 
         {
-            entity
-                .HasNoKey()
-                .ToTable("H_Cleaning");
+            entity.HasKey(e => e.Id).HasName("PK_H_Cleaning");
+
+            entity.ToTable("H_Cleaning");
 
             entity.Property(e => e.Date).HasColumnType("smalldatetime");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
-            entity.HasOne(d => d.Room).WithMany()
+            entity.HasOne(d => d.Room).WithMany(p => p.HCleanings)
                 .HasForeignKey(d => d.RoomId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_H_Cleaning_H_Room");
 
-            entity.HasOne(d => d.User).WithMany()
+            entity.HasOne(d => d.User).WithMany(p => p.HCleanings)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_H_Cleaning_H_UserHotel");

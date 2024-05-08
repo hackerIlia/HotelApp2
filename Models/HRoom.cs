@@ -29,6 +29,8 @@ public partial class HRoom
 
     public virtual ICollection<HBooking> HBookings { get; set; } = new List<HBooking>();
 
+    public virtual ICollection<HCleaning> HCleanings { get; set; } = new List<HCleaning>();
+
     public virtual ICollection<HLiving> HLivings { get; set; } = new List<HLiving>();
 
     public virtual HHotel Hotel { get; set; }

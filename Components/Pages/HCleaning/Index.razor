@@ -1,0 +1,44 @@
+﻿@page "/Cleaning"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@using Microsoft.EntityFrameworkCore
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>Cleanings</h1>
+
+<p>
+    <a href="Cleaning/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+@if (cleanings != null)
+{
+    <QuickGrid Class="table" Items="DB.HCleanings">
+        <PropertyColumn Property="hcleaning => hcleaning.User.FirstName + ' ' + hcleaning.User.LastName" Title="User"/>
+        <PropertyColumn Property="hcleaning => hcleaning.Date" />
+        <PropertyColumn Property="hcleaning => hcleaning.Room.Number" Title="Room Number"/>
+
+        <TemplateColumn Context="hcleaning">
+@*             <a href="@($"Cleaning/edit?id={hcleaning.Id}")">Edit</a> |
+        *@            <a href="@($"Cleaning/delete?id={hcleaning.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>No records found</p>
+}
+
+@code {
+    List<HCleaning> cleanings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cleanings = await DB.HCleanings.Include(c => c.User)
+                                        .Include(c => c.Room)
+                                        .ToListAsync();
+    }
+}

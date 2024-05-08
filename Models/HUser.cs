@@ -2,31 +2,26 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace HotelApp2.Models;
 
 public partial class HUser
 {
     public byte Id { get; set; }
-    [Required]
-    [StringLength(30, MinimumLength = 5)]
+
     public string Login { get; set; }
-    [Required]
-    [StringLength(20, MinimumLength = 8)]
+
     public string Password { get; set; }
-    [Required]
-    [StringLength(30)]
+
     public string FirstName { get; set; }
-    [Required]
-    [StringLength(30)]
+
     public string LastName { get; set; }
-    [Required]
-    [StringLength(100)]
-    [EmailAddress]
+
     public string Email { get; set; }
 
     public short StaffId { get; set; }
+
+    public virtual ICollection<HCleaning> HCleanings { get; set; } = new List<HCleaning>();
 
     public virtual ICollection<HFeedbackAnswer> HFeedbackAnswers { get; set; } = new List<HFeedbackAnswer>();
 

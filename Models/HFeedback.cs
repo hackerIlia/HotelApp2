@@ -2,14 +2,13 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace HotelApp2.Models;
 
 public partial class HFeedback
 {
     public int Id { get; set; }
-    
+
     public string Text { get; set; }
 
     public DateTime? Date { get; set; }

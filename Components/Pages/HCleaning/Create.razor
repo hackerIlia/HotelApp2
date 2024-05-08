@@ -1,0 +1,121 @@
+﻿@page "/Cleaning/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>Cleaning</h3>
+<h4>Create</h4>
+<hr />
+
+<h5 class="text-danger">@message</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HCleaning" OnValidSubmit="AddHCleaning" FormName="create" Enhance>
+            <div class="mb-3">
+                <label for="userid" class="form-label">User:</label>
+                <InputSelect id="userid" class="form-control" @bind-Value="HCleaning.UserId">
+                    @foreach (var user in users)
+                    {
+                        <option value="@user.Id">@user.FirstName @user.LastName</option>
+                    }
+                </InputSelect>
+            </div>
+
+            @* <div class="mb-3">
+                <label for="floor" class="form-label">Floor:</label>
+                <InputSelect id="floor" class="form-control" @bind-Value="@floor" @onchange="OnChangeFloor">
+                    @foreach (var room in rooms)
+                    {
+                        <option value="@room.Id">@room.Etaj</option>
+                    }
+                </InputSelect>
+            </div> *@
+
+            <div class="mb-3">
+                <label for="roomid" class="form-label">Room:</label>
+                <InputSelect id="roomid" class="form-control" @bind-Value="HCleaning.RoomId">
+                    @foreach (var room in rooms)
+                    {
+                        <option value="@room.Id">@room.Number</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div class="mb-3">
+    <h4 class="text-success">@success</h4>
+</div>
+
+
+<div>
+    <a href="/Cleaning">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HCleaning HCleaning { get; set; } = new();
+
+    private List<HUser> users;
+    private List<HRoom> rooms;
+    private List<byte> floors;
+
+    private byte floor;
+
+    private string success = "";
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        HCleaning = new();
+
+        users = DB.HUsers.ToList();
+        rooms = DB.HRooms.ToList();
+
+        HCleaning.UserId = users.FirstOrDefault().Id;
+        HCleaning.RoomId = rooms.FirstOrDefault().Id;
+        // floors = DB.HRooms.Select(r => r.Etaj).Distinct().ToList();
+        // floor = floors.FirstOrDefault();
+
+        //rooms = DB.HRooms.Where(r => r.Etaj == floor).ToList();
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHCleaning()
+    {
+        message = "";
+
+        HRoom room = DB.HRooms.FirstOrDefault(r => r.Id == HCleaning.RoomId);
+        if(room.CleaningStatusId == (byte)5)
+        {
+            message = "This room is clean. Cleaning was not registred";
+            return;
+        }
+        else
+        {
+            room.CleaningStatusId = (byte)5;
+        }
+
+        HCleaning.Date = DateTime.Now;
+
+        DB.HCleanings.Add(HCleaning);
+        await DB.SaveChangesAsync();
+
+        NavigationManager.NavigateTo("/Cleaning");
+    }
+
+    // private void OnChangeFloor(ChangeEventArgs e)
+    // {
+    //     floor = Convert.ToByte(e.Value);
+
+    //     rooms = DB.HRooms.Where(r => r.Etaj == floor).ToList();
+    // }
+
+}
