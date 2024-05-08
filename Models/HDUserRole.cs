@@ -2,13 +2,15 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace HotelApp2.Models;
 
 public partial class HDUserRole
 {
     public byte Id { get; set; }
-
+    [Required]
+    [StringLength(18)]
     public string Name { get; set; }
 
     public virtual ICollection<HUser> IdUsers { get; set; } = new List<HUser>();

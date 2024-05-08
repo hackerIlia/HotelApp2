@@ -1,0 +1,23 @@
+﻿@page "/UserRole"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+<PageTitle>Index</PageTitle>
+
+<h1>User Role</h1>
+
+<p>
+    <a href="UserRole/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
+</p>
+
+    <QuickGrid Class="table" Items="DB.HDUserRoles">
+        <PropertyColumn Property="hduserrole => hduserrole.Name" />
+
+        <TemplateColumn Context="hduserrole">
+        <a href="@($"UserRole/edit?id={hduserrole.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+        <a href="@($"UserRole/delete?id={hduserrole.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+        </TemplateColumn>
+    </QuickGrid>

@@ -1,0 +1,84 @@
+﻿@page "/UserRole/edit"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<PageTitle>Edit</PageTitle>
+
+<h3>User Role</h3>
+<h4>Edit</h4>
+<hr />
+
+@if (HDUserRole is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="HDUserRole" OnValidSubmit="UpdateHDUserRole" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="HDUserRole.Id" value="@HDUserRole.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="HDUserRole.Name" class="form-control" />
+                    <ValidationMessage For="() => HDUserRole.Name" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Edit</button>
+                <a href="/UserRole" class="btn btn-info">Back to List</a>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public HDUserRole? HDUserRole { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HDUserRole ??= await DB.HDUserRoles.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (HDUserRole is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateHDUserRole()
+    {
+        DB.Attach(HDUserRole!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!HDUserRoleExists(HDUserRole!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/UserRole");
+    }
+
+    bool HDUserRoleExists(byte id)
+    {
+        return DB.HDUserRoles.Any(e => e.Id == id);
+    }
+}

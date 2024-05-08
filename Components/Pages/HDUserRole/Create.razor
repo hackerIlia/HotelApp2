@@ -1,0 +1,44 @@
+﻿@page "/UserRole/create"
+@inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+
+<h3>User Role</h3>
+<h4>Create</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="HDUserRole" OnValidSubmit="AddHDUserRole" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="HDUserRole.Name" class="form-control" /> 
+                <ValidationMessage For="() => HDUserRole.Name" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/UserRole">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public HDUserRole HDUserRole { get; set; } = new();
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddHDUserRole()
+    {
+        DB.HDUserRoles.Add(HDUserRole);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/UserRole");
+    }
+}

@@ -254,7 +254,7 @@ public partial class Hotel_DBContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(9)
+                .HasMaxLength(18)
                 .IsUnicode(false);
         });
 
