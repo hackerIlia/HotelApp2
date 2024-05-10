@@ -53,7 +53,7 @@
         message = "";
         HDUserRole role = await DB.HDUserRoles.Include(r => r.IdUsers).FirstOrDefaultAsync(r => r.Id == Id);
 
-        if(role.IdUsers != null)
+        if (role.IdUsers.Count != 0)
         {
             message = "This role has related users. Delete users with this role and then delete the role";
             return;

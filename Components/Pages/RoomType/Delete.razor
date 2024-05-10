@@ -60,7 +60,7 @@ else
     public async Task DeleteType()
     {
         message = "";
-        if(type!.HRooms != null)
+        if(type!.HRooms.Count != 0)
         {
             message = "This type has related rooms. You can't delete it";
             return;

@@ -77,7 +77,7 @@
     {
         message = "";
 
-        if (hguestbooking!.HBookings != null)
+        if (hguestbooking!.HBookings.Count != 0)
         {
             message = "This guest has related bookings. You can't delete it";
             return;

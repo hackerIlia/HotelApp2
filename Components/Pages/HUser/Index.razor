@@ -27,31 +27,9 @@
         <PropertyColumn Property="huser => huser.Staff.FirstName + ' ' + huser.Staff.LastName" Title="Staff" />
 
         <TemplateColumn Context="huser">
-            <button @onclick="@(() => ShowRoleSelectionModal(huser.Id))">Manage Roles</button>
+            <a class="btn btn-link" @onclick="@(() => ShowRoleSelectionModal(huser.Id))"><i class="bi bi-person-fill">Manage Roles | </i></a>
             <a href="@($"User/edit?id={huser.Id}")"><i class="fas fa-edit"> Edit </i></a> |
             <a href="@($"User/delete?id={huser.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
-
-
-            
-            @* <Modal @ref="modalRef" Style="display:block">
-                <div class="modal-header">
-                    <h5 class="modal-title">Select Roles for User</h5>
-                    <button type="button" class="btn-close" @onclick="HideModal"></button>
-                </div>
-                <div class="modal-body">
-                    @foreach (var role in allRoles)
-                    {
-                        <div>
-                            <input type="checkbox" @bind="@selectedRoles" value="@role.Id" /> @role.Name
-                        </div>
-                    }
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="HideModal">Close</button>
-                    <button type="button" class="btn btn-primary" @onclick="ApplyRoles">Apply</button>
-                </div>
-            </Modal>
- *@
         </TemplateColumn>
     </QuickGrid>
 

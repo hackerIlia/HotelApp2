@@ -8,7 +8,7 @@
 
 <h1>Check-out</h1>
 
-<h4 class="text-danger"><b>Are you sure you want to ckech-out this?</b></h4>
+<h4 class="text-danger"><b>Are you sure you want to check-out this?</b></h4>
 <hr />
 
 <div>
@@ -92,6 +92,7 @@
 
         HRoom room = await DB.HRooms.Include(r => r.AvailabilityStatus).FirstOrDefaultAsync(r => r.Id == hliving.RoomId);
         room.AvailabilityStatusId = (byte)1;
+        room.CleaningStatusId = (byte)2;
 
         await DB.SaveChangesAsync();
 

@@ -73,12 +73,12 @@ else
     {
         message = "";
 
-        if(hotel!.HStaffs != null)
+        if(hotel!.HStaffs.Count != 0)
         {
             message = "This hotel has related staffs. You can't delete it";
             return;
         }
-        else if (hotel!.HRooms != null)
+        else if (hotel!.HRooms.Count != 0)
         {
             message = "This hotel has related rooms. You can't delete it";
             return;

@@ -72,27 +72,27 @@
     {
         message = "";
 
-        if (huser!.HFeedbacks != null)
+        if (huser!.HFeedbacks.Count != 0)
         {
             message = "This user has related feedbacks. You can't delete it";
             return;
         }
-        else if (huser!.HCleanings != null)
+        else if (huser!.HCleanings.Count != 0)
         {
             message = "This user has related cleanings. You can't delete it";
             return;
         }
-        else if (huser!.HFeedbackAnswers != null)
+        else if (huser!.HFeedbackAnswers.Count != 0)
         {
             message = "This user has feedback answers. You can't delete it";
             return;
         }
-        else if (huser!.HUsersActions != null)
+        else if (huser!.HUsersActions.Count != 0)
         {
             message = "This user has actions. You can't delete it";
             return;
         }
-        else if (huser!.IdRoles != null)
+        else if (huser!.IdRoles.Count != 0)
         {
             message = "This user has roles. You can't delete it";
             return;

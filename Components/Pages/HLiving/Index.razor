@@ -3,6 +3,7 @@
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
 @using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
 
@@ -13,6 +14,8 @@
 <p>
     <a href="Living/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
 </p>
+
+<h5 class="text-info">@message</h5>
 
 @if (livings != null)
 {
@@ -28,11 +31,40 @@
         <PropertyColumn Property="hliving => hliving.Guest.FirstName + ' ' + hliving.Guest.LastName" Title="Guest" />
 
         <TemplateColumn Context="hliving">
-                <a href="@($"Living/checkOut?id={hliving.Id}")"><i class="bi bi-clipboard-check"> Check-out</i></a> | 
-                <a href="@($"Living/edit?id={hliving.Id}")"><i class="fas fa-edit"> Edit </i></a> |
-                <a href="@($"Living/delete?id={hliving.Id}")"><i class="fas fa-trash-alt"> Delete</i></a> 
+            @if(hliving.Status.Name == "Checked out")
+            {
+                <span><i class="bi bi-clipboard-check"> Check-out | </i></span>
+            }
+            else
+            {
+                <a href="@($"Living/checkOut?id={hliving.Id}")"><i class="bi bi-clipboard-check"> Check-out | </i></a>
+            }
+            <button class="btn btn-link" @onclick="@(() => ShowCleanModal(hliving.Id))"><i class="bi bi-stars">Cleaning |</i></button>
+            <a href="@($"Living/edit?id={hliving.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+            <a href="@($"Living/delete?id={hliving.Id}")"><i class="fas fa-trash-alt"> Delete</i></a> 
         </TemplateColumn>
     </QuickGrid>
+
+    @if (show)
+    {
+        <div class="modal" tabindex="-1" role="dialog" style="display:block">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmation</h5>
+                        <button type="button" class="btn-close" @onclick=HideModal></button>
+                    </div>
+                    <div class="modal-body">
+                        <h3>Are you sure you want to order a room cleaning?</h3>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick=HideModal>No</button>
+                        <button type="button" class="btn btn-primary" @onclick=OrderCleaning>Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 else
 {
@@ -41,13 +73,39 @@ else
 
 @code {
     List<HLiving> livings;
+    private bool show = false;
+    private int selectedLivingId;
+    private string message = "";
 
     protected override async Task OnInitializedAsync()
     {
-        livings = await DB.HLivings.Include(b => b.Room)
-                                        .Include(b => b.Status)
-                                        .Include(b => b.Guest)
-                                        .Include(b => b.Booking)
+        livings = await DB.HLivings.Include(l => l.Room)
+                                        .Include(l => l.Status)
+                                        .Include(l => l.Guest)
+                                        .Include(l => l.Booking)
                                         .ToListAsync();
+    }
+
+    private void ShowCleanModal(int livingId)
+    {
+        selectedLivingId = livingId;
+        show = true;
+    }
+
+    private void HideModal()
+    {
+        show = false;
+    }
+
+    private async Task OrderCleaning()
+    {
+        message = "";
+
+        HLiving living = await DB.HLivings.FirstOrDefaultAsync(l => l.Id == selectedLivingId);
+        HRoom room = await DB.HRooms.FirstOrDefaultAsync(r => r.Id == living.RoomId);
+        room.CleaningStatusId = (byte)3;
+
+        await DB.SaveChangesAsync();
+        message = "Cleaning ordered successfully for room number: " + room.Number;
     }
 }

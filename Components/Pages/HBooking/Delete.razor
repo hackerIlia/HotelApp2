@@ -83,12 +83,12 @@
     {
         message = "";
 
-        if (hbooking!.HPayments != null)
+        if (hbooking!.HPayments.Count!= 0)
         {
             message = "This booking has related payments. You can't delete it";
             return;
         }
-        else if (hbooking!.HLivings != null)
+        else if (hbooking!.HLivings.Count!= 0)
         {
             message = "This booking has related livings. You can't delete it";
             return;

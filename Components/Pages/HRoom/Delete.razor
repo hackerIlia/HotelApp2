@@ -82,17 +82,17 @@
     {
         message = "";
 
-        if(hroom!.HCleanings != null)
+        if (hroom!.HCleanings.Count != 0)
         {
             message = "This room has related cleanings. You can't delete it";
             return;
         }
-        else if (hroom!.HBookings != null)
+        else if (hroom!.HBookings.Count != 0)
         {
             message = "This room has related bookings. You can't delete it";
             return;
         }
-        else if (hroom!.HLivings != null)
+        else if (hroom!.HLivings.Count != 0)
         {
             message = "This room has related livings. You can't delete it";
             return;

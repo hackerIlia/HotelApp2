@@ -164,12 +164,12 @@
         success = "";
         number = 0;
 
-        @if (checkin < DateTime.Now.AddDays(-1))
+        @if (checkin.Date < DateTime.Now.AddDays(-1))
         {
             message = "Check-in Date can't be earlier than today";
             return;
         }
-        @if (checkout < checkin)
+        @if (checkout.Date < checkin.Date)
         {
             message = "Check-out Date can't be earlier than Check-in Date";
             return;
@@ -191,7 +191,7 @@
         HLiving.CheckInDate = checkin;
         HLiving.CheckOutDate = checkout;
 
-        int hours = (checkout - checkin).Hours + (checkout - checkin).Days * 24;
+        int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
         HRoom room = await DB.HRooms.FindAsync(HLiving.RoomId);
         HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
 

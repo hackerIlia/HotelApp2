@@ -115,17 +115,17 @@
     {
         message = "";
 
-        if (hstaff!.HSalaries != null)
+        if (hstaff!.HSalaries.Count != 0)
         {
             message = "This staff has related salaries. You can't delete it";
             return;
         }
-        else if (hstaff!.HAttendanceOperations != null)
+        else if (hstaff!.HAttendanceOperations.Count != 0)
         {
             message = "This staff has related attendance operations. You can't delete it";
             return;
         }
-        else if (hstaff!.HUsers != null)
+        else if (hstaff!.HUsers.Count != 0)
         {
             message = "This staff is an user. You can't delete it";
             return;

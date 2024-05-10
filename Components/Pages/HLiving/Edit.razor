@@ -136,7 +136,7 @@ else
             message = "Check-in Date can't be earlier than today";
             return;
         }
-        @if (checkout < checkin)
+        @if (checkout.Date < checkin.Date)
         {
             message = "Check-out Date can't be earlier than Check-in Date";
             return;

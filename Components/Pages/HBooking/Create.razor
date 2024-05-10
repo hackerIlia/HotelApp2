@@ -92,13 +92,27 @@
     private byte statusMem;
     private int guestMem;
     private byte typeMem;
-
+    private bool isFirstLoad = true;
 
     protected override async Task OnInitializedAsync()
     {
         HBooking = new();
 
-        rooms = DB.HRooms.ToList();
+        if (isFirstLoad)
+        {
+            rooms = DB.HRooms.ToList();
+
+            if (rooms.Count > 0)
+            {
+                HBooking.RoomId = rooms.FirstOrDefault().Id;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+        }
+        isFirstLoad = false;
+
         statuses = DB.HDBookingStatuses.ToList();
         guests = DB.HGuestBookings.ToList();
         types = DB.HDRoomTypes.ToList();
@@ -122,14 +136,6 @@
         //     HBooking.RoomId = (short)roomMem;
         // }
         // else 
-        if (rooms.Count > 0)
-        {
-            HBooking.RoomId = rooms.FirstOrDefault().Id;
-        }
-        else
-        {
-            NavigationManager.NavigateTo("notfound");
-        }
 
         if (statusMem > 0)
         {
@@ -168,12 +174,12 @@
         success = "";
         number = 0;
 
-        @if (checkin < DateTime.Now.AddDays(-1))
+        @if (checkin.Date < DateTime.Now.AddDays(-1))
         {
             message = "Check-in Date can't be earlier than today";
             return;
         }
-        @if (checkout < checkin)
+        @if (checkout.Date < checkin.Date)
         {
             message = "Check-out Date can't be earlier than Check-in Date";
             return;
@@ -196,7 +202,7 @@
         HBooking.CheckInDate = checkin;
         HBooking.CheckOutDate = checkout;
 
-        int hours = (checkout - checkin).Hours  + (checkout - checkin).Days * 24;
+        int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
         HRoom room = await DB.HRooms.FindAsync(HBooking.RoomId);
         HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
 
@@ -227,7 +233,7 @@
     {
         //List<HBooking> bookingsSTOP = DB.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).ToList();
         List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
-        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
+        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
 
     }
 }
