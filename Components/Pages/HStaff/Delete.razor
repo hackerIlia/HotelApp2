@@ -11,6 +11,8 @@
 <h4 class="text-danger"><b>Are you sure you want to delete this?</b></h4>
 <hr />
 
+<h5 class="text-danger">@message</h5>
+
 <div>
     @if (hstaff is null)
     {
@@ -86,6 +88,8 @@
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
+    private string message = "";
+
     string formattedDate;
     string hireDate;
 
@@ -109,6 +113,24 @@
 
     public async Task DeleteHStaff()
     {
+        message = "";
+
+        if (hstaff!.HSalaries != null)
+        {
+            message = "This staff has related salaries. You can't delete it";
+            return;
+        }
+        else if (hstaff!.HAttendanceOperations != null)
+        {
+            message = "This staff has related attendance operations. You can't delete it";
+            return;
+        }
+        else if (hstaff!.HUsers != null)
+        {
+            message = "This staff is an user. You can't delete it";
+            return;
+        }
+
         DB.HStaffs.Remove(hstaff!);
         await DB.SaveChangesAsync();
         NavigationManager.NavigateTo("/Staff");

@@ -50,8 +50,8 @@
                     <button type="button" class="btn btn-secondary" @onclick="HideModal">Close</button>
                     <button type="button" class="btn btn-primary" @onclick="ApplyRoles">Apply</button>
                 </div>
-            </Modal> *@
-
+            </Modal>
+ *@
         </TemplateColumn>
     </QuickGrid>
 
@@ -92,33 +92,40 @@ else
     List<HUser> users;
     private List<HDUserRole> allRoles;
     private HashSet<byte> selectedRoles;
+    private Dictionary<int, byte> selectedRolesByUserId = new Dictionary<int, byte>();
 
     bool show = false;
 
+    private byte selectedRole = 0;
     private int selectedUserId;
     private bool isModalVisible = false;
 
     protected override async Task OnInitializedAsync()
     {
-        users = await DB.HUsers.Include(u => u.Staff).ToListAsync();
+        users = await DB.HUsers.Include(u => u.Staff).Include(u => u.IdRoles).ToListAsync();
         allRoles = await DB.HDUserRoles.ToListAsync();
     }
 
+
     private void ShowRoleSelectionModal(int userId)
     {
-        // selectedUserId = userId;
-        // selectedRoles = DB.HUsers.Where(u => u.Id == userId)
-        //                          .SelectMany(u => u.IdRoles)
-        //                          .Select(r => r.Id)
-        //                          .ToHashSet();
-        // show = true;
+        selectedUserId = userId;
+        if (selectedRolesByUserId.ContainsKey(userId))
+        {
+            selectedRole = selectedRolesByUserId[userId];
+        }
+        else
+        {
+            selectedRole = 0;
+        }
+        show = true;
     }
 
     private async Task ApplyRoles()
     {
         var user = await DB.HUsers.Include(u => u.IdRoles).FirstOrDefaultAsync(u => u.Id == selectedUserId);
         user.IdRoles.Clear();
-        if (selectedRole != null)
+        if (selectedRole != 0)
         {
             var role = await DB.HDUserRoles.FindAsync(selectedRole);
             user.IdRoles.Add(role);
@@ -132,25 +139,17 @@ else
         show = false;
     }
 
-    private byte selectedRole;
 
     private bool IsRoleSelected(byte roleId)
     {
-        HUser user = DB.HUsers.Include(u => u.IdRoles).FirstOrDefault(u => u.Id == selectedUserId);
-        return user.IdRoles.Any(r => r.Id == roleId);
+        return users.FirstOrDefault(u => u.Id == selectedUserId).IdRoles.Any(r => r.Id == roleId);
+        //return selectedRole == roleId;
     }
 
     private async Task SelectRole(byte roleId)
     {
-        HUser user = DB.HUsers.Include(u => u.IdRoles).FirstOrDefault(u => u.Id == selectedUserId);
-        var role = DB.HDUserRoles.FirstOrDefault(u => u.Id == roleId);
-        user.IdRoles.Clear();
-
-
-        user.IdRoles.Add(role);
-        //selectedRole = roleId;
+        selectedRolesByUserId[selectedUserId] = roleId;
+        selectedRole = roleId;
         await DB.SaveChangesAsync();
-
     }
-
 }

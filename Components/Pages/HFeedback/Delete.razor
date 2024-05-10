@@ -11,6 +11,8 @@
 <h4 class="text-danger"><b>Are you sure you want to delete this?</b></h4>
 <hr />
 
+<h5 class="text-danger">@message</h5>
+
 <div>
     @if (hfeedback is null)
     {
@@ -50,6 +52,8 @@
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
+    private string message = "";
+
     protected override async Task OnInitializedAsync()
     {
         hfeedback = await DB.HFeedbacks.Include(f => f.Status)
@@ -64,6 +68,14 @@
 
     public async Task DeleteHFeedback()
     {
+        message = "";
+
+        if (hfeedback!.HFeedbackAnswers != null)
+        {
+            message = "This feedback has related answers. You can't delete it";
+            return;
+        }
+
         DB.HFeedbacks.Remove(hfeedback!);
         await DB.SaveChangesAsync();
         NavigationManager.NavigateTo("/Feedback");

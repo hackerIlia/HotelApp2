@@ -11,6 +11,8 @@
 <h4 class="text-danger"><b>Are you sure you want to delete this?</b></h4>
 <hr />
 
+<h5 class="text-danger">@message</h5>
+
 <div>
     @if (hbooking is null)
     {
@@ -62,6 +64,8 @@
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
+    private string message = "";
+
     protected override async Task OnInitializedAsync()
     {
         hbooking = await DB.HBookings.Include(b => b.Guest)
@@ -77,6 +81,19 @@
 
     public async Task DeleteHBooking()
     {
+        message = "";
+
+        if (hbooking!.HPayments != null)
+        {
+            message = "This booking has related payments. You can't delete it";
+            return;
+        }
+        else if (hbooking!.HLivings != null)
+        {
+            message = "This booking has related livings. You can't delete it";
+            return;
+        }
+
         DB.HBookings.Remove(hbooking!);
         await DB.SaveChangesAsync();
         NavigationManager.NavigateTo("/Booking");

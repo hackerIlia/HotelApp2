@@ -243,8 +243,17 @@ public partial class Hotel_DBContext : DbContext
 
         //    entity.ToTable("H_c_UserRoles");
 
-        //    entity.HasOne(d => d.Role).WithOne(p => p.)
+        //    entity.HasOne(d => d.User)
+        //          .WithOne() 
+        //          .HasForeignKey<HCUserRole>(d => d.IdUser) 
+        //          .HasConstraintName("FK_H_c_UserRoles_H_Users"); 
+
+        //    entity.HasOne(d => d.Role)
+        //          .WithOne() 
+        //          .HasForeignKey<HCUserRole>(d => d.IdRole)
+        //          .HasConstraintName("FK_H_c_UserRoles_H_d_UserRoles"); 
         //});
+
 
         modelBuilder.Entity<HDSalaryStatus>(entity =>
         {
@@ -615,7 +624,7 @@ public partial class Hotel_DBContext : DbContext
                         .HasConstraintName("FK_H_c_UserRoles_H_d_UserRoles"),
                     l => l.HasOne<HUser>().WithMany()
                         .HasForeignKey("IdUser")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_H_c_UserRoles_H_Users"),
                     j =>
                     {

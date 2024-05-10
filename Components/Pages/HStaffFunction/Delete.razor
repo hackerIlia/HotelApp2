@@ -11,6 +11,7 @@
 
 <h4 class="text-danger"><b>Are you sure you want to delete this?</b></h4>
 
+<h5 class="text-danger">@message</h5>
 
 @if (hstafffunction is null)
 {
@@ -37,6 +38,8 @@ else {
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
+    private string message = "";
+
     protected override async Task OnInitializedAsync()
     {
         hstafffunction = await DB.HStaffFunctions.FirstOrDefaultAsync(m => m.Id == Id);
@@ -49,6 +52,14 @@ else {
 
     public async Task DeleteHStaffFunction()
     {
+        message = "";
+
+        if (hstafffunction!.HStaffs != null)
+        {
+            message = "This Staff Function has related staffs. You can't delete it";
+            return;
+        }
+
         DB.HStaffFunctions.Remove(hstafffunction!);
         await DB.SaveChangesAsync();
         NavigationManager.NavigateTo("/StaffFunction");

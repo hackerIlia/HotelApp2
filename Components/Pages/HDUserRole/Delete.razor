@@ -11,6 +11,8 @@
 <h4 class="text-danger"><b>Are you sure you want to delete this?</b></h4>
 <hr />
 
+<h5 class="text-danger">@message</h5>
+
 <div>
     @if (hduserrole is null)
     {
@@ -34,6 +36,8 @@
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
+    private string message = "";
+
     protected override async Task OnInitializedAsync()
     {
         hduserrole = await DB.HDUserRoles.FirstOrDefaultAsync(m => m.Id == Id);
@@ -46,6 +50,15 @@
 
     public async Task DeleteHDUserRole()
     {
+        message = "";
+        HDUserRole role = await DB.HDUserRoles.Include(r => r.IdUsers).FirstOrDefaultAsync(r => r.Id == Id);
+
+        if(role.IdUsers != null)
+        {
+            message = "This role has related users. Delete users with this role and then delete the role";
+            return;
+        }
+       
         DB.HDUserRoles.Remove(hduserrole!);
         await DB.SaveChangesAsync();
         NavigationManager.NavigateTo("/UserRole");
