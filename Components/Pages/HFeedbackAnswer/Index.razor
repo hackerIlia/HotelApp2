@@ -18,7 +18,7 @@
 {
     <QuickGrid Class="table" Items="DB.HFeedbackAnswers">
         <PropertyColumn Property="hfeedbackanswer => hfeedbackanswer.Text" />
-        <PropertyColumn Property="hfeedbackanswer => hfeedbackanswer.Date" />
+        <PropertyColumn Property="hfeedbackanswer => hfeedbackanswer.Date" Format="dd/MM/yyyy HH:mm" />
         <PropertyColumn Property="hfeedbackanswer => hfeedbackanswer.Feedback.Text" Title="Feedback Text" />
         <PropertyColumn Property="hfeedbackanswer => hfeedbackanswer.User.FirstName + ' ' + hfeedbackanswer.User.LastName" Title="User Answered" />
 

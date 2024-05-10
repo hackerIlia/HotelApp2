@@ -2,7 +2,12 @@
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
 @inject NavigationManager NavigationManager
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
 @rendermode InteractiveServer
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Answer</PageTitle>
 
@@ -37,6 +42,9 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
@@ -56,6 +64,9 @@
         users = DB.HUsers.ToList();
 
         HFeedbackAnswer.FeedbackId = (byte) Id;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        HFeedbackAnswer.UserId = Convert.ToByte(authState.User.FindFirst(ClaimTypes.PrimarySid)?.Value);
     }
 
     // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD

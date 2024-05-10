@@ -1,4 +1,7 @@
 ﻿@page "/User"
+
+@attribute [Authorize(Roles = "Admin")]
+
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models

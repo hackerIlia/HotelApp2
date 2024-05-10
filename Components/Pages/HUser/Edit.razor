@@ -5,6 +5,8 @@
 @using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin")]
+
 <PageTitle>Edit</PageTitle>
 
 <h3>User</h3>

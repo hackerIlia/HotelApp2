@@ -4,6 +4,8 @@
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
 
+@attribute [Authorize(Roles = "Admin")]
+
 <PageTitle>Delete</PageTitle>
 
 <h1>User</h1>

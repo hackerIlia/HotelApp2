@@ -4,6 +4,8 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin")]
+
 <PageTitle>Register</PageTitle>
 
 <h3>User</h3>
