@@ -18,7 +18,7 @@
 {
     <QuickGrid Class="table" Items="DB.HCleanings">
         <PropertyColumn Property="hcleaning => hcleaning.User.FirstName + ' ' + hcleaning.User.LastName" Title="User"/>
-        <PropertyColumn Property="hcleaning => hcleaning.Date" />
+        <PropertyColumn Property="hcleaning => hcleaning.Date" Format="dd/MM/yyyy HH:mm" />
         <PropertyColumn Property="hcleaning => hcleaning.Room.Number" Title="Room Number"/>
 
         <TemplateColumn Context="hcleaning">

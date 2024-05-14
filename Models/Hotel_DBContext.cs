@@ -447,7 +447,7 @@ public partial class Hotel_DBContext : DbContext
             entity.ToTable("H_Payment");
 
             entity.Property(e => e.Amount).HasColumnType("numeric(8, 2)");
-            entity.Property(e => e.Date).HasColumnType("smalldatetime");
+            entity.Property(e => e.Date).HasColumnType("datetime");
 
             entity.HasOne(d => d.Booking).WithMany(p => p.HPayments)
                 .HasForeignKey(d => d.BookingId)

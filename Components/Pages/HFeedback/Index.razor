@@ -18,7 +18,7 @@
 {
     <QuickGrid Class="table" Items="DB.HFeedbacks">
         <PropertyColumn Property="hfeedback => hfeedback.Text" />
-        <PropertyColumn Property="hfeedback => hfeedback.Date" Format="dd/MM/yyyy HH:mm:ss" />
+        <PropertyColumn Property="hfeedback => hfeedback.Date" Format="dd/MM/yyyy HH:mm" />
         <PropertyColumn Property="hfeedback => hfeedback.Status.Name" Title="Status" />
         <PropertyColumn Property="hfeedback => hfeedback.Rate" />
         <PropertyColumn Property="hfeedback => hfeedback == null ? string.Empty : (hfeedback.User.FirstName +  ' ' + hfeedback.User.LastName)" Title="User Created" />

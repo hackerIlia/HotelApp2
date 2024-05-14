@@ -17,8 +17,8 @@
 @if (operations != null)
 {
     <QuickGrid Class="table" Items="DB.HAttendanceOperations">
-        <PropertyColumn Property="hattendanceoperation => hattendanceoperation.EnterDate" Title="Enter Date" />
-        <PropertyColumn Property="hattendanceoperation => hattendanceoperation.ExitDate" Title="Exit Date" />
+        <PropertyColumn Property="hattendanceoperation => hattendanceoperation.EnterDate" Title="Enter Date" Format="dd/MM/yyyy HH:mm"/>
+        <PropertyColumn Property="hattendanceoperation => hattendanceoperation.ExitDate" Title="Exit Date" Format="dd/MM/yyyy HH:mm" />
         <PropertyColumn Property="hattendanceoperation => hattendanceoperation.Staff.FirstName + ' ' + hattendanceoperation.Staff.LastName" Title="Staff" />
         <PropertyColumn Property="hattendanceoperation => hattendanceoperation.WorkedHours" Title="Worked Hours" />
 

@@ -22,7 +22,7 @@
         <PropertyColumn Property="hsalary => hsalary.Amount" />
         <PropertyColumn Property="hsalary => hsalary.Staff.FirstName + ' ' + hsalary.Staff.LastName" Title="Staff" />
         <PropertyColumn Property="hsalary => hsalary.Status.Name" Title="Status" />
-        <PropertyColumn Property="hsalary => hsalary.DateModified" Title="Date Modified" />
+        <PropertyColumn Property="hsalary => hsalary.DateModified" Title="Date Modified" Format="dd/MM/yyyy HH:mm" />
 
         <TemplateColumn Context="hsalary">
             @if(hsalary.Status.Name == "Sent")
