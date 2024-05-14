@@ -25,16 +25,6 @@
                 </InputSelect>
             </div>
 
-            @* <div class="mb-3">
-                <label for="floor" class="form-label">Floor:</label>
-                <InputSelect id="floor" class="form-control" @bind-Value="@floor" @onchange="OnChangeFloor">
-                    @foreach (var room in rooms)
-                    {
-                        <option value="@room.Id">@room.Etaj</option>
-                    }
-                </InputSelect>
-            </div> *@
-
             <div class="mb-3">
                 <label for="roomid" class="form-label">Room:</label>
                 <InputSelect id="roomid" class="form-control" @bind-Value="HCleaning.RoomId">
@@ -81,10 +71,6 @@
 
         HCleaning.UserId = users.FirstOrDefault().Id;
         HCleaning.RoomId = rooms.FirstOrDefault().Id;
-        // floors = DB.HRooms.Select(r => r.Etaj).Distinct().ToList();
-        // floor = floors.FirstOrDefault();
-
-        //rooms = DB.HRooms.Where(r => r.Etaj == floor).ToList();
     }
 
     // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
@@ -110,12 +96,4 @@
 
         NavigationManager.NavigateTo("/Cleaning");
     }
-
-    // private void OnChangeFloor(ChangeEventArgs e)
-    // {
-    //     floor = Convert.ToByte(e.Value);
-
-    //     rooms = DB.HRooms.Where(r => r.Etaj == floor).ToList();
-    // }
-
 }

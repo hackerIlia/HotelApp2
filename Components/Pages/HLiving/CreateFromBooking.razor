@@ -219,6 +219,11 @@
             message = "You can't create living, because today date is not in range of booking date";
             return;
         }
+        if (HLiving.RoomId == 0)
+        {
+            message = "Select room";
+            return;
+        }
 
 
         DateTime today = DateTime.Today;

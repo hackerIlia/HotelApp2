@@ -2,7 +2,11 @@
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
 @inject NavigationManager NavigationManager
+@using System.Security.Claims
 @rendermode InteractiveServer
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 
 <PageTitle>Create</PageTitle>
 
@@ -42,6 +46,8 @@
 </div>
 
 @code {
+    // [CascadingParameter]
+    // public HttpContext? HttpContext { get; set; }
 
     [SupplyParameterFromForm]
     public HFeedback HFeedback { get; set; } = new();
@@ -62,7 +68,11 @@
         users = DB.HUsers.ToList();
         statuses = DB.HDFeedbackStatuses.ToList();
 
-        HFeedback.UserId = users.FirstOrDefault().Id;
+        //HFeedback.UserId = users.FirstOrDefault().Id;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        HFeedback.UserId = Convert.ToByte(authState.User.FindFirst(ClaimTypes.PrimarySid)?.Value) == 0 ? null : Convert.ToByte(authState.User.FindFirst(ClaimTypes.PrimarySid)?.Value);
+
     }
 
     // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD

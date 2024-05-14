@@ -5,6 +5,8 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin,Receptionist")]
+
 <PageTitle>Create</PageTitle>
 
 <h3>Booking</h3>
@@ -176,6 +178,11 @@
         @if (checkout.Date < checkin.Date)
         {
             message = "Check-out Date can't be earlier than Check-in Date";
+            return;
+        }
+        if(HBooking.RoomId == 0)
+        {
+            message = "Select room";
             return;
         }
 

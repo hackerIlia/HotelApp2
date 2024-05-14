@@ -3,6 +3,10 @@
 @using HotelApp2.Models
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+
+@attribute [Authorize(Roles = "Admin,Receptionist")]
 
 <PageTitle>Cancel</PageTitle>
 
@@ -12,7 +16,7 @@
 <hr />
 
 <div>
-    @if (hbooking is null)
+    @if (hbooking is null || hbooking.Status is null)
     {
         <p><em>Loading...</em></p>
     }
@@ -78,12 +82,12 @@
 
     public async Task CancelHBooking()
     {
-        hbooking!.StatusId = (byte)3;
         hbooking = await DB.HBookings.Include(b => b.Guest)
                                      .Include(b => b.Status)
                                      .Include(b => b.Room)
                                     .FirstOrDefaultAsync(m => m.Id == Id);
 
+        hbooking!.StatusId = (byte)3;
         
         await DB.SaveChangesAsync();
         NavigationManager.NavigateTo("/Booking");

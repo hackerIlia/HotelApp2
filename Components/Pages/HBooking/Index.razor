@@ -4,6 +4,8 @@
 @using HotelApp2.Models
 @using Microsoft.EntityFrameworkCore
 
+@attribute [Authorize(Roles = "Admin,Receptionist")]
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
 
 <PageTitle>Index</PageTitle>
@@ -29,20 +31,20 @@
         <TemplateColumn Context="hbooking">
             @if (hbooking.Status.Name == "Paid" && !livings.Any(l => l.BookingId == hbooking.Id))
             {
-                <span><i class="bi bi-credit-card" style="color: green;"><b> Pay | </b></i></span> 
+                <span style="color:transparent"><i class="bi bi-credit-card" style="color: green;"><b> Pay | </b></i></span> 
                 <a href="@($"Living/create/{hbooking.Id}")"><i class="fas fa-plus"> Check-in</i></a>
                 <a href="@($"Booking/cancel?id={hbooking.Id}")"><b class="close">&times Cancel</b></a> //here we need to return money?
             }
             else if ((hbooking.Status.Name == "Paid" && livings.Any(l => l.BookingId == hbooking.Id)) || hbooking.StatusId > 2)
             {
-                <span><i class="bi bi-credit-card" style="color: green;"><b> Pay | </b></i></span>
-                <span><i class="fas fa-plus"> Check-in | </i></span>
-                <span><i class="close">&times Cancel</i></span>
+                <span style="color:transparent"><i class="bi bi-credit-card" style="color: green;"> Pay | </i></span>
+                <span style="color:transparent"><i class="fas fa-plus"> Check-in | </i></span>
+                <span style="color:transparent"><i class="close">&times Cancel</i></span>
             }
             else
             {
                 <a class="text-danger" href="@($"Booking/pay?id={hbooking.Id}")"><b class="bi bi-credit-card"> Pay | </b></a>
-                <span><i class="fas fa-plus"> Check-in | </i></span>
+                <span style="color:transparent"><i class="fas fa-plus"> Check-in | </i></span>
                 <a href="@($"Booking/cancel?id={hbooking.Id}")"><b class="close">&times Cancel</b></a>
             }
             |
@@ -52,12 +54,10 @@
             }
             else
             {
-                <span><i class="fas fa-edit"> Edit | </i></span>
-                <span><i class="fas fa-trash-alt"> Delete</i></span>
+                <span style="color:transparent"><i class="fas fa-edit"> Edit | </i></span>
+                <span style="color:transparent"><i class="fas fa-trash-alt"> Delete</i></span>
 
             }
-
-
         </TemplateColumn>
     </QuickGrid>
 }

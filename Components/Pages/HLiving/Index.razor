@@ -33,7 +33,7 @@
         <TemplateColumn Context="hliving">
             @if(hliving.Status.Name == "Checked out")
             {
-                <span><i class="bi bi-clipboard-check"> Check-out | </i></span>
+                <span style="color:transparent"><i class="bi bi-clipboard-check"> Check-out | </i></span>
             }
             else
             {
@@ -55,7 +55,7 @@
                         <button type="button" class="btn-close" @onclick=HideModal></button>
                     </div>
                     <div class="modal-body">
-                        <h3>Are you sure you want to order a room cleaning?</h3>
+                        <h5 class="text-danger">Are you sure you want to order a room cleaning?</h5>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick=HideModal>No</button>
@@ -107,5 +107,6 @@ else
 
         await DB.SaveChangesAsync();
         message = "Cleaning ordered successfully for room number: " + room.Number;
+        show = false;
     }
 }

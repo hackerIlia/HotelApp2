@@ -1,4 +1,5 @@
 ﻿@page "/Feedback"
+
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
@@ -21,7 +22,7 @@
         <PropertyColumn Property="hfeedback => hfeedback.Date" Format="dd/MM/yyyy HH:mm" />
         <PropertyColumn Property="hfeedback => hfeedback.Status.Name" Title="Status" />
         <PropertyColumn Property="hfeedback => hfeedback.Rate" />
-        <PropertyColumn Property="hfeedback => hfeedback == null ? string.Empty : (hfeedback.User.FirstName +  ' ' + hfeedback.User.LastName)" Title="User Created" />
+        <PropertyColumn Property="hfeedback => hfeedback.User == null ? string.Empty : (hfeedback.User.FirstName +  ' ' + hfeedback.User.LastName)" Title="User Created" />
 
         <TemplateColumn Context="hfeedback">
             @if(hfeedback.Status.Name == "Unanswered")

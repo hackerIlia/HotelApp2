@@ -10,7 +10,7 @@
 <h1>Staff Functions</h1>
 
 <p>
-    <a href="StaffFunction/create">Create New</a>
+    <a href="StaffFunction/create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
 </p>
 
 <QuickGrid Class="table" Items="DB.HStaffFunctions">
@@ -18,7 +18,7 @@
     <PropertyColumn Property="hstafffunction => hstafffunction.SalaryRate" Title="Salary Rate" />
 
     <TemplateColumn Context="hstafffunction">
-        <a href="@($"StaffFunction/edit?id={hstafffunction.Id}")">Edit</a> |
-        <a href="@($"StaffFunction/delete?id={hstafffunction.Id}")">Delete</a>
+        <a href="@($"StaffFunction/edit?id={hstafffunction.Id}")"><i class="fas fa-edit"> Edit </i></a> |
+        <a href="@($"StaffFunction/delete?id={hstafffunction.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
     </TemplateColumn>
 </QuickGrid>

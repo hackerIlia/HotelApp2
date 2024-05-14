@@ -5,6 +5,8 @@
 @using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin,Receptionist")]
+
 <PageTitle>Edit</PageTitle>
 
 <h3>Booking</h3>

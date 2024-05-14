@@ -201,6 +201,11 @@
             message = "Check-out Date can't be earlier than Check-in Date";
             return;
         }
+        if (HLiving.RoomId == 0)
+        {
+            message = "Select room";
+            return;
+        }
 
         DateTime today = DateTime.Today;
         string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);

@@ -52,15 +52,6 @@ else
                         }
                     </InputSelect>
                 </div>
-                @* <div class="mb-3">
-                    <label for="bookingid" class="form-label">Booking:</label>
-                    <InputSelect disabled="true" id="bookingid" class="form-control" @bind-Value="HLiving.BookingId">
-                        @foreach (var booking in bookings)
-                        {
-                            <option value="@booking.Id">@booking.Number</option>
-                        }
-                    </InputSelect>
-                </div> *@
                 <button type="submit" class="btn btn-primary">Edit</button>
                 <a href="/Living" class="btn btn-info">Back to List</a>
             </EditForm>

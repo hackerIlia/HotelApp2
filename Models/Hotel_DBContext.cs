@@ -103,7 +103,7 @@ public partial class Hotel_DBContext : DbContext
 
             entity.HasOne(d => d.Room).WithMany(p => p.HBookings)
                 .HasForeignKey(d => d.RoomId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK__H_Booking__IdRoo__4AB81AF0");
 
             entity.HasOne(d => d.Status).WithMany(p => p.HBookings)
@@ -426,7 +426,7 @@ public partial class Hotel_DBContext : DbContext
 
             entity.HasOne(d => d.Guest).WithMany(p => p.HLivings)
                 .HasForeignKey(d => d.GuestId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_H_Living_H_GuestLiving");
 
             entity.HasOne(d => d.Room).WithMany(p => p.HLivings)
