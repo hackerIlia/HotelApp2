@@ -2,7 +2,12 @@
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
 @inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Mvc
 @using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+@attribute [Authorize(Roles = "Admin")]
+
 
 <PageTitle>Delete</PageTitle>
 
@@ -19,6 +24,7 @@
         <p><em>Loading...</em></p>
     }
     else {
+        <form method="post" asp-antiforgery="false">
         <dl class="row">
             <dt class="col-sm-2">Number</dt>
             <dd class="col-sm-10">@hbooking.Number</dd>
@@ -55,6 +61,7 @@
             <button type="submit" class="btn btn-danger" disabled="@(hbooking is null)">Delete</button> |
             <a href="/Booking">Back to List</a>
         </EditForm>
+        </form>
     }
 </div>
 
@@ -79,6 +86,7 @@
         }
     }
 
+    [IgnoreAntiforgeryToken]
     public async Task DeleteHBooking()
     {
         message = "";

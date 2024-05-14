@@ -22,6 +22,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 options.AccessDeniedPath = "/accessDenied";
             });
 builder.Services.AddAuthorization();
+builder.Services.AddAntiforgery();
 builder.Services.AddCascadingAuthenticationState();
 
 var app = builder.Build();

@@ -21,7 +21,7 @@
                 <InputDate min="2024-01-01" max="2070-01-01" id="checkindate" @bind-Value="@checkin" @onblur="onChangeCheckDate" class="form-control" />
             </div>
             <div class="mb-3">
-                <label for="checkoutdate" class="form-label">CheckOutDate:</label>
+                <label for="checkoutdate" class="form-label">Check-out Date:</label>
                 <InputDate min="2024-01-01" max="2070-01-01" id="checkoutdate" @bind-Value="@checkout" @onblur="onChangeCheckDate" class="form-control" />
             </div>
             <div class="mb-3">
@@ -92,26 +92,20 @@
     private byte statusMem;
     private int guestMem;
     private byte typeMem;
-    private bool isFirstLoad = true;
 
     protected override async Task OnInitializedAsync()
     {
         HBooking = new();
+        rooms = DB.HRooms.ToList();
 
-        if (isFirstLoad)
+        if (rooms.Count > 0)
         {
-            rooms = DB.HRooms.ToList();
-
-            if (rooms.Count > 0)
-            {
-                HBooking.RoomId = rooms.FirstOrDefault().Id;
-            }
-            else
-            {
-                NavigationManager.NavigateTo("notfound");
-            }
+            HBooking.RoomId = rooms.FirstOrDefault().Id;
         }
-        isFirstLoad = false;
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
 
         statuses = DB.HDBookingStatuses.ToList();
         guests = DB.HGuestBookings.ToList();
@@ -234,6 +228,6 @@
         //List<HBooking> bookingsSTOP = DB.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).ToList();
         List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
         rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
-
+        HBooking.RoomId = rooms.FirstOrDefault() != null ? rooms.FirstOrDefault().Id : (byte)0;
     }
 }

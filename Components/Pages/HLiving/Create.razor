@@ -18,15 +18,24 @@
         <EditForm method="post" Model="HLiving" OnValidSubmit="AddHLiving" FormName="create" Enhance>
             <div class="mb-3">
                 <label for="checkindate" class="form-label">Check-in Date:</label>
-                <InputDate disabled="@(bookingEnabled)" id="checkindate" @bind-Value="@checkin" class="form-control" />
+                <InputDate disabled id="checkindate" @bind-Value="@checkin" @onblur="onChangeCheckDate" class="form-control" />
             </div>
             <div class="mb-3">
-                <label for="checkoutdate" class="form-label">CheckOutDate:</label>
-                <InputDate disabled="@(bookingEnabled)" id="checkoutdate" @bind-Value="@checkout" class="form-control" />
+                <label for="checkoutdate" class="form-label">Check-out Date:</label>
+                <InputDate id="checkoutdate" @bind-Value="@checkout" @onblur="onChangeCheckDate" class="form-control" />
             </div>
             <div class="mb-3">
                 <label for="comments" class="form-label">Comments:</label>
                 <InputText id="comments" @bind-Value="@comments" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="typeid" class="form-label">Room type:</label>
+                <InputSelect id="typeid" class="form-control" @bind-Value="@typeRoom" @onblur="onChangeCheckDate">
+                    @foreach (var type in types)
+                    {
+                        <option value="@type.Id">@type.Name</option>
+                    }
+                </InputSelect>
             </div>
             <div class="mb-3">
                 <label for="roomid" class="form-label">Room number:</label>
@@ -77,15 +86,19 @@
     private List<HDBookingStatus> statuses;
     private List<HGuestLiving> guests;
     private List<HBooking> bookings;
+    private List<HDRoomType> types;
+
 
     private string message = "";
     private string success = "";
 
     private int number = 0;
-    private DateTime checkin;
-    private DateTime checkout;
+    private DateTime checkin = DateTime.Now;
+    private DateTime checkout = DateTime.Now.AddDays(1);
     private decimal amount;
     private string comments;
+
+    private byte typeRoom;
 
     private short roomMem;
     private byte statusMem;
@@ -102,6 +115,18 @@
         statuses = DB.HDBookingStatuses.ToList();
         guests = DB.HGuestLivings.ToList();
         bookings = DB.HBookings.Include(b => b.Guest).ToList();
+        types = DB.HDRoomTypes.ToList();
+
+
+
+        if (types != null)
+        {
+            typeRoom = types.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
 
 
             if (bookingMem > 0)
@@ -155,6 +180,8 @@
             {
                 NavigationManager.NavigateTo("notfound");
             }
+
+        onChangeCheckDate();
         }
 
     // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
@@ -175,7 +202,6 @@
             return;
         }
 
-
         DateTime today = DateTime.Today;
         string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
 
@@ -192,8 +218,14 @@
         HLiving.CheckOutDate = checkout;
 
         int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
-        HRoom room = await DB.HRooms.FindAsync(HLiving.RoomId);
-        HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+        HRoom? room = await DB.HRooms.FindAsync(HLiving.RoomId);
+        HDRoomType? roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+
+        if(room.AvailabilityStatusId == (byte)2)
+        {
+            message = "This room is occupied";
+            return;
+        }
 
         HLiving.Amount = roomType.Price * hours;
         HLiving.Comments = comments != null ? comments : "";
@@ -246,5 +278,12 @@
         {
             OnInitializedAsync();
         }
+    }
+
+    void onChangeCheckDate()
+    {
+        List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Except(DB.HRooms.Where(r => r.AvailabilityStatusId == (byte)2)).Where(r => r.TypeId == typeRoom).ToList();
+        HLiving.RoomId = rooms.FirstOrDefault() != null ? rooms.FirstOrDefault().Id : (byte)0;
     }
 }
