@@ -2,6 +2,13 @@ using HotelApp2.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using BLL.Interfaces;
+using BLL.Services;
+using DAL.Interfaces;
+using DAL.Repositories;
+using NuGet.Protocol.Core.Types;
+using HotelApp2.Models;
+using HotelApp2.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +16,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddDbContext<HotelApp2.Models.Hotel_DBContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString")));
+builder.Services.AddDbContext<Hotel_DBContext>(options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString"));
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
+builder.Services.AddDbContext<DAL.EF.Hotel_DBContext_DAL>(options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString"));
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
+//builder.Services.AddDbContext<HModels.Hotel_DBContext_HModels>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString")));
+
+
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -24,6 +41,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 builder.Services.AddAntiforgery();
 builder.Services.AddCascadingAuthenticationState();
+
+builder.Services.AddScoped<IRoomTypeService, HDRoomTypeService>();
+builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
+builder.Services.AddScoped<HDRoomTypeC>();
+
 
 var app = builder.Build();
 

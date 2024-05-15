@@ -1,6 +1,7 @@
 ﻿@page "/Room/Edit"
 @page "/Room/Edit/{id:int}"
 @inject HotelApp2.Models.Hotel_DBContext DB
+@using AutoMapper
 @using HotelApp2.Models
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
@@ -71,10 +72,10 @@ else
     public int Id { get; set; }
 
     [SupplyParameterFromForm]
-    public HRoom? HRoom { get; set; } = new();
+    public HModels.HRoom? HRoom { get; set; } = new();
 
     private List<HHotel> hotels;
-    private List<HDRoomType> types;
+    private List<HotelApp2.Models.HDRoomType> types;
 
     private string number;
     private int avId;
@@ -89,11 +90,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        
+
         hotels = DB.HHotels.ToList();
         types = DB.HDRoomTypes.ToList();
 
-        HRoom = await DB.HRooms.FirstOrDefaultAsync(m => m.Id == Id);
+        HRoom hroom = await DB.HRooms.FirstOrDefaultAsync(m => m.Id == Id);
+
+        var mapper = new MapperConfiguration(cfg => cfg.CreateMap<HRoom, HModels.HRoom>()).CreateMapper();
+        HRoom = mapper.Map<HModels.HRoom>(hroom);
+
 
         if (HRoom is null)
         {

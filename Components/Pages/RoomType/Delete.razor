@@ -1,10 +1,12 @@
 ﻿@page "/RoomType/Delete"
 @page "/RoomType/Delete/{id:int}"
+@using HotelApp2.Controllers
 @using HotelApp2.Models;
 @inject Models.Hotel_DBContext dbContext
 @using Microsoft.EntityFrameworkCore
 @using HotelApp2;
 @inject NavigationManager NavigationManager
+@inject HDRoomTypeC RoomTypeController
 @rendermode InteractiveServer
 
 <PageTitle>Delete</PageTitle>
@@ -40,7 +42,7 @@ else
 }
 
 @code {
-    Models.HDRoomType? type;
+    HModels.HDRoomType? type;
 
     [Parameter]
     public int Id { get; set; }
@@ -49,7 +51,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        type = await dbContext.HDRoomTypes.FirstOrDefaultAsync(t => t.Id == Id);
+        type = RoomTypeController.GetById(Id);
 
         if (type is null)
         {
@@ -60,14 +62,14 @@ else
     public async Task DeleteType()
     {
         message = "";
-        if(type!.HRooms.Count != 0)
-        {
-            message = "This type has related rooms. You can't delete it";
-            return;
-        }
+        // if(type!.HRooms.Count != 0)
+        // {
+        //     message = "This type has related rooms. You can't delete it";
+        //     return;
+        // }
 
-        dbContext.HDRoomTypes.Remove(type!);
-        await dbContext.SaveChangesAsync();
+        type.Id = (byte)Id;
+        message = RoomTypeController.Delete(type);
         NavigationManager.NavigateTo("/RoomType");
     }
 }

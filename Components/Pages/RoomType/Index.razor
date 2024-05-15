@@ -1,8 +1,10 @@
 ﻿@page "/RoomType"
+@using HotelApp2.Controllers
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using HotelApp2
-@using HotelApp2.Models;
-@inject HotelApp2.Models.Hotel_DBContext DbContext
+@using HModels;
+@using Microsoft.AspNetCore.Components.Web;
+@inject HDRoomTypeC RoomTypeController
 @rendermode InteractiveServer
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
@@ -11,7 +13,36 @@
 
 <a href="RoomType/Create" style="font-size:20px"><i class="fas fa-plus"> Create new</i></a>
 
-<QuickGrid Class="table table-striped" Items="DbContext.HDRoomTypes">
+
+@if (RoomTypes != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Capacity</th>
+                <th>Price</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var type in RoomTypes)
+            {
+                <tr>
+                    <td>@type.Name</td>
+                    <td>@type.Capacity</td>
+                    <td>@type.Price</td>
+                    <td>
+                        <a href="@($"RoomType/Edit/{type.Id}")"><i class="fas fa-edit"> Edit</i></a> |
+                        <a href="@($"RoomType/Delete/{type.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@* <QuickGrid Class="table table-striped" Items="DbContext.HDRoomTypes">
     <PropertyColumn  Property="type => type.Name" Sortable="true"></PropertyColumn>
     <PropertyColumn Property="type => type.Capacity" Sortable="true"></PropertyColumn>
     <PropertyColumn Property="type => type.Price" Sortable="true"></PropertyColumn>
@@ -20,8 +51,14 @@
         <a href="@($"RoomType/Edit/{type.Id}")"><i class="fas fa-edit"> Edit </i></a> |
         <a href="@($"RoomType/Delete/{type.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
     </TemplateColumn>
-</QuickGrid>
+</QuickGrid> *@
 
 @code {
+    IEnumerable<HDRoomType> RoomTypes;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var types = RoomTypeController.Index();
+        RoomTypes = types;
+    }
 }

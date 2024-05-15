@@ -86,7 +86,7 @@
     private List<HDBookingStatus> statuses;
     private List<HGuestLiving> guests;
     private List<HBooking> bookings;
-    private List<HDRoomType> types;
+    private List<HotelApp2.Models.HDRoomType> types;
 
 
     private string message = "";
@@ -224,7 +224,7 @@
 
         int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
         HRoom? room = await DB.HRooms.FindAsync(HLiving.RoomId);
-        HDRoomType? roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+        HotelApp2.Models.HDRoomType? roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
 
         if(room.AvailabilityStatusId == (byte)2)
         {

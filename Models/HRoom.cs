@@ -35,5 +35,5 @@ public partial class HRoom
 
     public virtual HHotel Hotel { get; set; }
 
-    public virtual HDRoomType Type { get; set; }
+    //public virtual HDRoomType Type { get; set; }
 }

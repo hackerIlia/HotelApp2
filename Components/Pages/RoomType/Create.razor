@@ -1,8 +1,11 @@
 ﻿@page "/RoomType/Create"
-@using HotelApp2.Models;
-@inject Models.Hotel_DBContext dbContext
+@using HotelApp2.Controllers
+@using HModels;
 @using HotelApp2;
+@using BLL.Services;
+@using Microsoft.AspNetCore;
 @inject NavigationManager NavigationManager
+@inject HDRoomTypeC RoomTypeController
 @rendermode InteractiveServer
 
 <PageTitle>Create room type</PageTitle>
@@ -10,7 +13,7 @@
 <h3>Room Type</h3>
 <h4>Create</h4>
 
-<h5 class="text-danger">@message</h5>
+<h5>@((MarkupString)message)</h5>
 
 <div class="row">
     <div class="col-md-3">
@@ -41,7 +44,7 @@
 </div>
 
 <div>
-    <a href="RoomType">Back to List</a>
+    <a @onclick="Back">Back to List</a>
 </div>
 
 
@@ -50,7 +53,7 @@
     [SupplyParameterFromForm]
     public HDRoomType room { get; set; } = new HDRoomType();
 
-    private EditForm editForm;
+    //private EditForm editForm;
 
     public string name;
     public int capacity;
@@ -64,40 +67,48 @@
         success = "";
         message = "";
 
-        @if(String.IsNullOrEmpty(name))
-        {
-            message = "Name is required";
-            return;
-        }
-        @if(capacity <1 || capacity > 5)
-        {
-            message = "Capacity can be from 1 up to 5 people";
-            return;
-        }
-        @if(price<=0 || price > 10000)
-        {
-            message = "Price can be in range [0.01,10 000]";
-            return;
-        }
-        @if (NameExists(name))
-        {
-            message = "This type of room already exists!";
-            return;
-        }
-
+        // @if(String.IsNullOrEmpty(name))
+        // {
+        //     message = "Name is required";
+        //     return;
+        // }
+        // @if(capacity <1 || capacity > 5)
+        // {
+        //     message = "Capacity can be from 1 up to 5 people";
+        //     return;
+        // }
+        // @if(price<=0 || price > 10000)
+        // {
+        //     message = "Price can be in range [0.01,10 000]";
+        //     return;
+        // }
+        // @if (NameExists(name))
+        // {
+        //     message = "This type of room already exists!";
+        //     return;
+        // }
         room.Capacity = (byte)capacity;
         room.Price = (decimal)price;
         room.Name = name;
 
-        dbContext.HDRoomTypes.Add(room);
-        await dbContext.SaveChangesAsync();
-        message = "";
-        success = "Added successful!";
+        message = RoomTypeController.Create(room);
+
+
+        // dbContext.HDRoomTypes.Add(room);
+        // await dbContext.SaveChangesAsync();
+
+        // message = "";
+        // success = "Added successful!";
         room = new HDRoomType();
     }
 
-    bool NameExists(string name)
+    // bool NameExists(string name)
+    // {
+    //     return dbContext.HDRoomTypes.Any(t => t.Name == name);
+    // }
+
+    public void Back()
     {
-        return dbContext.HDRoomTypes.Any(t => t.Name == name);
+        NavigationManager.NavigateTo("RoomType", true);
     }
 }

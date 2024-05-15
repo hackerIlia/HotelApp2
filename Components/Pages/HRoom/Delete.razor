@@ -1,4 +1,4 @@
-﻿@page "/Room/Delete"
+﻿@* @page "/Room/Delete"
 @page "/Room/Delete/{id:int}"
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
@@ -57,7 +57,7 @@
 </div>
 
 @code {
-    HRoom? hroom;
+    HModels.HRoom? hroom;
 
     [Parameter]
     public int Id { get; set; }
@@ -103,3 +103,4 @@
         NavigationManager.NavigateTo("/Room");
     }
 }
+ *@

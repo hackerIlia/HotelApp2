@@ -243,7 +243,7 @@
 
         int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
         HRoom room = await DB.HRooms.FindAsync(HLiving.RoomId);
-        HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+        HotelApp2.Models.HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
 
         HLiving.Amount = roomType.Price * hours;
         HLiving.Comments = comments != null ? comments : "";
