@@ -5,6 +5,7 @@
 @using System.Net.Mail
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Create</PageTitle>
 

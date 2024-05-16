@@ -8,7 +8,7 @@
 @inject HDRoomTypeC RoomTypeController
 @rendermode InteractiveServer
 
-<PageTitle>Create room type</PageTitle>
+<PageTitle>Create</PageTitle>
 
 <h3>Room Type</h3>
 <h4>Create</h4>
@@ -44,7 +44,7 @@
 </div>
 
 <div>
-    <a @onclick="Back">Back to List</a>
+    <a class="text-link" @onclick="Back">Back to List</a>
 </div>
 
 
@@ -52,8 +52,6 @@
 @code {
     [SupplyParameterFromForm]
     public HDRoomType room { get; set; } = new HDRoomType();
-
-    //private EditForm editForm;
 
     public string name;
     public int capacity;
@@ -67,45 +65,14 @@
         success = "";
         message = "";
 
-        // @if(String.IsNullOrEmpty(name))
-        // {
-        //     message = "Name is required";
-        //     return;
-        // }
-        // @if(capacity <1 || capacity > 5)
-        // {
-        //     message = "Capacity can be from 1 up to 5 people";
-        //     return;
-        // }
-        // @if(price<=0 || price > 10000)
-        // {
-        //     message = "Price can be in range [0.01,10 000]";
-        //     return;
-        // }
-        // @if (NameExists(name))
-        // {
-        //     message = "This type of room already exists!";
-        //     return;
-        // }
         room.Capacity = (byte)capacity;
         room.Price = (decimal)price;
         room.Name = name;
 
         message = RoomTypeController.Create(room);
 
-
-        // dbContext.HDRoomTypes.Add(room);
-        // await dbContext.SaveChangesAsync();
-
-        // message = "";
-        // success = "Added successful!";
         room = new HDRoomType();
     }
-
-    // bool NameExists(string name)
-    // {
-    //     return dbContext.HDRoomTypes.Any(t => t.Name == name);
-    // }
 
     public void Back()
     {

@@ -8,6 +8,7 @@
 @using Microsoft.EntityFrameworkCore
 @using System.Net.Mail
 @rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Edit hotel</PageTitle>
 

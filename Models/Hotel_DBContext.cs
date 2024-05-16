@@ -13,10 +13,10 @@ public partial class Hotel_DBContext : DbContext
     {
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.EnableSensitiveDataLogging();
-    }
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    optionsBuilder.EnableSensitiveDataLogging();
+    //}
 
     public virtual DbSet<HAttendanceOperation> HAttendanceOperations { get; set; }
 

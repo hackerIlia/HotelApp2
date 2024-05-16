@@ -42,7 +42,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddAntiforgery();
 builder.Services.AddCascadingAuthenticationState();
 
-builder.Services.AddScoped<IRoomTypeService, HDRoomTypeService>();
+builder.Services.AddScoped<IGeneralService, HDRoomTypeService>();
 builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<HDRoomTypeC>();
 

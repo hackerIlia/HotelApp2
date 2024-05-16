@@ -83,71 +83,13 @@ else{
 
     public async Task UpdateType()
     {
-
-        // @if (String.IsNullOrEmpty(name))
-        // {
-        //     message = "Name is required";
-        //     return;
-        // }
-        // @if (NameExists(name) && name != HDRoomType.Name)
-        // {
-        //     message = "This type of room already exists!";
-        //     return;
-        // }
-        // @if (capacity < 1 || capacity > 5)
-        // {
-        //     message = "Capacity can be from 1 up to 5 people";
-        //     return;
-        // }
-        // @if (price <= 0 || price > 10000)
-        // {
-        //     message = "Price can be in range [0.01,10 000]";
-        //     return;
-        // }
         HDRoomType.Id = (byte)Id;
         HDRoomType.Capacity = (byte)capacity;
         HDRoomType.Price = price;
         HDRoomType.Name = name;
 
         message = RoomTypeController.Edit(HDRoomType);
-
-
-        // dbContext.Attach(HDRoomType!).State = EntityState.Modified;
-
-        // try
-        // {
-        //     message = "Editing...";
-
-
-        //     await dbContext.SaveChangesAsync();
-
-        //     message = "";
-        //     success = "Edited successful!";
-        // }
-        // catch (DbUpdateConcurrencyException)
-        // {
-        //     if (!TypeExists(HDRoomType!.Id))
-        //     {
-        //         NavigationManager.NavigateTo("notfound");
-        //     }
-        //     else
-        //     {
-        //         throw;
-        //     }
-        // }
-
-        // NavigationManager.NavigateTo("/RoomType");
     }
-
-    // bool TypeExists(int id)
-    // {
-    //     return dbContext.HDRoomTypes.Any(e => e.Id == id);
-    // }
-
-    // bool NameExists(string name)
-    // {
-    //     return dbContext.HDRoomTypes.Any(t => t.Name == name);
-    // }
 
     public void Back()
     {

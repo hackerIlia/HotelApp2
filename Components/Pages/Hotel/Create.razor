@@ -6,6 +6,8 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin")]
+
 <PageTitle>Create hotel</PageTitle>
 
 <h3>Hotel</h3>

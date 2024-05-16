@@ -6,6 +6,7 @@
 @using HotelApp2;
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Delete</PageTitle>
 

@@ -5,6 +5,8 @@
 @using Microsoft.EntityFrameworkCore
 @using System.Net.Mail
 @rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin,Receptionist")]
+
 
 <PageTitle>Edit</PageTitle>
 

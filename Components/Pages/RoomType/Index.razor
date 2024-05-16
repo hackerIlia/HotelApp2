@@ -42,17 +42,6 @@
     </table>
 }
 
-@* <QuickGrid Class="table table-striped" Items="DbContext.HDRoomTypes">
-    <PropertyColumn  Property="type => type.Name" Sortable="true"></PropertyColumn>
-    <PropertyColumn Property="type => type.Capacity" Sortable="true"></PropertyColumn>
-    <PropertyColumn Property="type => type.Price" Sortable="true"></PropertyColumn>
-
-    <TemplateColumn Context="type">
-        <a href="@($"RoomType/Edit/{type.Id}")"><i class="fas fa-edit"> Edit </i></a> |
-        <a href="@($"RoomType/Delete/{type.Id}")"><i class="fas fa-trash-alt"> Delete</i></a>
-    </TemplateColumn>
-</QuickGrid> *@
-
 @code {
     IEnumerable<HDRoomType> RoomTypes;
 

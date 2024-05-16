@@ -4,6 +4,9 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin,Receptionist")]
+
+
 <PageTitle>Create</PageTitle>
 
 <h3>Attendance operation</h3>

@@ -7,6 +7,9 @@
 @using Microsoft.AspNetCore.Authentication.Cookies
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin,Receptionist")]
+
+
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Answer</PageTitle>

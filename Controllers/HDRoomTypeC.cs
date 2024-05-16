@@ -7,19 +7,15 @@ namespace HotelApp2.Controllers
 {
     public class HDRoomTypeC : Controller
     {
-        IRoomTypeService typeService;
+        IGeneralService typeService;
         
-        public HDRoomTypeC(IRoomTypeService serv)
+        public HDRoomTypeC(IGeneralService serv)
         {
             typeService = serv;
         }
 
         public IEnumerable<HDRoomType> Index()
         {
-            //IEnumerable<HDRoomType> typeDTOs = typeService.GetAllRoomTypes();
-            //var mapper = new MapperConfiguration(cfg => cfg.CreateMap<HDRoomType, HDRoomType>()).CreateMapper();
-            //var types = mapper.Map<IEnumerable<HDRoomType>, List<HDRoomType>>(typeDTOs);
-            //return types;
             return typeService.GetAllRoomTypes().ToList();
         }
 

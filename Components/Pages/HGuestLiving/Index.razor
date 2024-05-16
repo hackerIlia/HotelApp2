@@ -3,6 +3,7 @@
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
 @using Microsoft.EntityFrameworkCore
+@attribute [Authorize(Roles = "Admin,Receptionist")]
 
 <PageTitle>Index</PageTitle>
 

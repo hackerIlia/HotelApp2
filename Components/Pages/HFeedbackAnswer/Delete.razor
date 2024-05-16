@@ -5,6 +5,9 @@
 @using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin,Receptionist")]
+
+
 
 <PageTitle>Delete</PageTitle>
 

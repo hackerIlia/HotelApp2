@@ -5,6 +5,9 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
+@attribute [Authorize(Roles = "Admin,Receptionist")]
+
+
 <PageTitle>Create</PageTitle>
 
 <h3>Guest - Booking</h3>
