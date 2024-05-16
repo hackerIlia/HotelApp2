@@ -3,6 +3,13 @@
 @using HModels;
 @using System.Text
 @inject NavigationManager NavigationManager
+@using HotelApp2.Controllers
+@inject Booking BookingController
+@inject Room RoomController
+@inject HDRoomTypeC RoomTypeController
+@inject BookingStatuses BookingStatusController
+@inject GuestBooking GuestBookingController
+
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -71,22 +78,23 @@
 </div>
 
 @code {
-    [SupplyParameterFromForm]
-    public HotelApp2.Models.HBooking HBooking { get; set; } = new();
-
-    private List<HotelApp2.Models.HRoom> rooms;
-    private List<HotelApp2.Models.HDBookingStatus> statuses;
-    private List<HotelApp2.Models.HGuestBooking> guests;
-    private List<HotelApp2.Models.HDRoomType> types;
-
-    private string message = "";
-    private string success = "";
-
     private int number = 0;
     private DateTime checkin = DateTime.Now;
     private DateTime checkout = DateTime.Now.AddDays(1);
     private decimal amount;
     private string comments;
+
+    [SupplyParameterFromForm]
+    public HModels.HBooking HBooking { get; set; } = new();
+
+    private List<HModels.HRoom> rooms;
+    private List<HModels.HDBookingStatus> statuses;
+    private List<HModels.HGuestBooking> guests;
+    private List<HModels.HDRoomType> types;
+
+    private string message = "";
+    private string success = "";
+
 
     private byte typeRoom;
 
@@ -98,7 +106,7 @@
     protected override async Task OnInitializedAsync()
     {
         HBooking = new();
-        rooms = DB.HRooms.ToList();
+        rooms = RoomController.Index().ToList();
 
         if (rooms.Count > 0)
         {
@@ -109,9 +117,9 @@
             NavigationManager.NavigateTo("notfound");
         }
 
-        statuses = DB.HDBookingStatuses.ToList();
-        guests = DB.HGuestBookings.ToList();
-        types = DB.HDRoomTypes.ToList();
+        statuses = BookingStatusController.Index().ToList();
+        guests = GuestBookingController.Index().ToList();
+        types = RoomTypeController.Index().ToList();
 
         // if (typeMem > 0)
         // {
@@ -168,73 +176,53 @@
     {
         message = "";
         success = "";
-        number = 0;
-
-        @if (checkin.Date < DateTime.Now.AddDays(-1))
-        {
-            message = "Check-in Date can't be earlier than today";
-            return;
-        }
-        @if (checkout.Date < checkin.Date)
-        {
-            message = "Check-out Date can't be earlier than Check-in Date";
-            return;
-        }
-        if(HBooking.RoomId == 0)
-        {
-            message = "Select room";
-            return;
-        }
-
-
-        DateTime today = DateTime.Today;
-        string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
-
-        do
-        {
-            Random random = new Random();
-            int randomDigits = random.Next(100000, 1000000);
-            number = Convert.ToInt32(numberDate + randomDigits.ToString());
-        } 
-        while (numberExists(number));
-
 
         HBooking.Number = number;
         HBooking.CheckInDate = checkin;
         HBooking.CheckOutDate = checkout;
 
         int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
-        HotelApp2.Models.HRoom room = await DB.HRooms.FindAsync(HBooking.RoomId);
-        HotelApp2.Models.HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+        HRoom room = RoomController.GetById(HBooking.RoomId);
+        HDRoomType roomType = RoomTypeController.GetById(room.TypeId);
 
         HBooking.Amount = roomType.Price * hours;
         HBooking.Comments = comments != null ? comments : "";
         HBooking.StatusId = (byte)1;
 
-        DB.HBookings.Add(HBooking);
-        await DB.SaveChangesAsync();
-
-        message = "";
-        success = "Added successful!";
+        message = BookingController.Create(HBooking);
 
         roomMem = HBooking.RoomId;
         statusMem = HBooking.StatusId;
         guestMem = HBooking.GuestId;
-        typeMem = HBooking.Room.TypeId;
+        typeMem = typeRoom;
 
         OnInitializedAsync();
     }
 
-    bool numberExists(int number)
-    {
-        return DB.HBookings.Any(b => b.Number == number);
-    }
+    // void onChangeCheckDate()
+    // {
+    //     List<HModels.HRoom> roomsBookingSTOP = RoomController.Index().Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+    //     rooms = RoomController.Index().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
+    //     HBooking.RoomId = rooms.FirstOrDefault() != null ? rooms.FirstOrDefault().Id : (byte)0;
+    // }
 
     void onChangeCheckDate()
     {
-        //List<HBooking> bookingsSTOP = DB.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).ToList();
-        List <HotelApp2.Models.HRoom > roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
-        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
-        HBooking.RoomId = rooms.FirstOrDefault() != null ? rooms.FirstOrDefault().Id : (byte)0;
+        var bookedRoomIds = RoomController.Index()
+            .Where(r => r.HBookings.Any(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout))
+            .Select(r => r.Id)
+            .ToList();
+
+        var cleaningRoomIds = RoomController.Index()
+            .Where(r => r.CleaningStatusId != 5)
+            .Select(r => r.Id)
+            .ToList();
+
+        rooms = RoomController.Index()
+            .Where(r => !bookedRoomIds.Contains(r.Id) && !cleaningRoomIds.Contains(r.Id) && r.TypeId == typeRoom)
+            .ToList();
+
+        HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? 0;
     }
+
 }

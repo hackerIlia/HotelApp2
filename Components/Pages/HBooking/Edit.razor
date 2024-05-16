@@ -1,8 +1,10 @@
 ﻿@page "/Booking/edit"
 @inject HotelApp2.Models.Hotel_DBContext DB
+@using HotelApp2.Controllers
 @using HotelApp2.Models
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
+@inject Booking BookingController
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -141,45 +143,47 @@ else
         message = "";
         success = "";
 
-        @if (checkin < DateTime.Now.AddDays(-1))
-        {
-            message = "Check-in Date can't be earlier than today";
-            return;
-        }
-        @if (checkout.Date < checkin.Date)
-        {
-            message = "Check-out Date can't be earlier than Check-in Date";
-            return;
-        }
+        // @if (checkin < DateTime.Now.AddDays(-1))
+        // {
+        //     message = "Check-in Date can't be earlier than today";
+        //     return;
+        // }
+        // @if (checkout.Date < checkin.Date)
+        // {
+        //     message = "Check-out Date can't be earlier than Check-in Date";
+        //     return;
+        // }
 
-        DB.Attach(HBooking!).State = EntityState.Modified;
+        // DB.Attach(HBooking!).State = EntityState.Modified;
 
-        try
-        {
-            success = "Editing...";
+        // try
+        // {
+        //     success = "Editing...";
 
             HBooking.CheckInDate = checkin;
             HBooking.CheckOutDate = checkout;
             HBooking.Amount = amount;
             HBooking.Comments = comments;
 
+            //message = BookingController.Edit(HBooking);
 
-            await DB.SaveChangesAsync();
 
-            message = "";
-            success = "Edited successful!";
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!HBookingExists(HBooking!.Id))
-            {
-                NavigationManager.NavigateTo("notfound");
-            }
-            else
-            {
-                throw;
-            }
-        }
+        //     await DB.SaveChangesAsync();
+
+        //     message = "";
+        //     success = "Edited successful!";
+        // }
+        // catch (DbUpdateConcurrencyException)
+        // {
+        //     if (!HBookingExists(HBooking!.Id))
+        //     {
+        //         NavigationManager.NavigateTo("notfound");
+        //     }
+        //     else
+        //     {
+        //         throw;
+        //     }
+        // }
     }
 
     bool HBookingExists(int id)

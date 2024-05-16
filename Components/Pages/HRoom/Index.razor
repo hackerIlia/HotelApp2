@@ -1,8 +1,11 @@
-﻿@* @page "/Room"
+﻿@page "/Room"
+@using HotelApp2.Controllers
 @using Microsoft.AspNetCore.Components.QuickGrid
-@inject HotelApp2.Models.Hotel_DBContext DB
-@using HotelApp2.Models
+@using HModels
 @using Microsoft.EntityFrameworkCore
+@inject Room RoomController
+@rendermode InteractiveServer
+
 @attribute [Authorize(Roles = "Admin")]
 
 
@@ -18,7 +21,7 @@
 
 @if (rooms != null)
 {
-    <QuickGrid Class="table" Items="DB.HRooms">
+    <QuickGrid Class="table" Items="rooms">
         <PropertyColumn Property="hroom => hroom.Number" />
         <PropertyColumn Property="hroom => hroom.AvailabilityStatus.StatusName" Title="Availability" />
         <PropertyColumn Property="hroom => hroom.CleaningStatus.Name" Title="Cleaning Status" />
@@ -39,14 +42,15 @@ else
 }
 
 @code{
-    List<HRoom> rooms;
+    IQueryable<HRoom> rooms;
 
     protected override async Task OnInitializedAsync(){
-        rooms = await DB.HRooms.Include(r => r.CleaningStatus)
-                                .Include(r => r.AvailabilityStatus)
-                                .Include(r => r.Hotel)
-                                .Include(r => r.Type)
-                                .ToListAsync();
+        // rooms = await DB.HRooms.Include(r => r.CleaningStatus)
+        //                         .Include(r => r.AvailabilityStatus)
+        //                         .Include(r => r.Hotel)
+        //                         .Include(r => r.Type)
+        //                         .ToListAsync();
+
+        rooms = RoomController.Index().AsQueryable();
     }
 }
- *@

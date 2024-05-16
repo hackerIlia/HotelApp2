@@ -3,6 +3,9 @@
 @using HotelApp2.Models
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
+@using HotelApp2.Controllers
+@inject Booking BookingController
+
 @rendermode InteractiveServer
 
 
@@ -62,17 +65,14 @@
 </div>
 
 @code {
-    HBooking? hbooking;
+    HModels.HBooking? hbooking;
 
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        hbooking = await DB.HBookings.Include(b => b.Guest)
-                                     .Include(b => b.Status)
-                                     .Include(b => b.Room)
-                                    .FirstOrDefaultAsync(m => m.Id == Id);
+        hbooking = BookingController.GetById(Id);
 
         if (hbooking is null)
         {
@@ -82,14 +82,13 @@
 
     public async Task CancelHBooking()
     {
-        hbooking = await DB.HBookings.Include(b => b.Guest)
-                                     .Include(b => b.Status)
-                                     .Include(b => b.Room)
-                                    .FirstOrDefaultAsync(m => m.Id == Id);
+        // hbooking = BookingController.GetById(Id);
 
-        hbooking!.StatusId = (byte)3;
-        
-        await DB.SaveChangesAsync();
+        // hbooking!.StatusId = (byte)3;
+
+        // await DB.SaveChangesAsync();
+
+        BookingController.Cancel(hbooking!);
         NavigationManager.NavigateTo("/Booking");
     }
 }

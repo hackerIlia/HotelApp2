@@ -20,12 +20,14 @@ builder.Services.AddDbContext<Hotel_DBContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString"));
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
-builder.Services.AddDbContext<DAL.EF.Hotel_DBContext_DAL>(options => {
+//builder.Services.AddDbContext<DAL.EF.Hotel_DBContext_DAL>(options => {
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString"));
+//    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+//});
+builder.Services.AddDbContext<HModels.Hotel_DBContext_HModels>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString"));
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
-//builder.Services.AddDbContext<HModels.Hotel_DBContext_HModels>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString")));
 
 
 builder.Services.AddQuickGridEntityFrameworkAdapter();
@@ -42,10 +44,24 @@ builder.Services.AddAuthorization();
 builder.Services.AddAntiforgery();
 builder.Services.AddCascadingAuthenticationState();
 
-builder.Services.AddScoped<IGeneralService, HDRoomTypeService>();
+builder.Services.AddScoped<IGeneralService<HModels.HDRoomType>, HDRoomTypeService>();
 builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<HDRoomTypeC>();
 
+builder.Services.AddScoped<IGeneralService<HModels.HRoom>, RoomService>();
+builder.Services.AddScoped<HotelApp2.Controllers.Room>();
+
+builder.Services.AddScoped<IGeneralService<HModels.HBooking>, BLL.Services.Booking>();
+builder.Services.AddScoped<HotelApp2.Controllers.Booking>();
+
+builder.Services.AddScoped<IGeneralService<HModels.HLiving>, BLL.Services.Living>();
+builder.Services.AddScoped<HotelApp2.Controllers.Living>();
+
+builder.Services.AddScoped<IGeneralService<HModels.HDBookingStatus>, BLL.Services.BookingStatuses>();
+builder.Services.AddScoped<HotelApp2.Controllers.BookingStatuses>();
+
+builder.Services.AddScoped<IGeneralService<HModels.HGuestBooking>, BLL.Services.GuestBooking>();
+builder.Services.AddScoped<HotelApp2.Controllers.GuestBooking>();
 
 var app = builder.Build();
 

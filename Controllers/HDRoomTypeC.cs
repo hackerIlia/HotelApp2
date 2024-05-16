@@ -1,27 +1,26 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BLL.Interfaces;
-using AutoMapper;
 using HModels;
 
 namespace HotelApp2.Controllers
 {
     public class HDRoomTypeC : Controller
     {
-        IGeneralService typeService;
+        IGeneralService<HDRoomType> typeService;
         
-        public HDRoomTypeC(IGeneralService serv)
+        public HDRoomTypeC(IGeneralService<HDRoomType> serv)
         {
             typeService = serv;
         }
 
         public IEnumerable<HDRoomType> Index()
         {
-            return typeService.GetAllRoomTypes().ToList();
+            return typeService.GetAll().ToList();
         }
 
         public HDRoomType GetById(int id)
         {
-            return typeService.GetRoomType(id);
+            return typeService.Get(id);
         }
 
         public string Create(HDRoomType type)

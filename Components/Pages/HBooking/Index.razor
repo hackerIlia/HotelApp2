@@ -2,7 +2,12 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Models
+@using HModels
 @using Microsoft.EntityFrameworkCore
+@using HotelApp2.Controllers
+@inject Booking BookingController
+@inject Living LivingController
+
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
 
@@ -18,7 +23,7 @@
 
 @if (bookings != null)
 {
-    <QuickGrid Class="table" Items="DB.HBookings">
+    <QuickGrid Class="table" Items="bookings">
         <PropertyColumn Property="hbooking => hbooking.Number" />
         <PropertyColumn Property="hbooking => hbooking.CheckInDate" Title="Check-in Date" Format="dd/MM/yyyy" />
         <PropertyColumn Property="hbooking => hbooking.CheckOutDate" Title="Check-out Date" Format="dd/MM/yyyy" />
@@ -67,18 +72,14 @@ else
 }
 
 @code {
-    List<HBooking> bookings;
+    IQueryable<HModels.HBooking> bookings;
 
-    List<HLiving> livings;
+    IQueryable<HModels.HLiving> livings;
 
     protected override async Task OnInitializedAsync()
     {
-        bookings = await DB.HBookings.Include(b => b.HPayments)
-                                        .Include(b => b.Room)
-                                        .Include(b => b.Status)
-                                        .Include(b => b.Guest)
-                                        .ToListAsync();
+        bookings = BookingController.Index().AsQueryable();
 
-        livings = await DB.HLivings.Include(l => l.Booking).ToListAsync();
+        livings = LivingController.Index().AsQueryable();
     }
 }

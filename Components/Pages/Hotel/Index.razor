@@ -1,9 +1,9 @@
 ﻿@page "/Hotel"
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using HotelApp2
-@using HotelApp2.Models;
+@using HModels;
 @using Microsoft.EntityFrameworkCore
-@inject HotelApp2.Models.Hotel_DBContext DbContext
+@inject HModels.Hotel_DBContext_HModels DbContext
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin")]
 
