@@ -1,5 +1,4 @@
 ﻿@page "/Booking/create"
-@inject HotelApp2.Models.Hotel_DBContext DB
 @using HModels;
 @using System.Text
 @inject NavigationManager NavigationManager
@@ -199,30 +198,52 @@
         OnInitializedAsync();
     }
 
-    // void onChangeCheckDate()
-    // {
-    //     List<HModels.HRoom> roomsBookingSTOP = RoomController.Index().Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
-    //     rooms = RoomController.Index().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
-    //     HBooking.RoomId = rooms.FirstOrDefault() != null ? rooms.FirstOrDefault().Id : (byte)0;
-    // }
-
     void onChangeCheckDate()
     {
-        var bookedRoomIds = RoomController.Index()
-            .Where(r => r.HBookings.Any(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout))
-            .Select(r => r.Id)
+        // List<HRoom> allRooms = RoomController.Index().ToList();
+        // List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+        // rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
+        // List<HModels.HRoom> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date).Any()).ToList();
+        // rooms = allRooms.Except(roomsBookingSTOP).Except(RoomController.Index().ToList().Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
+        // HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? (byte)0;
+
+        List<HModels.HRoom> allRooms = RoomController.Index().ToList();
+        
+        List<HModels.HRoom> roomsBookingSTOP = allRooms
+            .Where(r => r.HBookings.Any(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date))
             .ToList();
 
-        var cleaningRoomIds = RoomController.Index()
-            .Where(r => r.CleaningStatusId != 5)
-            .Select(r => r.Id)
+        rooms = allRooms
+            .Except(roomsBookingSTOP)
+            .Where(r => r.CleaningStatusId == 5 && r.TypeId == typeRoom)
             .ToList();
 
-        rooms = RoomController.Index()
-            .Where(r => !bookedRoomIds.Contains(r.Id) && !cleaningRoomIds.Contains(r.Id) && r.TypeId == typeRoom)
-            .ToList();
+        //without verifying cleaning status
+        // rooms = allRooms
+        //     .Except(roomsBookingSTOP)
+        //     .Where(r => r.TypeId == typeRoom)
+        //     .ToList();
 
-        HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? 0;
+        HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? (byte)0;
     }
+
+    // void onChangeCheckDate()
+    // {
+    //     var bookedRoomIds = RoomController.Index()
+    //         .Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any())
+    //         //.Select(r => r.Id)
+    //         .ToList();
+
+    //     var cleaningRoomIds = RoomController.Index()
+    //         .Where(r => r.CleaningStatusId != 5)
+    //         //.Select(r => r.Id)
+    //         .ToList();
+
+    //     rooms = RoomController.Index().Except(cleaningRoomIds).Except(bookedRoomIds)
+    //         // .Where(r => !bookedRoomIds.Contains(r) && !cleaningRoomIds.Contains(r) && r.TypeId == typeRoom)
+    //         .ToList();
+
+    //     HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? (byte)0;
+    // }
 
 }

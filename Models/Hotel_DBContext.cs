@@ -90,32 +90,32 @@ public partial class Hotel_DBContext : DbContext
                 .HasConstraintName("FK__H_Attenda__IdSta__59FA5E80");
         });
 
-        modelBuilder.Entity<HBooking>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__H_Bookin__3214EC070B9D7CEA");
+        //modelBuilder.Entity<HBooking>(entity =>
+        //{
+        //    entity.HasKey(e => e.Id).HasName("PK__H_Bookin__3214EC070B9D7CEA");
 
-            entity.ToTable("H_Booking");
+        //    entity.ToTable("H_Booking");
 
-            entity.Property(e => e.Amount).HasColumnType("numeric(8, 2)");
-            entity.Property(e => e.CheckInDate).HasColumnType("smalldatetime");
-            entity.Property(e => e.CheckOutDate).HasColumnType("smalldatetime");
-            entity.Property(e => e.Comments).HasMaxLength(256);
+        //    entity.Property(e => e.Amount).HasColumnType("numeric(8, 2)");
+        //    entity.Property(e => e.CheckInDate).HasColumnType("smalldatetime");
+        //    entity.Property(e => e.CheckOutDate).HasColumnType("smalldatetime");
+        //    entity.Property(e => e.Comments).HasMaxLength(256);
 
-            entity.HasOne(d => d.Guest).WithMany(p => p.HBookings)
-                .HasForeignKey(d => d.GuestId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_H_Booking_H_Booking");
+        //    entity.HasOne(d => d.Guest).WithMany(p => p.HBookings)
+        //        .HasForeignKey(d => d.GuestId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK_H_Booking_H_Booking");
 
-            entity.HasOne(d => d.Room).WithMany(p => p.HBookings)
-                .HasForeignKey(d => d.RoomId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .HasConstraintName("FK__H_Booking__IdRoo__4AB81AF0");
+        //    entity.HasOne(d => d.Room).WithMany(p => p.HBookings)
+        //        .HasForeignKey(d => d.RoomId)
+        //        .OnDelete(DeleteBehavior.NoAction)
+        //        .HasConstraintName("FK__H_Booking__IdRoo__4AB81AF0");
 
-            entity.HasOne(d => d.Status).WithMany(p => p.HBookings)
-                .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_H_Booking_H_d_BookingStatuses");
-        });
+        //    entity.HasOne(d => d.Status).WithMany(p => p.HBookings)
+        //        .HasForeignKey(d => d.StatusId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK_H_Booking_H_d_BookingStatuses");
+        //});
 
         modelBuilder.Entity<HCleaning>(entity => 
         {
@@ -148,16 +148,16 @@ public partial class Hotel_DBContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<HDBookingStatus>(entity =>
-        {
-            entity.ToTable("H_d_BookingStatuses");
+        //modelBuilder.Entity<HDBookingStatus>(entity =>
+        //{
+        //    entity.ToTable("H_d_BookingStatuses");
 
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(8)
-                .IsUnicode(false);
-        });
+        //    entity.Property(e => e.Id).ValueGeneratedOnAdd();
+        //    entity.Property(e => e.Name)
+        //        .IsRequired()
+        //        .HasMaxLength(8)
+        //        .IsUnicode(false);
+        //});
 
         modelBuilder.Entity<HDCleaningStatus>(entity =>
         {
@@ -321,36 +321,36 @@ public partial class Hotel_DBContext : DbContext
                 .HasConstraintName("FK__H_Feedbac__IdUse__6754599E");
         });
 
-        modelBuilder.Entity<HGuestBooking>(entity =>
-        {
-            entity.ToTable("H_GuestBooking");
+        //modelBuilder.Entity<HGuestBooking>(entity =>
+        //{
+        //    entity.ToTable("H_GuestBooking");
 
-            entity.Property(e => e.City)
-                .IsRequired()
-                .HasMaxLength(25);
-            entity.Property(e => e.Email)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .IsRequired()
-                .HasMaxLength(30);
-            entity.Property(e => e.LastName)
-                .IsRequired()
-                .HasMaxLength(30);
-            entity.Property(e => e.PassportNumber)
-                .IsRequired()
-                .HasMaxLength(9)
-                .IsUnicode(false);
-            entity.Property(e => e.Phone)
-                .HasMaxLength(15)
-                .IsUnicode(false);
+        //    entity.Property(e => e.City)
+        //        .IsRequired()
+        //        .HasMaxLength(25);
+        //    entity.Property(e => e.Email)
+        //        .IsRequired()
+        //        .HasMaxLength(100)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.FirstName)
+        //        .IsRequired()
+        //        .HasMaxLength(30);
+        //    entity.Property(e => e.LastName)
+        //        .IsRequired()
+        //        .HasMaxLength(30);
+        //    entity.Property(e => e.PassportNumber)
+        //        .IsRequired()
+        //        .HasMaxLength(9)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.Phone)
+        //        .HasMaxLength(15)
+        //        .IsUnicode(false);
 
-            entity.HasOne(d => d.Country).WithMany(p => p.HGuestBookings)
-                .HasForeignKey(d => d.CountryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_H_GuestBooking_H_d_Countries");
-        });
+        //    entity.HasOne(d => d.Country).WithMany(p => p.HGuestBookings)
+        //        .HasForeignKey(d => d.CountryId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK_H_GuestBooking_H_d_Countries");
+        //});
 
         modelBuilder.Entity<HGuestLiving>(entity =>
         {
@@ -416,59 +416,59 @@ public partial class Hotel_DBContext : DbContext
                 .HasConstraintName("FK_H_Hotel_H_d_Countries");
         });
 
-        modelBuilder.Entity<HLiving>(entity =>
-        {
-            entity.ToTable("H_Living");
+        //modelBuilder.Entity<HLiving>(entity =>
+        //{
+        //    entity.ToTable("H_Living");
 
-            entity.Property(e => e.Amount).HasColumnType("numeric(8, 2)");
-            entity.Property(e => e.CheckInDate).HasColumnType("smalldatetime");
-            entity.Property(e => e.CheckOutDate).HasColumnType("smalldatetime");
-            entity.Property(e => e.Comments).HasMaxLength(256);
+        //    entity.Property(e => e.Amount).HasColumnType("numeric(8, 2)");
+        //    entity.Property(e => e.CheckInDate).HasColumnType("smalldatetime");
+        //    entity.Property(e => e.CheckOutDate).HasColumnType("smalldatetime");
+        //    entity.Property(e => e.Comments).HasMaxLength(256);
 
-            entity.HasOne(d => d.Booking).WithMany(p => p.HLivings)
-                .HasForeignKey(d => d.BookingId)
-                .HasConstraintName("FK_H_Living_H_Booking");
+        //    entity.HasOne(d => d.Booking).WithMany(p => p.HLivings)
+        //        .HasForeignKey(d => d.BookingId)
+        //        .HasConstraintName("FK_H_Living_H_Booking");
 
-            entity.HasOne(d => d.Guest).WithMany(p => p.HLivings)
-                .HasForeignKey(d => d.GuestId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_H_Living_H_GuestLiving");
+        //    entity.HasOne(d => d.Guest).WithMany(p => p.HLivings)
+        //        .HasForeignKey(d => d.GuestId)
+        //        .OnDelete(DeleteBehavior.Cascade)
+        //        .HasConstraintName("FK_H_Living_H_GuestLiving");
 
-            entity.HasOne(d => d.Room).WithMany(p => p.HLivings)
-                .HasForeignKey(d => d.RoomId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_H_Living_H_Room");
+        //    entity.HasOne(d => d.Room).WithMany(p => p.HLivings)
+        //        .HasForeignKey(d => d.RoomId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK_H_Living_H_Room");
 
-            entity.HasOne(d => d.Status).WithMany(p => p.HLivings)
-                .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_H_Living_H_d_LivingStatuses");
-        });
+        //    entity.HasOne(d => d.Status).WithMany(p => p.HLivings)
+        //        .HasForeignKey(d => d.StatusId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK_H_Living_H_d_LivingStatuses");
+        //});
 
-        modelBuilder.Entity<HPayment>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__H_Paymen__3214EC07C8F99E29");
+        //modelBuilder.Entity<HPayment>(entity =>
+        //{
+        //    entity.HasKey(e => e.Id).HasName("PK__H_Paymen__3214EC07C8F99E29");
 
-            entity.ToTable("H_Payment");
+        //    entity.ToTable("H_Payment");
 
-            entity.Property(e => e.Amount).HasColumnType("numeric(8, 2)");
-            entity.Property(e => e.Date).HasColumnType("datetime");
+        //    entity.Property(e => e.Amount).HasColumnType("numeric(8, 2)");
+        //    entity.Property(e => e.Date).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Booking).WithMany(p => p.HPayments)
-                .HasForeignKey(d => d.BookingId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__H_Payment__IdBoo__6383C8BA");
+        //    entity.HasOne(d => d.Booking).WithMany(p => p.HPayments)
+        //        .HasForeignKey(d => d.BookingId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK__H_Payment__IdBoo__6383C8BA");
 
-            entity.HasOne(d => d.Method).WithMany(p => p.HPayments)
-                .HasForeignKey(d => d.MethodId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__H_Payment__Payme__60A75C0F");
+        //    entity.HasOne(d => d.Method).WithMany(p => p.HPayments)
+        //        .HasForeignKey(d => d.MethodId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK__H_Payment__Payme__60A75C0F");
 
-            entity.HasOne(d => d.Status).WithMany(p => p.HPayments)
-                .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__H_Payment__Payme__619B8048");
-        });
+        //    entity.HasOne(d => d.Status).WithMany(p => p.HPayments)
+        //        .HasForeignKey(d => d.StatusId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK__H_Payment__Payme__619B8048");
+        //});
 
         //modelBuilder.Entity<HRoom>(entity =>
         //{

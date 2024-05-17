@@ -1,9 +1,11 @@
 ﻿@page "/Booking/delete"
 @inject HotelApp2.Models.Hotel_DBContext DB
-@using HotelApp2.Models
+@using HModels
 @inject NavigationManager NavigationManager
+@using HotelApp2.Controllers
 @using Microsoft.AspNetCore.Mvc
 @using Microsoft.EntityFrameworkCore
+@inject Booking BookingController
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -75,10 +77,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        hbooking = await DB.HBookings.Include(b => b.Guest)
-                                     .Include(b => b.Status)
-                                     .Include(b => b.Room)
-                                    .FirstOrDefaultAsync(m => m.Id == Id);
+        hbooking = BookingController.GetById(Id);
 
         if (hbooking is null)
         {
@@ -91,19 +90,22 @@
     {
         message = "";
 
-        if (hbooking!.HPayments.Count!= 0)
-        {
-            message = "This booking has related payments. You can't delete it";
-            return;
-        }
-        else if (hbooking!.HLivings.Count!= 0)
-        {
-            message = "This booking has related livings. You can't delete it";
-            return;
-        }
+        // if (hbooking!.HPayments.Count!= 0)
+        // {
+        //     message = "This booking has related payments. You can't delete it";
+        //     return;
+        // }
+        // else if (hbooking!.HLivings.Count!= 0)
+        // {
+        //     message = "This booking has related livings. You can't delete it";
+        //     return;
+        // }
 
-        DB.HBookings.Remove(hbooking!);
-        await DB.SaveChangesAsync();
+        // DB.HBookings.Remove(hbooking!);
+        // await DB.SaveChangesAsync();
+
+        message = BookingController.Delete(hbooking!);
+
         NavigationManager.NavigateTo("/Booking");
     }
 }

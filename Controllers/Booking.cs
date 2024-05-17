@@ -1,6 +1,7 @@
 ﻿using BLL.Interfaces;
 using HModels;
 using Microsoft.AspNetCore.Mvc;
+using HotelApp2.Controllers;
 
 namespace HotelApp2.Controllers
 {
@@ -26,6 +27,10 @@ namespace HotelApp2.Controllers
         public HBooking GetById(int id)
         {
             return typeService.Get(id);
+        }
+        public string Delete(HBooking item)
+        {
+            return typeService.Delete(item);
         }
 
         public string Edit(HBooking item)

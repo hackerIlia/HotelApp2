@@ -1,10 +1,15 @@
 ﻿@page "/Booking/edit"
 @inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Controllers
-@using HotelApp2.Models
+@using HModels
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
 @inject Booking BookingController
+@inject Room RoomController
+@inject HDRoomTypeC RoomTypeController
+@inject BookingStatuses BookingStatusController
+@inject GuestBooking GuestBookingController
+
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -86,7 +91,7 @@ else
     private List<HRoom> rooms;
     private List<HDBookingStatus> statuses;
     private List<HGuestBooking> guests;
-    private List<HotelApp2.Models.HDRoomType> types;
+    private List<HDRoomType> types;
 
 
     private string message = "";
@@ -106,12 +111,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        rooms = DB.HRooms.ToList();
-        statuses = DB.HDBookingStatuses.ToList();
-        guests = DB.HGuestBookings.ToList();
-        types = DB.HDRoomTypes.ToList();
+        rooms = RoomController.Index().ToList();
+        statuses = BookingStatusController.Index().ToList();
+        guests = GuestBookingController.Index().ToList();
+        types = RoomTypeController.Index().ToList();
 
-        HBooking ??= await DB.HBookings.FirstOrDefaultAsync(m => m.Id == Id);
+
+        HBooking ??= BookingController.GetById(Id); 
 
         if (HBooking is null)
         {
@@ -124,14 +130,17 @@ else
             amount = HBooking.Amount;
             comments = HBooking.Comments;
 
-            typeRoom = DB.HRooms.FirstOrDefault(r => r.Id == HBooking.RoomId).TypeId;
-            
-            List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
-            rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
+            typeRoom = RoomController.GetById(HBooking.RoomId).TypeId;
+
+
+            List<HRoom> allRooms = RoomController.Index().ToList();
+
+            List<HRoom> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+            rooms = allRooms.Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
 
             if (!rooms.Any(r => r.Id == HBooking.RoomId))
             {
-                rooms.Add(DB.HRooms.FirstOrDefault(r => r.Id == HBooking.RoomId));
+                rooms.Add(RoomController.GetById(HBooking.RoomId));
             }
         }
     }
@@ -165,7 +174,7 @@ else
             HBooking.Amount = amount;
             HBooking.Comments = comments;
 
-            //message = BookingController.Edit(HBooking);
+            message = BookingController.Edit(HBooking);
 
 
         //     await DB.SaveChangesAsync();
@@ -186,21 +195,34 @@ else
         // }
     }
 
-    bool HBookingExists(int id)
-    {
-        return DB.HBookings.Any(e => e.Id == id);
-    }
+    // bool HBookingExists(int id)
+    // {
+    //     return DB.HBookings.Any(e => e.Id == id);
+    // }
 
     void onChangeCheckDate()
     {
-        //List<HBooking> bookingsSTOP = DB.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).ToList();
-        List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
-        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
+        List<HModels.HRoom> allRooms = RoomController.Index().ToList();
 
-        if (!rooms.Any(r => r.Id == HBooking.RoomId))
-        {
-            rooms.Add(DB.HRooms.FirstOrDefault(r => r.Id == HBooking.RoomId));
-        }
-        //.Add(DB.HRooms.Where(r => r.Id == HBooking.RoomId))
+        List<HModels.HRoom> roomsBookingSTOP = allRooms
+            .Where(r => r.HBookings.Any(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date))
+            .ToList();
+
+        rooms = allRooms
+            .Except(roomsBookingSTOP)
+            .Where(r => r.CleaningStatusId == 5 && r.TypeId == typeRoom)
+            .ToList();
+
+        HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? (byte)0;
+
+        // //List<HBooking> bookingsSTOP = DB.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).ToList();
+        // List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+        // rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
+
+        // if (!rooms.Any(r => r.Id == HBooking.RoomId))
+        // {
+        //     rooms.Add(DB.HRooms.FirstOrDefault(r => r.Id == HBooking.RoomId));
+        // }
+        // //.Add(DB.HRooms.Where(r => r.Id == HBooking.RoomId))
     }
 }
