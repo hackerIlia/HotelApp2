@@ -69,7 +69,7 @@ else
         // }
 
         type.Id = (byte)Id;
-        message = RoomTypeController.Delete(type);
+        message = await RoomTypeController.Delete(type);
         NavigationManager.NavigateTo("/RoomType");
     }
 }

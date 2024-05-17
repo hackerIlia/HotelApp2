@@ -13,14 +13,26 @@ namespace HotelApp2.Controllers
             typeService = serv;
         }
 
-        public IEnumerable<HRoom> Index()
+        public async Task<IEnumerable<HRoom>> Index()
         {
-            return typeService.GetAll().ToList();
+            return (await typeService.GetAll()).ToList();
         }
 
-        public HRoom GetById(int id)
+        public async Task<HRoom> GetById(short id)
         {
-            return typeService.Get(id);
+            return await typeService.Get(Convert.ToInt16(id));
+        }
+
+        public void OrderCleaning(HRoom room) 
+        {
+            room.CleaningStatusId = (byte)3;
+            typeService.Edit(room);
+        }
+
+        public void CheckOut(HRoom room)
+        {
+            room.AvailabilityStatusId = (byte)1;
+            typeService.Edit(room);
         }
     }
 }

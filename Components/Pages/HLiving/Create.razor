@@ -1,8 +1,16 @@
 ﻿@page "/Living/create"
 @inject HotelApp2.Models.Hotel_DBContext DB
-@using HotelApp2.Models
+@using HModels
 @using Microsoft.EntityFrameworkCore
 @inject NavigationManager NavigationManager
+@using HotelApp2.Controllers
+@inject Room RoomController
+@inject Living LivingController
+@inject Booking BookingController
+@inject HDRoomTypeC RoomTypeController
+@inject BookingStatuses BookingStatusController
+@inject GuestLiving GuestLivingController
+
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -76,7 +84,7 @@
 </div>
 
 <div>
-    <a href="/Living">Back to List</a>
+    <a @onclick="Back" class="btn btn-info">Back to List</a>
 </div>
 
 @code {
@@ -88,7 +96,7 @@
     private List<HDBookingStatus> statuses;
     private List<HGuestLiving> guests;
     private List<HBooking> bookings;
-    private List<HotelApp2.Models.HDRoomType> types;
+    private List<HDRoomType> types;
 
 
     private string message = "";
@@ -113,12 +121,11 @@
     {
         HLiving = new();
 
-        rooms = DB.HRooms.ToList();
-        statuses = DB.HDBookingStatuses.ToList();
-        guests = DB.HGuestLivings.ToList();
-        bookings = DB.HBookings.Include(b => b.Guest).ToList();
-        types = DB.HDRoomTypes.ToList();
-
+        rooms = RoomController.Index().ToList();
+        statuses = BookingStatusController.Index().ToList();
+        guests = GuestLivingController.Index().ToList();
+        types = (await RoomTypeController.Index()).ToList();
+        bookings = (await BookingController.Index()).ToList();
 
 
         if (types != null)
@@ -131,166 +138,180 @@
         }
 
 
-            if (bookingMem > 0)
-            {
-                HLiving.BookingId = bookingMem;
-            }
-            // else if (bookings != null)
-            // {
-            //     HLiving.BookingId = bookings.FirstOrDefault().Id;
-            // }
-            // else
-            // {
-            //     NavigationManager.NavigateTo("notfound");
-            // }
+        if (bookingMem > 0)
+        {
+            HLiving.BookingId = bookingMem;
+        }
+        // else if (bookings != null)
+        // {
+        //     HLiving.BookingId = bookings.FirstOrDefault().Id;
+        // }
+        // else
+        // {
+        //     NavigationManager.NavigateTo("notfound");
+        // }
 
-            if (roomMem > 0)
-            {
-                HLiving.RoomId = (short)roomMem;
-            }
-            else if (rooms != null)
-            {
-                HLiving.RoomId = rooms.FirstOrDefault().Id;
-            }
-            else
-            {
-                NavigationManager.NavigateTo("notfound");
-            }
+        if (roomMem > 0)
+        {
+            HLiving.RoomId = (short)roomMem;
+        }
+        else if (rooms != null)
+        {
+            HLiving.RoomId = rooms.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
 
-            if (statusMem > 0)
-            {
-                HLiving.StatusId = (byte)statusMem;
-            }
-            else if (statuses.Count != 0)
-            {
-                HLiving.StatusId = statuses.FirstOrDefault().Id;
-            }
-            else
-            {
-                NavigationManager.NavigateTo("notfound");
-            }
+        if (statusMem > 0)
+        {
+            HLiving.StatusId = (byte)statusMem;
+        }
+        else if (statuses.Count != 0)
+        {
+            HLiving.StatusId = statuses.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
 
-            if (guestMem > 0)
-            {
-                HLiving.GuestId = guestMem;
-            }
-            else if (guests.Count != 0)
-            {
-                HLiving.GuestId = guests.FirstOrDefault().Id;
-            }
-            else
-            {
-                NavigationManager.NavigateTo("notfound");
-            }
+        if (guestMem > 0)
+        {
+            HLiving.GuestId = guestMem;
+        }
+        else if (guests.Count != 0)
+        {
+            HLiving.GuestId = guests.FirstOrDefault().Id;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
 
         onChangeCheckDate();
-        }
+    }
 
     // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
     public async Task AddHLiving()
     {
         message = "";
         success = "";
-        number = 0;
 
-        @if (checkin.Date < DateTime.Now.AddDays(-1))
-        {
-            message = "Check-in Date can't be earlier than today";
-            return;
-        }
-        @if (checkout.Date < checkin.Date)
-        {
-            message = "Check-out Date can't be earlier than Check-in Date";
-            return;
-        }
-        if (HLiving.RoomId == 0)
-        {
-            message = "Select room";
-            return;
-        }
-
-        DateTime today = DateTime.Today;
-        string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
-
-        do
-        {
-            Random random = new Random();
-            int randomDigits = random.Next(100000, 1000000);
-            number = Convert.ToInt32(numberDate + randomDigits.ToString());
-        } while (numberExists(number));
-
-
-        HLiving.Number = number;
         HLiving.CheckInDate = checkin;
         HLiving.CheckOutDate = checkout;
-
-        int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
-        HRoom? room = await DB.HRooms.FindAsync(HLiving.RoomId);
-        HotelApp2.Models.HDRoomType? roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
-
-        if(room.AvailabilityStatusId == (byte)2)
-        {
-            message = "This room is occupied";
-            return;
-        }
-
-        HLiving.Amount = roomType.Price * hours;
-        HLiving.Comments = comments != null ? comments : "";
-        HLiving.StatusId = (byte)1;
-        HLiving.BookingId = bookingEnabled ? HLiving.BookingId : null;
-
-        room.AvailabilityStatusId = (byte)2;
-
-        DB.HLivings.Add(HLiving);
-        await DB.SaveChangesAsync();
-
-        message = "";
-        success = "Added successful!";
 
         roomMem = HLiving.RoomId;
         statusMem = HLiving.StatusId;
         guestMem = HLiving.GuestId;
         bookingMem = HLiving.BookingId;
 
+        message = await LivingController.Create(HLiving);
+
         OnInitializedAsync();
+
+        // number = 0;
+
+        // @if (checkin.Date < DateTime.Now.AddDays(-1))
+        // {
+        //     message = "Check-in Date can't be earlier than today";
+        //     return;
+        // }
+        // @if (checkout.Date < checkin.Date)
+        // {
+        //     message = "Check-out Date can't be earlier than Check-in Date";
+        //     return;
+        // }
+        // if (HLiving.RoomId == 0)
+        // {
+        //     message = "Select room";
+        //     return;
+        // }
+
+        // DateTime today = DateTime.Today;
+        // string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
+
+        // do
+        // {
+        //     Random random = new Random();
+        //     int randomDigits = random.Next(100000, 1000000);
+        //     number = Convert.ToInt32(numberDate + randomDigits.ToString());
+        // } while (numberExists(number));
+
+
+        // HLiving.Number = number;
+        // int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
+        // HRoom? room = await DB.HRooms.FindAsync(HLiving.RoomId);
+        // HotelApp2.Models.HDRoomType? roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+
+        // if(room.AvailabilityStatusId == (byte)2)
+        // {
+        //     message = "This room is occupied";
+        //     return;
+        // }
+
+        // HLiving.Amount = roomType.Price * hours;
+        // HLiving.Comments = comments != null ? comments : "";
+        // HLiving.StatusId = (byte)1;
+        // // HLiving.BookingId = bookingEnabled ? HLiving.BookingId : null;
+
+        // room.AvailabilityStatusId = (byte)2;
+
+        //!!!!!!!!!!!!!!call funtion!!!!!!!!!!!!!!!!
+
+
+
+        // DB.HLivings.Add(HLiving);
+        // await DB.SaveChangesAsync();
+
+        // message = "";
+        // success = "Added successful!";
     }
 
-    bool numberExists(int number)
-    {
-        return DB.HLivings.Any(b => b.Number == number);
-    }
+    // bool numberExists(int number)
+    // {
+    //     return DB.HLivings.Any(b => b.Number == number);
+    // }
 
-    void onChangeBooking()
-    {
-        if (HLiving.BookingId.HasValue)
-        {
-            var selectedBooking = bookings.FirstOrDefault(b => b.Id == HLiving.BookingId);
+    // void onChangeBooking()
+    // {
+    //     if (HLiving.BookingId.HasValue)
+    //     {
+    //         //get from controller
+    //         var selectedBooking = bookings.FirstOrDefault(b => b.Id == HLiving.BookingId);
 
-            if(selectedBooking != null)
-            {
-                checkin = selectedBooking.CheckInDate;
-                checkout = selectedBooking.CheckOutDate;
-                amount = selectedBooking.Amount;
-                comments = selectedBooking.Comments;
-                HLiving.GuestId = selectedBooking.Guest.Id;
+    //         if(selectedBooking != null)
+    //         {
+    //             checkin = selectedBooking.CheckInDate;
+    //             checkout = selectedBooking.CheckOutDate;
+    //             amount = selectedBooking.Amount;
+    //             comments = selectedBooking.Comments;
+    //             HLiving.GuestId = selectedBooking.Guest.Id;
 
-                //StateHasChanged();
-            }
-        }
-    }
+    //             //StateHasChanged();
+    //         }
+    //     }
+    // }
 
-    void onChangeBEn()
-    {
-        if (!bookingEnabled)
-        {
-            OnInitializedAsync();
-        }
-    }
+    // void onChangeBEn()
+    // {
+    //     if (!bookingEnabled)
+    //     {
+    //         OnInitializedAsync();
+    //     }
+    // }
 
     void onChangeCheckDate()
     {
-        List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
-        rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Except(DB.HRooms.Where(r => r.AvailabilityStatusId == (byte)2)).Where(r => r.TypeId == typeRoom).ToList();
+        List<HRoom> allRooms = RoomController.Index().ToList();
+        List<HRoom> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+        rooms = allRooms.Except(roomsBookingSTOP).Except(allRooms.Where(r => r.CleaningStatusId != 5)).Except(allRooms.Where(r => r.AvailabilityStatusId == (byte)2)).Where(r => r.TypeId == typeRoom).ToList();
         HLiving.RoomId = rooms.FirstOrDefault() != null ? rooms.FirstOrDefault().Id : (byte)0;
+    }
+
+    public void Back()
+    {
+        NavigationManager.NavigateTo("/Living", true);
     }
 }

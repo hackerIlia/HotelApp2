@@ -49,7 +49,7 @@
             else
             {
                 <a class="text-danger" href="@($"Booking/pay?id={hbooking.Id}")"><b class="bi bi-credit-card"> Pay | </b></a>
-                <span style="color:transparent"><i class="fas fa-plus"> Check-in | </i></span>
+                <a href="@($"Living/create/{hbooking.Id}")"><i class="fas fa-plus"> Check-in</i></a>
                 <a href="@($"Booking/cancel?id={hbooking.Id}")"><b class="close">&times Cancel</b></a>
             }
             |
@@ -78,8 +78,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        bookings = BookingController.Index().AsQueryable();
+        bookings = (await BookingController.Index()).AsQueryable();
 
-        livings = LivingController.Index().AsQueryable();
+        livings = (await LivingController.Index()).AsQueryable();
     }
 }

@@ -104,7 +104,7 @@
         // DB.HBookings.Remove(hbooking!);
         // await DB.SaveChangesAsync();
 
-        message = BookingController.Delete(hbooking!);
+        message = await BookingController.Delete(hbooking!);
 
         NavigationManager.NavigateTo("/Booking");
     }

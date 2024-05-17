@@ -1,8 +1,12 @@
 ﻿@page "/Living"
 @using Microsoft.AspNetCore.Components.QuickGrid
 @inject HotelApp2.Models.Hotel_DBContext DB
-@using HotelApp2.Models
+@using HModels
 @using Microsoft.EntityFrameworkCore
+@using HotelApp2.Controllers
+@inject Booking BookingController
+@inject Living LivingController
+@inject Room RoomController
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -21,7 +25,7 @@
 
 @if (livings != null)
 {
-    <QuickGrid Class="table" Items="DB.HLivings">
+    <QuickGrid Class="table" Items="livings">
         <PropertyColumn Property="hliving => hliving.Number" />
         <PropertyColumn Property="hliving => hliving.CheckInDate" Title="Check-in Date" Format="dd/MM/yyyy" />
         <PropertyColumn Property="hliving => hliving.CheckOutDate" Title="Check-out Date" Format="dd/MM/yyyy" />
@@ -74,18 +78,14 @@ else
 }
 
 @code {
-    List<HLiving> livings;
+    IQueryable<HLiving> livings;
     private bool show = false;
     private int selectedLivingId;
     private string message = "";
 
     protected override async Task OnInitializedAsync()
     {
-        livings = await DB.HLivings.Include(l => l.Room)
-                                        .Include(l => l.Status)
-                                        .Include(l => l.Guest)
-                                        .Include(l => l.Booking)
-                                        .ToListAsync();
+        livings = (await LivingController.Index()).AsQueryable();
     }
 
     private void ShowCleanModal(int livingId)
@@ -103,11 +103,10 @@ else
     {
         message = "";
 
-        HLiving living = await DB.HLivings.FirstOrDefaultAsync(l => l.Id == selectedLivingId);
-        HRoom room = await DB.HRooms.FirstOrDefaultAsync(r => r.Id == living.RoomId);
-        room.CleaningStatusId = (byte)3;
+        HLiving living = (await LivingController.GetById(selectedLivingId));
+        HRoom room = RoomController.GetById(living.RoomId);
+        RoomController.OrderCleaning(room);
 
-        await DB.SaveChangesAsync();
         message = "Cleaning ordered successfully for room number: " + room.Number;
         show = false;
     }

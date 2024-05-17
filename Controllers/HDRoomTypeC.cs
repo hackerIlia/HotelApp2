@@ -13,29 +13,29 @@ namespace HotelApp2.Controllers
             typeService = serv;
         }
 
-        public IEnumerable<HDRoomType> Index()
+        public async Task<IEnumerable<HDRoomType>> Index()
         {
-            return typeService.GetAll().ToList();
+            return await typeService.GetAll();
         }
 
-        public HDRoomType GetById(int id)
+        public async Task<HDRoomType> GetById(int id)
         {
-            return typeService.Get(id);
+            return await typeService.Get(id);
         }
 
-        public string Create(HDRoomType type)
+        public async Task<string> Create(HDRoomType type)
         {
-            return typeService.Create(type);
+            return await typeService.Create(type);
         }
 
-        public string Edit(HDRoomType type)
+        public Task<string> Edit(HDRoomType type)
         {
             return typeService.Edit(type);
         }
 
-        public string Delete(HDRoomType type)
+        public async Task<string> Delete(HDRoomType type)
         {
-            return typeService.Delete(type);
+            return await typeService.Delete(type);
         }
 
         protected override void Dispose(bool disposing)

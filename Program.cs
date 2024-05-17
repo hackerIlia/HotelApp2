@@ -16,18 +16,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddDbContext<Hotel_DBContext>(options => {
+builder.Services.AddDbContextFactory<Hotel_DBContext>(options =>
+{
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString"));
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
-//builder.Services.AddDbContext<DAL.EF.Hotel_DBContext_DAL>(options => {
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString"));
-//    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-//});
-builder.Services.AddDbContext<HModels.Hotel_DBContext_HModels>(options => {
+
+builder.Services.AddDbContextFactory<HModels.Hotel_DBContext_HModels>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnString"));
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
+
+builder.Services.AddTransient<Hotel_DBContext>();
+builder.Services.AddTransient<HModels.Hotel_DBContext_HModels>();
 
 
 builder.Services.AddQuickGridEntityFrameworkAdapter();
@@ -62,6 +63,12 @@ builder.Services.AddScoped<HotelApp2.Controllers.BookingStatuses>();
 
 builder.Services.AddScoped<IGeneralService<HModels.HGuestBooking>, BLL.Services.GuestBooking>();
 builder.Services.AddScoped<HotelApp2.Controllers.GuestBooking>();
+
+builder.Services.AddScoped<IGeneralService<HModels.HGuestLiving>, BLL.Services.GuestLiving>();
+builder.Services.AddScoped<HotelApp2.Controllers.GuestLiving>();
+
+builder.Services.AddScoped<IGeneralService<HModels.HLiving>, BLL.Services.Living>();
+builder.Services.AddScoped<HotelApp2.Controllers.Living>();
 
 var app = builder.Build();
 

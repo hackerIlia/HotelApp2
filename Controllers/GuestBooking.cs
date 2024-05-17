@@ -17,5 +17,10 @@ namespace HotelApp2.Controllers
         {
             return typeService.GetAll().ToList();
         }
+
+        public HGuestBooking GetById(int id)
+        {
+            return typeService.Get(id);
+        }
     }
 }

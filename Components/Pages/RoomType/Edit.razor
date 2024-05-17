@@ -88,7 +88,7 @@ else{
         HDRoomType.Price = price;
         HDRoomType.Name = name;
 
-        message = RoomTypeController.Edit(HDRoomType);
+        message = await RoomTypeController.Edit(HDRoomType);
     }
 
     public void Back()

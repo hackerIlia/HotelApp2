@@ -1,8 +1,14 @@
 ﻿@page "/Living/edit"
-@inject HotelApp2.Models.Hotel_DBContext DB
-@using HotelApp2.Models
+@using HModels
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
+@using HotelApp2.Controllers
+@inject Living LivingController
+@inject Booking BookingController
+@inject Room RoomController
+@inject HDRoomTypeC RoomTypeController
+@inject BookingStatuses BookingStatusController
+@inject GuestLiving GuestLivingController
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -55,7 +61,7 @@ else
                     </InputSelect>
                 </div>
                 <button type="submit" class="btn btn-primary">Edit</button>
-                <a href="/Living" class="btn btn-info">Back to List</a>
+                <a @onclick="Back" class="btn btn-info">Back to List</a>
             </EditForm>
         </div>
     </div>
@@ -64,10 +70,6 @@ else
         <h4 class="text-success">@success</h4>
     </div>
 }
-
-<div>
-    <a href="/Living">Back to List</a>
-</div>
 
 @code {
     [SupplyParameterFromQuery]
@@ -96,13 +98,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        rooms = DB.HRooms.ToList();
-        statuses = DB.HDBookingStatuses.ToList();
-        guests = DB.HGuestLivings.ToList();
-        bookings = DB.HBookings.ToList();
+        rooms = RoomController.Index().ToList();
+        statuses = BookingStatusController.Index().ToList();
+        guests = GuestLivingController.Index().ToList();
+        bookings = (await BookingController.Index()).ToList();
 
 
-        HLiving ??= await DB.HLivings.FirstOrDefaultAsync(m => m.Id == Id);
+        HLiving ??= await LivingController.GetById(Id);
 
         if (HLiving is null)
         {
@@ -114,6 +116,7 @@ else
             checkout = HLiving.CheckOutDate;
             amount = HLiving.Amount;
             comments = HLiving.Comments;
+            HLiving.GuestId = HLiving.Guest.Id;
         }
     }
 
@@ -124,49 +127,58 @@ else
         message = "";
         success = "";
 
-        @if (checkin < DateTime.Now.AddDays(-1))
-        {
-            message = "Check-in Date can't be earlier than today";
-            return;
-        }
-        @if (checkout.Date < checkin.Date)
-        {
-            message = "Check-out Date can't be earlier than Check-in Date";
-            return;
-        }
+        HLiving.CheckInDate = checkin;
+        HLiving.CheckOutDate = checkout;
+        HLiving.Amount = amount;
+        HLiving.Comments = comments;
 
-        DB.Attach(HLiving!).State = EntityState.Modified;
+        message = await LivingController.Edit(HLiving);
 
-        try
-        {
-            success = "Editing...";
+        // @if (checkin < DateTime.Now.AddDays(-1))
+        // {
+        //     message = "Check-in Date can't be earlier than today";
+        //     return;
+        // }
+        // @if (checkout.Date < checkin.Date)
+        // {
+        //     message = "Check-out Date can't be earlier than Check-in Date";
+        //     return;
+        // }
 
-            HLiving.CheckInDate = checkin;
-            HLiving.CheckOutDate = checkout;
-            HLiving.Amount = amount;
-            HLiving.Comments = comments;
+        // DB.Attach(HLiving!).State = EntityState.Modified;
+
+        // try
+        // {
+        //     success = "Editing...";
 
 
-            await DB.SaveChangesAsync();
 
-            message = "";
-            success = "Edited successful!";
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!HLivingExists(HLiving!.Id))
-            {
-                NavigationManager.NavigateTo("notfound");
-            }
-            else
-            {
-                throw;
-            }
-        }
+
+        // await DB.SaveChangesAsync();
+
+        // message = "";
+        // success = "Edited successful!";
+        // }
+        // catch (DbUpdateConcurrencyException)
+        // {
+        //     if (!HLivingExists(HLiving!.Id))
+        //     {
+        //         NavigationManager.NavigateTo("notfound");
+        //     }
+        //     else
+        //     {
+        //         throw;
+        //     }
+        // }
     }
 
-    bool HLivingExists(int id)
+    public void Back()
     {
-        return DB.HLivings.Any(e => e.Id == id);
+        NavigationManager.NavigateTo("/Living", true);
     }
+
+    // bool HLivingExists(int id)
+    // {
+    //     return DB.HLivings.Any(e => e.Id == id);
+    // }
 }

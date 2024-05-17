@@ -13,9 +13,29 @@ namespace HotelApp2.Controllers
             typeService = serv;
         }
 
-        public IEnumerable<HLiving> Index()
+        public async Task<IEnumerable<HLiving>> Index()
         {
-            return typeService.GetAll().ToList();
+            return await typeService.GetAll();
+        }
+
+        public async Task<HLiving> GetById(int id)
+        {
+            return await typeService.Get(id);
+        }
+
+        public async Task<string> Create(HLiving living)
+        {
+            return await typeService.Create(living);
+        }
+
+        public Task<string> Edit(HLiving item)
+        {
+            return typeService.Edit(item);
+        }
+
+        public async Task<string> Delete(HLiving item)
+        {
+            return await typeService.Delete(item);
         }
     }
 }

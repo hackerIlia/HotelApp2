@@ -1,5 +1,4 @@
 ﻿@page "/Booking/edit"
-@inject HotelApp2.Models.Hotel_DBContext DB
 @using HotelApp2.Controllers
 @using HModels
 @inject NavigationManager NavigationManager
@@ -111,13 +110,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        rooms = RoomController.Index().ToList();
+        rooms = (await RoomController.Index()).ToList();
         statuses = BookingStatusController.Index().ToList();
         guests = GuestBookingController.Index().ToList();
-        types = RoomTypeController.Index().ToList();
+        types = (await RoomTypeController.Index()).ToList();
 
 
-        HBooking ??= BookingController.GetById(Id); 
+        HBooking ??= await BookingController.GetById(Id); 
 
         if (HBooking is null)
         {
@@ -130,17 +129,17 @@ else
             amount = HBooking.Amount;
             comments = HBooking.Comments;
 
-            typeRoom = RoomController.GetById(HBooking.RoomId).TypeId;
+            typeRoom = (await RoomController.GetById(HBooking.RoomId)).TypeId;
 
 
-            List<HRoom> allRooms = RoomController.Index().ToList();
+            List<HRoom> allRooms = (await RoomController.Index()).ToList();
 
             List<HRoom> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
             rooms = allRooms.Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
 
             if (!rooms.Any(r => r.Id == HBooking.RoomId))
             {
-                rooms.Add(RoomController.GetById(HBooking.RoomId));
+                rooms.Add((await RoomController.GetById(HBooking.RoomId)));
             }
         }
     }
@@ -174,7 +173,7 @@ else
             HBooking.Amount = amount;
             HBooking.Comments = comments;
 
-            message = BookingController.Edit(HBooking);
+            message = await BookingController.Edit(HBooking);
 
 
         //     await DB.SaveChangesAsync();
@@ -200,9 +199,9 @@ else
     //     return DB.HBookings.Any(e => e.Id == id);
     // }
 
-    void onChangeCheckDate()
+    async Task onChangeCheckDate()
     {
-        List<HModels.HRoom> allRooms = RoomController.Index().ToList();
+        List<HModels.HRoom> allRooms = (await RoomController.Index()).ToList();
 
         List<HModels.HRoom> roomsBookingSTOP = allRooms
             .Where(r => r.HBookings.Any(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date))

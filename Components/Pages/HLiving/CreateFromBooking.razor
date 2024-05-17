@@ -1,8 +1,16 @@
 ﻿@page "/Living/create/{idb:int}"
-@inject HotelApp2.Models.Hotel_DBContext DB
-@using HotelApp2.Models
+@using HModels
 @using Microsoft.EntityFrameworkCore
 @inject NavigationManager NavigationManager
+@using HotelApp2.Controllers
+@inject Room RoomController
+@inject Living LivingController
+@inject Booking BookingController
+@inject HDRoomTypeC RoomTypeController
+@inject BookingStatuses BookingStatusController
+@inject GuestLiving GuestLivingController
+@inject GuestBooking GuestBookingController
+
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -49,15 +57,6 @@
                     }
                 </InputSelect>
             </div>
-            @* <div class="mb-3">
-            <label for="bookingid" class="form-label">Booking:</label> <InputCheckbox @bind-Value="@bookingEnabled" @bind-Value:after="onChangeBEn">Enabled</InputCheckbox>
-            <InputSelect disabled="@(!bookingEnabled)" id="bookingid" class="form-control" @bind-Value="HLiving.BookingId" @bind-Value:after="onChangeBooking">
-            @foreach (var booking in bookings)
-            {
-            <option value="@booking.Id">@booking.Number</option>
-            }
-            </InputSelect>
-            </div> *@
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
@@ -73,7 +72,7 @@
 
 @code {
     [Parameter]
-    public int? idb { get; set; }
+    public int idb { get; set; }
 
     [SupplyParameterFromForm]
     public HLiving HLiving { get; set; } = new();
@@ -105,17 +104,17 @@
     {
         HLiving = new();
 
-        rooms = DB.HRooms.ToList();
-        statuses = DB.HDBookingStatuses.ToList();
-        guests = DB.HGuestLivings.ToList();
-        bookings = DB.HBookings.Include(b => b.Guest).ToList();
+        rooms = (await RoomController.Index()).ToList();
+        statuses = BookingStatusController.Index().ToList();
+        guests = GuestLivingController.Index().ToList();
+        bookings = (await BookingController.Index()).ToList();
 
         if (idb != 0)
         {
-            booking = await DB.HBookings.FirstOrDefaultAsync(b => b.Id == idb);
-            HGuestBooking guestBooking = await DB.HGuestBookings.FirstOrDefaultAsync(g => g.Id == booking.GuestId);
+            booking = (await BookingController.GetById(idb));
+            HGuestBooking guestBooking = GuestBookingController.GetById(booking.GuestId);
             HGuestLiving guestLiving = new();
-            if (!DB.HGuestLivings.Any(g => g.PassportNumber == guestBooking.PassportNumber))
+            if (!GuestLivingController.Index().ToList().Any(g => g.PassportNumber == guestBooking.PassportNumber))
             {
                 guestLiving.FirstName = guestBooking.FirstName;
                 guestLiving.LastName = guestBooking.LastName;
@@ -125,12 +124,11 @@
                 guestLiving.CountryId = guestBooking.CountryId;
                 guestLiving.City = guestBooking.City;
 
-                DB.HGuestLivings.Add(guestLiving);
-                await DB.SaveChangesAsync();
+                GuestLivingController.Create(guestLiving);
             }
             else
             {
-                guestLiving = await DB.HGuestLivings.FirstOrDefaultAsync(g => g.PassportNumber == guestBooking.PassportNumber);
+                guestLiving = GuestLivingController.GetPyPassportNumber(guestBooking.PassportNumber);
             }
 
             checkin = booking.CheckInDate;
@@ -200,69 +198,11 @@
     {
         message = "";
         success = "";
-        number = 0;
 
-        @if (checkin.Date < DateTime.Now.AddDays(-1))
-        {
-            message = "Check-in Date can't be earlier than today";
-            return;
-        }
-        @if (checkout.Date < checkin.Date)
-        {
-            message = "Check-out Date can't be earlier than Check-in Date";
-            return;
-        }
-        @if (DateTime.Now.Date < checkin.Date)
-        {
-            message = "You can't create living, because today date is not in range of booking date";
-            return;
-        }
-        @if(DateTime.Now.Date > checkout.Date)
-        {
-            message = "You can't create living, because today date is not in range of booking date";
-            return;
-        }
-        if (HLiving.RoomId == 0)
-        {
-            message = "Select room";
-            return;
-        }
-
-
-        DateTime today = DateTime.Today;
-        string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
-
-        do
-        {
-            Random random = new Random();
-            int randomDigits = random.Next(100000, 1000000);
-            number = Convert.ToInt32(numberDate + randomDigits.ToString());
-        } while (numberExists(number));
-
-
-        HLiving.Number = number;
         HLiving.CheckInDate = checkin;
         HLiving.CheckOutDate = checkout;
 
-        int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
-        HRoom room = await DB.HRooms.FindAsync(HLiving.RoomId);
-        HotelApp2.Models.HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
-
-        HLiving.Amount = roomType.Price * hours;
-        HLiving.Comments = comments != null ? comments : "";
-        HLiving.StatusId = (byte)1;
-        HLiving.BookingId = idb;
-
-        booking.StatusId = (byte)5;
-
-        room.AvailabilityStatusId = (byte)2;
-
-
-        DB.HLivings.Add(HLiving);
-        await DB.SaveChangesAsync();
-
-        message = "";
-        success = "Added successful!";
+        message = (await LivingController.Create(HLiving));
 
         roomMem = HLiving.RoomId;
         statusMem = HLiving.StatusId;
@@ -270,37 +210,97 @@
         bookingMem = HLiving.BookingId;
 
         OnInitializedAsync();
+
+        // number = 0;
+
+        // @if (checkin.Date < DateTime.Now.AddDays(-1))
+        // {
+        //     message = "Check-in Date can't be earlier than today";
+        //     return;
+        // }
+        // @if (checkout.Date < checkin.Date)
+        // {
+        //     message = "Check-out Date can't be earlier than Check-in Date";
+        //     return;
+        // }
+        // @if (DateTime.Now.Date < checkin.Date)
+        // {
+        //     message = "You can't create living, because today date is not in range of booking date";
+        //     return;
+        // }
+        // @if(DateTime.Now.Date > checkout.Date)
+        // {
+        //     message = "You can't create living, because today date is not in range of booking date";
+        //     return;
+        // }
+        // if (HLiving.RoomId == 0)
+        // {
+        //     message = "Select room";
+        //     return;
+        // }
+
+
+        // DateTime today = DateTime.Today;
+        // string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
+
+        // do
+        // {
+        //     Random random = new Random();
+        //     int randomDigits = random.Next(100000, 1000000);
+        //     number = Convert.ToInt32(numberDate + randomDigits.ToString());
+        // } while (numberExists(number));
+
+
+        // HLiving.Number = number;
+
+        // int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
+        // HRoom room = await DB.HRooms.FindAsync(HLiving.RoomId);
+        // HotelApp2.Models.HDRoomType roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
+
+        // HLiving.Amount = roomType.Price * hours;
+        // HLiving.Comments = comments != null ? comments : "";
+        // HLiving.StatusId = (byte)1;
+        // HLiving.BookingId = idb;
+
+        // booking.StatusId = (byte)5;
+
+        // room.AvailabilityStatusId = (byte)2;
+
+
+
+        // message = "";
+        // success = "Added successful!";
     }
 
-    bool numberExists(int number)
-    {
-        return DB.HLivings.Any(b => b.Number == number);
-    }
+    // bool numberExists(int number)
+    // {
+    //     return DB.HLivings.Any(b => b.Number == number);
+    // }
 
-    void onChangeBooking()
-    {
-        if (HLiving.BookingId.HasValue)
-        {
-            var selectedBooking = bookings.FirstOrDefault(b => b.Id == HLiving.BookingId);
+    // void onChangeBooking()
+    // {
+    //     if (HLiving.BookingId.HasValue)
+    //     {
+    //         var selectedBooking = bookings.FirstOrDefault(b => b.Id == HLiving.BookingId);
 
-            if (selectedBooking != null)
-            {
-                checkin = selectedBooking.CheckInDate;
-                checkout = selectedBooking.CheckOutDate;
-                amount = selectedBooking.Amount;
-                comments = selectedBooking.Comments;
-                HLiving.GuestId = selectedBooking.Guest.Id;
+    //         if (selectedBooking != null)
+    //         {
+    //             checkin = selectedBooking.CheckInDate;
+    //             checkout = selectedBooking.CheckOutDate;
+    //             amount = selectedBooking.Amount;
+    //             comments = selectedBooking.Comments;
+    //             HLiving.GuestId = selectedBooking.Guest.Id;
 
-                //StateHasChanged();
-            }
-        }
-    }
+    //             //StateHasChanged();
+    //         }
+    //     }
+    // }
 
-    void onChangeBEn()
-    {
-        if (!bookingEnabled)
-        {
-            OnInitializedAsync();
-        }
-    }
+    // void onChangeBEn()
+    // {
+    //     if (!bookingEnabled)
+    //     {
+    //         OnInitializedAsync();
+    //     }
+    // }
 }
