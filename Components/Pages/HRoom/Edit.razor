@@ -73,7 +73,7 @@ else
     public int Id { get; set; }
 
     [SupplyParameterFromForm]
-    public HModels.HRoom? HRoom { get; set; } = new();
+    public HModels.Room? HRoom { get; set; } = new();
 
     private List<HHotel> hotels;
     private List<HotelApp2.Models.HDRoomType> types;
@@ -97,8 +97,8 @@ else
 
         HRoom hroom = await DB.HRooms.FirstOrDefaultAsync(m => m.Id == Id);
 
-        var mapper = new MapperConfiguration(cfg => cfg.CreateMap<HRoom, HModels.HRoom>()).CreateMapper();
-        HRoom = mapper.Map<HModels.HRoom>(hroom);
+        var mapper = new MapperConfiguration(cfg => cfg.CreateMap<HRoom, HModels.Room>()).CreateMapper();
+        HRoom = mapper.Map<HModels.Room>(hroom);
 
 
         if (HRoom is null)

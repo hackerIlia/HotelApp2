@@ -6,31 +6,31 @@ namespace HotelApp2.Controllers
 {
     public class GuestLiving : Controller
     {
-        IGeneralService<HGuestLiving> typeService;
+        IGeneralService<HModels.GuestLiving> typeService;
 
-        public GuestLiving(IGeneralService<HGuestLiving> serv)
+        public GuestLiving(IGeneralService<HModels.GuestLiving> serv)
         {
             typeService = serv;
         }
 
-        public IEnumerable<HGuestLiving> Index()
+        public async Task<IEnumerable<HModels.GuestLiving>> Index()
         {
-            return typeService.GetAll().ToList();
+            return (await typeService.GetAll()).ToList();
         }
 
-        public string Create(HGuestLiving guest)
+        public async Task<string> Create(HModels.GuestLiving guest)
         {
-            return typeService.Create(guest);
+            return await typeService.Create(guest);
         }
 
-        public HGuestLiving GetById(int id)
+        public async Task<HModels.GuestLiving> GetById(int id)
         {
-            return typeService.Get(id);
+            return await typeService.Get(id);
         }
 
-        public HGuestLiving GetPyPassportNumber(string number)
+        public async Task<HModels.GuestLiving> GetPyPassportNumber(string number)
         {
-            return typeService.GetAll().Where(g => g.PassportNumber == number).FirstOrDefault();
+            return (await typeService.GetAll()).Where(g => g.PassportNumber == number).FirstOrDefault();
         }
     }
 }

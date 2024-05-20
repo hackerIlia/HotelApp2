@@ -1,8 +1,11 @@
-﻿@* @page "/Living/checkOut"
-@inject HotelApp2.Models.Hotel_DBContext DB
-@using HotelApp2.Models
+﻿@page "/Living/checkOut"
+@using HModels
 @inject NavigationManager NavigationManager
+@using HotelApp2.Controllers
 @using Microsoft.EntityFrameworkCore
+@inject             Controllers.Living LivingController
+@inject             Controllers.Room RoomController
+
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = "Admin,Receptionist")]
 
@@ -13,6 +16,8 @@
 
 <h4 class="text-danger"><b>Are you sure you want to check-out this?</b></h4>
 <hr />
+
+<h5 class="text-danger">@message</h5>
 
 <div>
     @if (hliving is null)
@@ -49,11 +54,11 @@
             <dt class="col-sm-2">Status</dt>
             <dd class="col-sm-10">@hliving.Status.Name</dd>
         </dl>
- *@        @*         <dl class="row">
+        @*         <dl class="row">
     <dt class="col-sm-2">Booking Number</dt>
     <dd class="col-sm-10">@hliving.Booking.Number</dd>
     </dl> *@
-@*         <dl class="row">
+    <dl class="row">
             <dt class="col-sm-2">Guest</dt>
             <dd class="col-sm-10">@hliving.Guest.FirstName @hliving.Guest.LastName</dd>
         </dl>
@@ -65,18 +70,16 @@
 </div>
 
 @code {
-    HLiving? hliving;
+    HModels.Living? hliving;
 
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
+    private string message = "";
+
     protected override async Task OnInitializedAsync()
     {
-        hliving = await DB.HLivings.Include(b => b.Guest)
-                                     .Include(b => b.Status)
-                                     .Include(b => b.Room)
-                                     .Include(b => b.Booking)
-                                    .FirstOrDefaultAsync(m => m.Id == Id);
+        hliving = await LivingController.GetById(Id);
 
         if (hliving is null)
         {
@@ -86,20 +89,15 @@
 
     private async Task CheckOutLiving()
     {
-        hliving!.StatusId = (byte)2;
-        hliving = await DB.HLivings.Include(b => b.Guest)
-                                .Include(b => b.Status)
-                                .Include(b => b.Room)
-                                .Include(b => b.Booking)
-                                .FirstOrDefaultAsync(m => m.Id == Id);
+        message = "";
 
-        HRoom room = await DB.HRooms.Include(r => r.AvailabilityStatus).FirstOrDefaultAsync(r => r.Id == hliving.RoomId);
-        room.AvailabilityStatusId = (byte)1;
-        room.CleaningStatusId = (byte)2;
+            HModels.Room room = await RoomController.GetById(Convert.ToInt16(hliving.Room.Id));
+        message = await RoomController.CheckOut(room);
 
-        await DB.SaveChangesAsync();
+        hliving = await LivingController.GetById(Id);
+        message = await LivingController.CheckOut(hliving);
 
 
         NavigationManager.NavigateTo("/Living");
     }
-} *@
+}

@@ -6,34 +6,34 @@ namespace HotelApp2.Controllers
 {
     public class HDRoomTypeC : Controller
     {
-        IGeneralService<HDRoomType> typeService;
+        IGeneralService<RoomType> typeService;
         
-        public HDRoomTypeC(IGeneralService<HDRoomType> serv)
+        public HDRoomTypeC(IGeneralService<RoomType> serv)
         {
             typeService = serv;
         }
 
-        public async Task<IEnumerable<HDRoomType>> Index()
+        public async Task<IEnumerable<RoomType>> Index()
         {
             return await typeService.GetAll();
         }
 
-        public async Task<HDRoomType> GetById(int id)
+        public async Task<RoomType> GetById(int id)
         {
             return await typeService.Get(id);
         }
 
-        public async Task<string> Create(HDRoomType type)
+        public async Task<string> Create(RoomType type)
         {
             return await typeService.Create(type);
         }
 
-        public Task<string> Edit(HDRoomType type)
+        public Task<string> Edit(RoomType type)
         {
             return typeService.Edit(type);
         }
 
-        public async Task<string> Delete(HDRoomType type)
+        public async Task<string> Delete(RoomType type)
         {
             return await typeService.Delete(type);
         }

@@ -4,12 +4,12 @@
 @using Microsoft.EntityFrameworkCore
 @inject NavigationManager NavigationManager
 @using HotelApp2.Controllers
-@inject Room RoomController
-@inject Living LivingController
-@inject Booking BookingController
+@inject             Controllers.Room RoomController
+@inject             Controllers.Living LivingController
+@inject             Controllers.Booking BookingController
 @inject HDRoomTypeC RoomTypeController
 @inject BookingStatuses BookingStatusController
-@inject GuestLiving GuestLivingController
+@inject             Controllers.GuestLiving GuestLivingController
 
 @rendermode InteractiveServer
 
@@ -90,13 +90,13 @@
 @code {
 
     [SupplyParameterFromForm]
-    public HLiving HLiving { get; set; } = new();
+    public HModels.Living HLiving { get; set; } = new();
 
-    private List<HRoom> rooms;
-    private List<HDBookingStatus> statuses;
-    private List<HGuestLiving> guests;
-    private List<HBooking> bookings;
-    private List<HDRoomType> types;
+    private List<HModels.Room> rooms;
+    private List<BookingStatus> statuses;
+    private List<HModels.GuestLiving> guests;
+    private List<HModels.Booking> bookings;
+    private List<RoomType> types;
 
 
     private string message = "";
@@ -121,9 +121,9 @@
     {
         HLiving = new();
 
-        rooms = RoomController.Index().ToList();
-        statuses = BookingStatusController.Index().ToList();
-        guests = GuestLivingController.Index().ToList();
+        rooms = (await RoomController.Index()).ToList();
+        statuses = (await BookingStatusController.Index()).ToList();
+        guests = (await GuestLivingController.Index()).ToList();
         types = (await RoomTypeController.Index()).ToList();
         bookings = (await BookingController.Index()).ToList();
 
@@ -207,7 +207,7 @@
         guestMem = HLiving.GuestId;
         bookingMem = HLiving.BookingId;
 
-        message = await LivingController.Create(HLiving);
+            message = await LivingController.Create(HLiving);
 
         OnInitializedAsync();
 
@@ -258,10 +258,6 @@
 
         // room.AvailabilityStatusId = (byte)2;
 
-        //!!!!!!!!!!!!!!call funtion!!!!!!!!!!!!!!!!
-
-
-
         // DB.HLivings.Add(HLiving);
         // await DB.SaveChangesAsync();
 
@@ -302,10 +298,10 @@
     //     }
     // }
 
-    void onChangeCheckDate()
+    async Task onChangeCheckDate()
     {
-        List<HRoom> allRooms = RoomController.Index().ToList();
-        List<HRoom> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+            List<HModels.Room> allRooms = (await RoomController.Index()).ToList<HModels.Room>();
+            List<HModels.Room> roomsBookingSTOP = allRooms.Where<HModels.Room>(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
         rooms = allRooms.Except(roomsBookingSTOP).Except(allRooms.Where(r => r.CleaningStatusId != 5)).Except(allRooms.Where(r => r.AvailabilityStatusId == (byte)2)).Where(r => r.TypeId == typeRoom).ToList();
         HLiving.RoomId = rooms.FirstOrDefault() != null ? rooms.FirstOrDefault().Id : (byte)0;
     }

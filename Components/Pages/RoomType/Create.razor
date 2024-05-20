@@ -51,7 +51,7 @@
 
 @code {
     [SupplyParameterFromForm]
-    public HDRoomType room { get; set; } = new HDRoomType();
+    public RoomType room { get; set; } = new RoomType();
 
     public string name;
     public int capacity;
@@ -69,9 +69,9 @@
         room.Price = (decimal)price;
         room.Name = name;
 
-        message = RoomTypeController.Create(room);
+        message = await RoomTypeController.Create(room);
 
-        room = new HDRoomType();
+        room = new RoomType();
     }
 
     public void Back()

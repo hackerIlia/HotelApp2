@@ -6,21 +6,21 @@ namespace HotelApp2.Controllers
 {
     public class GuestBooking : Controller
     {
-        IGeneralService<HGuestBooking> typeService;
+        IGeneralService<HModels.GuestBooking> typeService;
 
-        public GuestBooking(IGeneralService<HGuestBooking> serv)
+        public GuestBooking(IGeneralService<HModels.GuestBooking> serv)
         {
             typeService = serv;
         }
 
-        public IEnumerable<HGuestBooking> Index()
+        public async Task<IEnumerable<HModels.GuestBooking>> Index()
         {
-            return typeService.GetAll().ToList();
+            return (await typeService.GetAll()).ToList();
         }
 
-        public HGuestBooking GetById(int id)
+        public async Task<HModels.GuestBooking> GetById(int id)
         {
-            return typeService.Get(id);
+            return await typeService.Get(id);
         }
     }
 }

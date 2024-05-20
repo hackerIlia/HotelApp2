@@ -42,7 +42,7 @@ else
 }
 
 @code {
-    HModels.HDRoomType? type;
+    HModels.RoomType? type;
 
     [Parameter]
     public int Id { get; set; }
@@ -51,7 +51,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        type = RoomTypeController.GetById(Id);
+        type = await RoomTypeController.GetById(Id);
 
         if (type is null)
         {

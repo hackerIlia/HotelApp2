@@ -3,11 +3,11 @@
 @using HModels
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
-@inject Booking BookingController
-@inject Room RoomController
+@inject             Controllers.Booking BookingController
+@inject             Controllers.Room RoomController
 @inject HDRoomTypeC RoomTypeController
 @inject BookingStatuses BookingStatusController
-@inject GuestBooking GuestBookingController
+@inject             Controllers.GuestBooking GuestBookingController
 
 @rendermode InteractiveServer
 
@@ -85,12 +85,12 @@ else
     public int Id { get; set; }
 
     [SupplyParameterFromForm]
-    public HBooking? HBooking { get; set; }
+    public HModels.Booking? HBooking { get; set; }
 
-    private List<HRoom> rooms;
-    private List<HDBookingStatus> statuses;
-    private List<HGuestBooking> guests;
-    private List<HDRoomType> types;
+    private List<HModels.Room> rooms;
+    private List<BookingStatus> statuses;
+    private List<HModels.GuestBooking> guests;
+    private List<RoomType> types;
 
 
     private string message = "";
@@ -111,8 +111,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         rooms = (await RoomController.Index()).ToList();
-        statuses = BookingStatusController.Index().ToList();
-        guests = GuestBookingController.Index().ToList();
+        statuses = (await BookingStatusController.Index()).ToList();
+        guests = (await GuestBookingController.Index()).ToList();
         types = (await RoomTypeController.Index()).ToList();
 
 
@@ -132,9 +132,9 @@ else
             typeRoom = (await RoomController.GetById(HBooking.RoomId)).TypeId;
 
 
-            List<HRoom> allRooms = (await RoomController.Index()).ToList();
+                List<HModels.Room> allRooms = (await RoomController.Index()).ToList<HModels.Room>();
 
-            List<HRoom> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+                List<HModels.Room> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
             rooms = allRooms.Except(roomsBookingSTOP).Where(r => r.TypeId == typeRoom).ToList();
 
             if (!rooms.Any(r => r.Id == HBooking.RoomId))
@@ -201,9 +201,9 @@ else
 
     async Task onChangeCheckDate()
     {
-        List<HModels.HRoom> allRooms = (await RoomController.Index()).ToList();
+        List<HModels.Room> allRooms = (await RoomController.Index()).ToList();
 
-        List<HModels.HRoom> roomsBookingSTOP = allRooms
+        List<HModels.Room> roomsBookingSTOP = allRooms
             .Where(r => r.HBookings.Any(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date))
             .ToList();
 

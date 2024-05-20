@@ -65,14 +65,14 @@
 </div>
 
 @code {
-    HModels.HBooking? hbooking;
+    HModels.Booking? hbooking;
 
     [SupplyParameterFromQuery]
     public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        hbooking = BookingController.GetById(Id);
+        hbooking = await BookingController.GetById(Id);
 
         if (hbooking is null)
         {

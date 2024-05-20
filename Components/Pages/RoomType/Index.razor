@@ -43,11 +43,11 @@
 }
 
 @code {
-    IEnumerable<HDRoomType> RoomTypes;
+    IEnumerable<RoomType> RoomTypes;
 
     protected override async Task OnInitializedAsync()
     {
-        var types = RoomTypeController.Index();
+        var types = await RoomTypeController.Index();
         RoomTypes = types;
     }
 }

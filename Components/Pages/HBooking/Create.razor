@@ -3,11 +3,11 @@
 @using System.Text
 @inject NavigationManager NavigationManager
 @using HotelApp2.Controllers
-@inject Booking BookingController
-@inject Room RoomController
+@inject             Controllers.Booking BookingController
+@inject             Controllers.Room RoomController
 @inject HDRoomTypeC RoomTypeController
 @inject BookingStatuses BookingStatusController
-@inject GuestBooking GuestBookingController
+@inject             Controllers.GuestBooking GuestBookingController
 
 @rendermode InteractiveServer
 
@@ -19,7 +19,7 @@
 <h4>Create</h4>
 <hr />
 
-<h5 class="text-danger">@message</h5>
+<h5>@((MarkupString)message)</h5>
 
 <div class="row">
     <div class="col-md-4">
@@ -84,12 +84,12 @@
     private string comments;
 
     [SupplyParameterFromForm]
-    public HModels.HBooking HBooking { get; set; } = new();
+    public HModels.Booking HBooking { get; set; } = new();
 
-    private List<HModels.HRoom> rooms;
-    private List<HModels.HDBookingStatus> statuses;
-    private List<HModels.HGuestBooking> guests;
-    private List<HModels.HDRoomType> types;
+    private List<HModels.Room> rooms;
+    private List<BookingStatus> statuses;
+    private List<HModels.GuestBooking> guests;
+    private List<RoomType> types;
 
     private string message = "";
     private string success = "";
@@ -105,7 +105,7 @@
     protected override async Task OnInitializedAsync()
     {
         HBooking = new();
-        rooms = RoomController.Index().ToList();
+        rooms = (await RoomController.Index()).ToList();
 
         if (rooms.Count > 0)
         {
@@ -116,9 +116,9 @@
             NavigationManager.NavigateTo("notfound");
         }
 
-        statuses = BookingStatusController.Index().ToList();
-        guests = GuestBookingController.Index().ToList();
-        types = RoomTypeController.Index().ToList();
+        statuses =  (await BookingStatusController.Index()).ToList();
+        guests =  (await GuestBookingController.Index()).ToList();
+        types =  (await RoomTypeController.Index()).ToList();
 
         // if (typeMem > 0)
         // {
@@ -180,37 +180,39 @@
         HBooking.CheckInDate = checkin;
         HBooking.CheckOutDate = checkout;
 
-        int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
-        HRoom room = RoomController.GetById(HBooking.RoomId);
-        HDRoomType roomType = RoomTypeController.GetById(room.TypeId);
-
-        HBooking.Amount = roomType.Price * hours;
-        HBooking.Comments = comments != null ? comments : "";
-        HBooking.StatusId = (byte)1;
-
-        message = BookingController.Create(HBooking);
-
         roomMem = HBooking.RoomId;
         statusMem = HBooking.StatusId;
         guestMem = HBooking.GuestId;
         typeMem = typeRoom;
 
+        message = (await BookingController.Create(HBooking));
+        string[] messageSplit = message.Split(";");
+
+        if (messageSplit[0].Equals("Error"))
+        {
+            message = $"<span class='text-danger'>{messageSplit[1]}</span>";
+        }
+        else if (messageSplit[0].Equals("Success"))
+        {
+            message = $"<span class='text-success'>" + messageSplit[1] + "</span>";
+        }
+
         OnInitializedAsync();
     }
 
-    void onChangeCheckDate()
+    async Task onChangeCheckDate()
     {
-        // List<HRoom> allRooms = RoomController.Index().ToList();
-        // List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
-        // rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
-        // List<HModels.HRoom> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date).Any()).ToList();
-        // rooms = allRooms.Except(roomsBookingSTOP).Except(RoomController.Index().ToList().Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
-        // HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? (byte)0;
+            // List<HRoom> allRooms = RoomController.Index().ToList();
+            // List<HRoom> roomsBookingSTOP = DB.HRooms.Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any()).ToList();
+            // rooms = DB.HRooms.ToList().Except(roomsBookingSTOP).Except(DB.HRooms.Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
+            // List<HModels.HRoom> roomsBookingSTOP = allRooms.Where(r => r.HBookings.Where(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date).Any()).ToList();
+            // rooms = allRooms.Except(roomsBookingSTOP).Except(RoomController.Index().ToList().Where(r => r.CleaningStatusId != 5)).Where(r => r.TypeId == typeRoom).ToList();
+            // HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? (byte)0;
 
-        List<HModels.HRoom> allRooms = RoomController.Index().ToList();
-        
-        List<HModels.HRoom> roomsBookingSTOP = allRooms
-            .Where(r => r.HBookings.Any(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date))
+            List<HModels.Room> allRooms = (await RoomController.Index()).ToList<HModels.Room>();
+
+            List<HModels.Room> roomsBookingSTOP = allRooms
+            .Where<HModels.Room>(r => r.HBookings.Where(b => b.CheckInDate.Date <= checkin.Date && b.CheckOutDate.Date >= checkout.Date).Any())
             .ToList();
 
         rooms = allRooms

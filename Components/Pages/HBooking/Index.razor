@@ -5,8 +5,8 @@
 @using HModels
 @using Microsoft.EntityFrameworkCore
 @using HotelApp2.Controllers
-@inject Booking BookingController
-@inject Living LivingController
+@inject Controllers.Booking BookingController
+@inject Controllers.Living LivingController
 
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -72,9 +72,9 @@ else
 }
 
 @code {
-    IQueryable<HModels.HBooking> bookings;
+    IQueryable<HModels.Booking> bookings;
 
-    IQueryable<HModels.HLiving> livings;
+    IQueryable<HModels.Living> livings;
 
     protected override async Task OnInitializedAsync()
     {

@@ -7,38 +7,38 @@ namespace HotelApp2.Controllers
 {
     public class Booking : Controller
     {
-        IGeneralService<HBooking> typeService;
+        IGeneralService<HModels.Booking> typeService;
 
-        public Booking(IGeneralService<HBooking> serv)
+        public Booking(IGeneralService<HModels.Booking> serv)
         {
             typeService = serv;
         }
 
-        public async Task<IEnumerable<HBooking>> Index()
+        public async Task<IEnumerable<HModels.Booking>> Index()
         {
             return await typeService.GetAll();
         }
 
-        public async Task<string> Create(HBooking type)
+        public async Task<string> Create(HModels.Booking type)
         {
             return await typeService.Create(type);
         }
 
-        public async Task<HBooking> GetById(int id)
+        public async Task<HModels.Booking> GetById(int id)
         {
             return await typeService.Get(id);
         }
-        public async Task<string> Delete(HBooking item)
+        public async Task<string> Delete(HModels.Booking item)
         {
             return await typeService.Delete(item);
         }
 
-        public Task<string> Edit(HBooking item)
+        public Task<string> Edit(HModels.Booking item)
         {
             return typeService.Edit(item);
         }
 
-        public void Cancel(HBooking booking) {
+        public void Cancel(HModels.Booking booking) {
             booking.StatusId = (byte)3;
             typeService.Edit(booking);
         }

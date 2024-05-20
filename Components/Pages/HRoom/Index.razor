@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using HModels
 @using Microsoft.EntityFrameworkCore
-@inject Room RoomController
+@inject             Controllers.Room RoomController
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin")]
@@ -42,7 +42,7 @@ else
 }
 
 @code{
-    IQueryable<HRoom> rooms;
+    IQueryable<HModels.Room> rooms;
 
     protected override async Task OnInitializedAsync(){
         // rooms = await DB.HRooms.Include(r => r.CleaningStatus)
@@ -51,6 +51,6 @@ else
         //                         .Include(r => r.Type)
         //                         .ToListAsync();
 
-        rooms = RoomController.Index().AsQueryable();
+        rooms = (await RoomController.Index()).AsQueryable();
     }
 }

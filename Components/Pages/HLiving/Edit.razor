@@ -3,12 +3,12 @@
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
 @using HotelApp2.Controllers
-@inject Living LivingController
-@inject Booking BookingController
-@inject Room RoomController
+@inject             Controllers.Living LivingController
+@inject             Controllers.Booking BookingController
+@inject             Controllers.Room RoomController
 @inject HDRoomTypeC RoomTypeController
 @inject BookingStatuses BookingStatusController
-@inject GuestLiving GuestLivingController
+@inject             Controllers.GuestLiving GuestLivingController
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -76,12 +76,12 @@ else
     public int Id { get; set; }
 
     [SupplyParameterFromForm]
-    public HLiving? HLiving { get; set; }
+    public HModels.Living? HLiving { get; set; }
 
-    private List<HRoom> rooms;
-    private List<HDBookingStatus> statuses;
-    private List<HGuestLiving> guests;
-    private List<HBooking> bookings;
+    private List<HModels.Room> rooms;
+    private List<BookingStatus> statuses;
+    private List<HModels.GuestLiving> guests;
+    private List<HModels.Booking> bookings;
 
 
     private string message = "";
@@ -98,9 +98,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        rooms = RoomController.Index().ToList();
-        statuses = BookingStatusController.Index().ToList();
-        guests = GuestLivingController.Index().ToList();
+        rooms = (await RoomController.Index()).ToList();
+        statuses = (await BookingStatusController.Index()).ToList();
+        guests = (await GuestLivingController.Index()).ToList();
         bookings = (await BookingController.Index()).ToList();
 
 
@@ -132,7 +132,7 @@ else
         HLiving.Amount = amount;
         HLiving.Comments = comments;
 
-        message = await LivingController.Edit(HLiving);
+            message = await LivingController.Edit(HLiving);
 
         // @if (checkin < DateTime.Now.AddDays(-1))
         // {

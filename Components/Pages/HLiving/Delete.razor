@@ -3,8 +3,8 @@
 @using HModels
 @inject NavigationManager NavigationManager
 @using Microsoft.EntityFrameworkCore
-@inject Living LivingController
-@inject Room RoomController
+@inject             Controllers.Living LivingController
+@inject             Controllers.Room RoomController
 
 @rendermode InteractiveServer
 
@@ -67,7 +67,7 @@
 </div>
 
 @code {
-    HLiving? hliving;
+    HModels.Living? hliving;
 
     [SupplyParameterFromQuery]
     public int Id { get; set; }
@@ -76,7 +76,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        hliving = LivingController.GetById(Id);
+        hliving = await LivingController.GetById(Id);
 
         if (hliving is null)
         {
@@ -86,14 +86,14 @@
 
     public async Task DeleteHLiving()
     {
-        // HRoom room = await DB.HRooms.FirstOrDefaultAsync(r => r.Id == hliving.RoomId);
-        // room.AvailabilityStatusId = (byte)1;
+            // HRoom room = await DB.HRooms.FirstOrDefaultAsync(r => r.Id == hliving.RoomId);
+            // room.AvailabilityStatusId = (byte)1;
 
-        // DB.HLivings.Remove(hliving!);
-        // await DB.SaveChangesAsync();
+            // DB.HLivings.Remove(hliving!);
+            // await DB.SaveChangesAsync();
 
-        HRoom room = RoomController.GetById(Convert.ToInt16(hliving.Room.Id));
-        RoomController.CheckOut(room);
+            HModels.Room room = await RoomController.GetById(Convert.ToInt16(hliving.Room.Id));
+        await RoomController.CheckOut(room);
 
         message = await LivingController.Delete(hliving!);
 

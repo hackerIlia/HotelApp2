@@ -6,33 +6,34 @@ namespace HotelApp2.Controllers
 {
     public class Room : Controller
     {
-        IGeneralService<HRoom> typeService;
+        IGeneralService<HModels.Room> typeService;
 
-        public Room(IGeneralService<HRoom> serv)
+        public Room(IGeneralService<HModels.Room> serv)
         {
             typeService = serv;
         }
 
-        public async Task<IEnumerable<HRoom>> Index()
+        public async Task<IEnumerable<HModels.Room>> Index()
         {
             return (await typeService.GetAll()).ToList();
         }
 
-        public async Task<HRoom> GetById(short id)
+        public async Task<HModels.Room> GetById(short id)
         {
             return await typeService.Get(Convert.ToInt16(id));
         }
 
-        public void OrderCleaning(HRoom room) 
+        public void OrderCleaning(HModels.Room room) 
         {
             room.CleaningStatusId = (byte)3;
             typeService.Edit(room);
         }
 
-        public void CheckOut(HRoom room)
+        public async Task<string> CheckOut(HModels.Room room)
         {
             room.AvailabilityStatusId = (byte)1;
-            typeService.Edit(room);
+            room.CleaningStatusId = (byte)2;
+            return await typeService.Edit(room);
         }
     }
 }

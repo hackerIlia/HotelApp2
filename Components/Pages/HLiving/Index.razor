@@ -4,9 +4,9 @@
 @using HModels
 @using Microsoft.EntityFrameworkCore
 @using HotelApp2.Controllers
-@inject Booking BookingController
-@inject Living LivingController
-@inject Room RoomController
+@inject Controllers.Booking BookingController
+@inject             Controllers.Living LivingController
+@inject             Controllers.Room RoomController
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -78,7 +78,7 @@ else
 }
 
 @code {
-    IQueryable<HLiving> livings;
+    IQueryable<HModels.Living> livings;
     private bool show = false;
     private int selectedLivingId;
     private string message = "";
@@ -103,8 +103,8 @@ else
     {
         message = "";
 
-        HLiving living = (await LivingController.GetById(selectedLivingId));
-        HRoom room = RoomController.GetById(living.RoomId);
+            HModels.Living living = (await LivingController.GetById(selectedLivingId));
+            HModels.Room room = await RoomController.GetById(living.RoomId);
         RoomController.OrderCleaning(room);
 
         message = "Cleaning ordered successfully for room number: " + room.Number;

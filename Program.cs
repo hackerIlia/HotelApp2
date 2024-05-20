@@ -45,29 +45,29 @@ builder.Services.AddAuthorization();
 builder.Services.AddAntiforgery();
 builder.Services.AddCascadingAuthenticationState();
 
-builder.Services.AddScoped<IGeneralService<HModels.HDRoomType>, HDRoomTypeService>();
+builder.Services.AddScoped<IGeneralService<HModels.RoomType>, HDRoomTypeService>();
 builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<HDRoomTypeC>();
 
-builder.Services.AddScoped<IGeneralService<HModels.HRoom>, RoomService>();
+builder.Services.AddScoped<IGeneralService<HModels.Room>, BLL.Services.Room>();
 builder.Services.AddScoped<HotelApp2.Controllers.Room>();
 
-builder.Services.AddScoped<IGeneralService<HModels.HBooking>, BLL.Services.Booking>();
+builder.Services.AddScoped<IGeneralService<HModels.Booking>, BLL.Services.Booking>();
 builder.Services.AddScoped<HotelApp2.Controllers.Booking>();
 
-builder.Services.AddScoped<IGeneralService<HModels.HLiving>, BLL.Services.Living>();
+builder.Services.AddScoped<IGeneralService<HModels.Living>, BLL.Services.Living>();
 builder.Services.AddScoped<HotelApp2.Controllers.Living>();
 
-builder.Services.AddScoped<IGeneralService<HModels.HDBookingStatus>, BLL.Services.BookingStatuses>();
+builder.Services.AddScoped<IGeneralService<HModels.BookingStatus>, BLL.Services.BookingStatuses>();
 builder.Services.AddScoped<HotelApp2.Controllers.BookingStatuses>();
 
-builder.Services.AddScoped<IGeneralService<HModels.HGuestBooking>, BLL.Services.GuestBooking>();
+builder.Services.AddScoped<IGeneralService<HModels.GuestBooking>, BLL.Services.GuestBooking>();
 builder.Services.AddScoped<HotelApp2.Controllers.GuestBooking>();
 
-builder.Services.AddScoped<IGeneralService<HModels.HGuestLiving>, BLL.Services.GuestLiving>();
+builder.Services.AddScoped<IGeneralService<HModels.GuestLiving>, BLL.Services.GuestLiving>();
 builder.Services.AddScoped<HotelApp2.Controllers.GuestLiving>();
 
-builder.Services.AddScoped<IGeneralService<HModels.HLiving>, BLL.Services.Living>();
+builder.Services.AddScoped<IGeneralService<HModels.Living>, BLL.Services.Living>();
 builder.Services.AddScoped<HotelApp2.Controllers.Living>();
 
 var app = builder.Build();

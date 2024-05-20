@@ -3,13 +3,13 @@
 @using Microsoft.EntityFrameworkCore
 @inject NavigationManager NavigationManager
 @using HotelApp2.Controllers
-@inject Room RoomController
-@inject Living LivingController
-@inject Booking BookingController
+@inject             Controllers.Room RoomController
+@inject             Controllers.Living LivingController
+@inject             Controllers.Booking BookingController
 @inject HDRoomTypeC RoomTypeController
 @inject BookingStatuses BookingStatusController
-@inject GuestLiving GuestLivingController
-@inject GuestBooking GuestBookingController
+@inject             Controllers.GuestLiving GuestLivingController
+@inject             Controllers.GuestBooking GuestBookingController
 
 @rendermode InteractiveServer
 
@@ -75,12 +75,12 @@
     public int idb { get; set; }
 
     [SupplyParameterFromForm]
-    public HLiving HLiving { get; set; } = new();
+    public HModels.Living HLiving { get; set; } = new();
 
-    private List<HRoom> rooms;
-    private List<HDBookingStatus> statuses;
-    private List<HGuestLiving> guests;
-    private List<HBooking> bookings;
+    private List<HModels.Room> rooms;
+    private List<BookingStatus> statuses;
+    private List<HModels.GuestLiving> guests;
+    private List<HModels.Booking> bookings;
 
     private string message = "";
     private string success = "";
@@ -96,7 +96,7 @@
     private int guestMem;
     private int? bookingMem;
 
-    HBooking booking;
+        HModels.Booking booking;
 
     private bool bookingEnabled;
 
@@ -105,16 +105,16 @@
         HLiving = new();
 
         rooms = (await RoomController.Index()).ToList();
-        statuses = BookingStatusController.Index().ToList();
-        guests = GuestLivingController.Index().ToList();
+        statuses = (await BookingStatusController.Index()).ToList();
+        guests = (await GuestLivingController.Index()).ToList();
         bookings = (await BookingController.Index()).ToList();
 
         if (idb != 0)
         {
             booking = (await BookingController.GetById(idb));
-            HGuestBooking guestBooking = GuestBookingController.GetById(booking.GuestId);
-            HGuestLiving guestLiving = new();
-            if (!GuestLivingController.Index().ToList().Any(g => g.PassportNumber == guestBooking.PassportNumber))
+                HModels.GuestBooking guestBooking = (await GuestBookingController.GetById(booking.GuestId));
+                HModels.GuestLiving guestLiving = new();
+            if (!(await GuestLivingController.Index()).ToList().Any(g => g.PassportNumber == guestBooking.PassportNumber))
             {
                 guestLiving.FirstName = guestBooking.FirstName;
                 guestLiving.LastName = guestBooking.LastName;
@@ -128,7 +128,7 @@
             }
             else
             {
-                guestLiving = GuestLivingController.GetPyPassportNumber(guestBooking.PassportNumber);
+                guestLiving = await GuestLivingController.GetPyPassportNumber(guestBooking.PassportNumber);
             }
 
             checkin = booking.CheckInDate;
@@ -202,7 +202,7 @@
         HLiving.CheckInDate = checkin;
         HLiving.CheckOutDate = checkout;
 
-        message = (await LivingController.Create(HLiving));
+            message = (await LivingController.Create(HLiving));
 
         roomMem = HLiving.RoomId;
         statusMem = HLiving.StatusId;

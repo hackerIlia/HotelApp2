@@ -6,36 +6,42 @@ namespace HotelApp2.Controllers
 {
     public class Living : Controller
     {
-        IGeneralService<HLiving> typeService;
+        IGeneralService<HModels.Living> typeService;
 
-        public Living(IGeneralService<HLiving> serv)
+        public Living(IGeneralService<HModels.Living> serv)
         {
             typeService = serv;
         }
 
-        public async Task<IEnumerable<HLiving>> Index()
+        public async Task<IEnumerable<HModels.Living>> Index()
         {
             return await typeService.GetAll();
         }
 
-        public async Task<HLiving> GetById(int id)
+        public async Task<HModels.Living> GetById(int id)
         {
             return await typeService.Get(id);
         }
 
-        public async Task<string> Create(HLiving living)
+        public async Task<string> Create(HModels.Living living)
         {
             return await typeService.Create(living);
         }
 
-        public Task<string> Edit(HLiving item)
+        public Task<string> Edit(HModels.Living item)
         {
             return typeService.Edit(item);
         }
 
-        public async Task<string> Delete(HLiving item)
+        public async Task<string> Delete(HModels.Living item)
         {
             return await typeService.Delete(item);
+        }
+
+        public async Task<string> CheckOut(HModels.Living item)
+        {
+            item.StatusId = (byte)2;
+            return await typeService.Edit(item);
         }
     }
 }

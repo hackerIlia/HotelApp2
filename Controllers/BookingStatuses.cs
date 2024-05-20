@@ -6,16 +6,16 @@ namespace HotelApp2.Controllers
 {
     public class BookingStatuses
     {
-        IGeneralService<HDBookingStatus> typeService;
+        IGeneralService<BookingStatus> typeService;
 
-        public BookingStatuses(IGeneralService<HDBookingStatus> serv)
+        public BookingStatuses(IGeneralService<BookingStatus> serv)
         {
             typeService = serv;
         }
 
-        public IEnumerable<HDBookingStatus> Index()
+        public async Task<IEnumerable<BookingStatus>> Index()
         {
-            return typeService.GetAll().ToList();
+            return (await typeService.GetAll()).ToList();
         }
     }
 }

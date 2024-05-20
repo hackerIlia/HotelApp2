@@ -53,7 +53,7 @@ else{
     public int Id { get; set; }
 
     [SupplyParameterFromForm]
-    public HDRoomType? HDRoomType { get; set; }
+    public RoomType? HDRoomType { get; set; }
 
 
     public string name;
@@ -67,7 +67,7 @@ else{
 
     protected override async Task OnInitializedAsync()
     {
-        HDRoomType = RoomTypeController.GetById(Id);
+        HDRoomType = await RoomTypeController.GetById(Id);
 
         if (HDRoomType is null)
         {

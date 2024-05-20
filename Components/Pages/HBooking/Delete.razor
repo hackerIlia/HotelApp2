@@ -5,7 +5,7 @@
 @using HotelApp2.Controllers
 @using Microsoft.AspNetCore.Mvc
 @using Microsoft.EntityFrameworkCore
-@inject Booking BookingController
+@inject Controllers.Booking BookingController
 @rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -68,7 +68,7 @@
 </div>
 
 @code {
-    HBooking? hbooking;
+    HModels.Booking? hbooking;
 
     [SupplyParameterFromQuery]
     public int Id { get; set; }
@@ -77,7 +77,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        hbooking = BookingController.GetById(Id);
+        hbooking = await BookingController.GetById(Id);
 
         if (hbooking is null)
         {
