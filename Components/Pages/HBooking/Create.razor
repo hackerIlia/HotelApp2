@@ -185,16 +185,15 @@
         guestMem = HBooking.GuestId;
         typeMem = typeRoom;
 
-        message = (await BookingController.Create(HBooking));
-        string[] messageSplit = message.Split(";");
+        OperationResult result = (await BookingController.Create(HBooking));
 
-        if (messageSplit[0].Equals("Error"))
+        if (!result.IsSuccess)
         {
-            message = $"<span class='text-danger'>{messageSplit[1]}</span>";
+            message = $"<span class='text-danger'>{result.Message}</span>";
         }
-        else if (messageSplit[0].Equals("Success"))
+        else
         {
-            message = $"<span class='text-success'>" + messageSplit[1] + "</span>";
+            message = $"<span class='text-success'>" + result.Message + "</span>";
         }
 
         OnInitializedAsync();
@@ -228,24 +227,4 @@
 
         HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? (byte)0;
     }
-
-    // void onChangeCheckDate()
-    // {
-    //     var bookedRoomIds = RoomController.Index()
-    //         .Where(r => r.HBookings.Where(b => b.CheckInDate <= checkin && b.CheckOutDate >= checkout).Any())
-    //         //.Select(r => r.Id)
-    //         .ToList();
-
-    //     var cleaningRoomIds = RoomController.Index()
-    //         .Where(r => r.CleaningStatusId != 5)
-    //         //.Select(r => r.Id)
-    //         .ToList();
-
-    //     rooms = RoomController.Index().Except(cleaningRoomIds).Except(bookedRoomIds)
-    //         // .Where(r => !bookedRoomIds.Contains(r) && !cleaningRoomIds.Contains(r) && r.TypeId == typeRoom)
-    //         .ToList();
-
-    //     HBooking.RoomId = rooms.FirstOrDefault()?.Id ?? (byte)0;
-    // }
-
 }

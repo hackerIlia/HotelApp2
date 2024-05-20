@@ -202,7 +202,16 @@
         HLiving.CheckInDate = checkin;
         HLiving.CheckOutDate = checkout;
 
-            message = (await LivingController.Create(HLiving));
+        OperationResult result = (await LivingController.Create(HLiving));
+
+        if (!result.IsSuccess)
+        {
+            message = $"<span class='text-danger'>{result.Message}</span>";
+        }
+        else
+        {
+            message = $"<span class='text-success'>" + result.Message + "</span>";
+        }
 
         roomMem = HLiving.RoomId;
         statusMem = HLiving.StatusId;

@@ -4,12 +4,12 @@
 @using Microsoft.EntityFrameworkCore
 @inject NavigationManager NavigationManager
 @using HotelApp2.Controllers
-@inject             Controllers.Room RoomController
-@inject             Controllers.Living LivingController
-@inject             Controllers.Booking BookingController
+@inject Controllers.Room RoomController
+@inject Controllers.Living LivingController
+@inject Controllers.Booking BookingController
 @inject HDRoomTypeC RoomTypeController
 @inject BookingStatuses BookingStatusController
-@inject             Controllers.GuestLiving GuestLivingController
+@inject Controllers.GuestLiving GuestLivingController
 
 @rendermode InteractiveServer
 
@@ -207,96 +207,19 @@
         guestMem = HLiving.GuestId;
         bookingMem = HLiving.BookingId;
 
-            message = await LivingController.Create(HLiving);
+        OperationResult result = await LivingController.Create(HLiving);
 
-        OnInitializedAsync();
+        if (!result.IsSuccess)
+        {
+            message = $"<span class='text-danger'>{result.Message}</span>";
+        }
+        else
+        {
+            message = $"<span class='text-success'>" + result.Message + "</span>";
+        }
 
-        // number = 0;
-
-        // @if (checkin.Date < DateTime.Now.AddDays(-1))
-        // {
-        //     message = "Check-in Date can't be earlier than today";
-        //     return;
-        // }
-        // @if (checkout.Date < checkin.Date)
-        // {
-        //     message = "Check-out Date can't be earlier than Check-in Date";
-        //     return;
-        // }
-        // if (HLiving.RoomId == 0)
-        // {
-        //     message = "Select room";
-        //     return;
-        // }
-
-        // DateTime today = DateTime.Today;
-        // string numberDate = Convert.ToString(today.Year - 2000) + Convert.ToString(today.Month);
-
-        // do
-        // {
-        //     Random random = new Random();
-        //     int randomDigits = random.Next(100000, 1000000);
-        //     number = Convert.ToInt32(numberDate + randomDigits.ToString());
-        // } while (numberExists(number));
-
-
-        // HLiving.Number = number;
-        // int hours = (checkout - checkin).Hours + ((checkout - checkin).Days == 0 ? 1 : (checkout - checkin).Days) * 24;
-        // HRoom? room = await DB.HRooms.FindAsync(HLiving.RoomId);
-        // HotelApp2.Models.HDRoomType? roomType = await DB.HDRoomTypes.FindAsync(room.TypeId);
-
-        // if(room.AvailabilityStatusId == (byte)2)
-        // {
-        //     message = "This room is occupied";
-        //     return;
-        // }
-
-        // HLiving.Amount = roomType.Price * hours;
-        // HLiving.Comments = comments != null ? comments : "";
-        // HLiving.StatusId = (byte)1;
-        // // HLiving.BookingId = bookingEnabled ? HLiving.BookingId : null;
-
-        // room.AvailabilityStatusId = (byte)2;
-
-        // DB.HLivings.Add(HLiving);
-        // await DB.SaveChangesAsync();
-
-        // message = "";
-        // success = "Added successful!";
+        await OnInitializedAsync();
     }
-
-    // bool numberExists(int number)
-    // {
-    //     return DB.HLivings.Any(b => b.Number == number);
-    // }
-
-    // void onChangeBooking()
-    // {
-    //     if (HLiving.BookingId.HasValue)
-    //     {
-    //         //get from controller
-    //         var selectedBooking = bookings.FirstOrDefault(b => b.Id == HLiving.BookingId);
-
-    //         if(selectedBooking != null)
-    //         {
-    //             checkin = selectedBooking.CheckInDate;
-    //             checkout = selectedBooking.CheckOutDate;
-    //             amount = selectedBooking.Amount;
-    //             comments = selectedBooking.Comments;
-    //             HLiving.GuestId = selectedBooking.Guest.Id;
-
-    //             //StateHasChanged();
-    //         }
-    //     }
-    // }
-
-    // void onChangeBEn()
-    // {
-    //     if (!bookingEnabled)
-    //     {
-    //         OnInitializedAsync();
-    //     }
-    // }
 
     async Task onChangeCheckDate()
     {

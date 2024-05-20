@@ -7,6 +7,7 @@
 @using HotelApp2.Controllers
 @inject Controllers.Booking BookingController
 @inject Controllers.Living LivingController
+@rendermode InteractiveServer
 
 
 @attribute [Authorize(Roles = "Admin,Receptionist")]
@@ -23,7 +24,7 @@
 
 @if (bookings != null)
 {
-    <QuickGrid Class="table" Items="bookings">
+    <QuickGrid Class="table" Items="bookings" Pagination="state">
         <PropertyColumn Property="hbooking => hbooking.Number" />
         <PropertyColumn Property="hbooking => hbooking.CheckInDate" Title="Check-in Date" Format="dd/MM/yyyy" />
         <PropertyColumn Property="hbooking => hbooking.CheckOutDate" Title="Check-out Date" Format="dd/MM/yyyy" />
@@ -65,6 +66,8 @@
             }
         </TemplateColumn>
     </QuickGrid>
+
+    <Paginator State="state" />
 }
 else
 {
@@ -75,6 +78,8 @@ else
     IQueryable<HModels.Booking> bookings;
 
     IQueryable<HModels.Living> livings;
+
+    PaginationState state = new PaginationState { ItemsPerPage = 20 };
 
     protected override async Task OnInitializedAsync()
     {

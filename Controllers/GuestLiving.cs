@@ -18,7 +18,7 @@ namespace HotelApp2.Controllers
             return (await typeService.GetAll()).ToList();
         }
 
-        public async Task<string> Create(HModels.GuestLiving guest)
+        public async Task<OperationResult> Create(HModels.GuestLiving guest)
         {
             return await typeService.Create(guest);
         }

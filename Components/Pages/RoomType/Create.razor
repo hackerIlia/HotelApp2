@@ -69,7 +69,16 @@
         room.Price = (decimal)price;
         room.Name = name;
 
-        message = await RoomTypeController.Create(room);
+        OperationResult result = await RoomTypeController.Create(room);
+
+        if (!result.IsSuccess)
+        {
+            message = $"<span class='text-danger'>{result.Message}</span>";
+        }
+        else
+        {
+            message = $"<span class='text-success'>" + result.Message + "</span>";
+        }
 
         room = new RoomType();
     }

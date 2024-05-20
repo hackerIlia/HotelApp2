@@ -23,7 +23,7 @@ namespace HotelApp2.Controllers
             return await typeService.Get(id);
         }
 
-        public async Task<string> Create(RoomType type)
+        public async Task<OperationResult> Create(RoomType type)
         {
             return await typeService.Create(type);
         }
